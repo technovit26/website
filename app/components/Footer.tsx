@@ -132,7 +132,7 @@ const Footer = () => {
       <div className="px-6 sm:px-10 md:px-16 py-5">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-center sm:text-left">
           <p className="text-[11px] sm:text-xs text-white/40 uppercase tracking-[0.15em] leading-relaxed">
-            Made with love by{" "}
+            Made with 💚 by{" "}
             <span className="text-[#84C87F]/80">TechnoVIT Website Team</span>
             {" · "}
             <span className="text-white/50">Students Welfare Committee</span>
