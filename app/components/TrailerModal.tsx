@@ -13,37 +13,11 @@ const formatTime = (seconds: number) => {
 };
 
 const TRAILER_VIDEO_URL = 'https://technovit.cdn.a2ys.dev/root-assets/trailer.webm';
-const TRAILER_VIDEO_MIME = 'video/webm';
-const VIDEO_CACHE_NAME = 'technovit26-trailer-cache-v2';
+const STALE_VIDEO_CACHE_NAMES = ['technovit26-trailer-cache', 'technovit26-trailer-cache-v2'];
 
 const STORAGE_KEY = 'technovit26_trailer_seen';
 const POSITION_STORAGE_KEY = 'technovit26_trailer_position';
 const CONTROLS_HIDE_DELAY = 2500;
-const PREBUFFER_SECONDS = 5;
-
-async function cacheTrailerVideo(): Promise<string | null> {
-  if (typeof caches === 'undefined') return null;
-  try {
-    const cache = await caches.open(VIDEO_CACHE_NAME);
-    let response = await cache.match(TRAILER_VIDEO_URL);
-    if (!response) {
-      let fetched: Response;
-      try {
-        fetched = await fetch(TRAILER_VIDEO_URL, { priority: 'high' });
-      } catch {
-        fetched = await fetch(TRAILER_VIDEO_URL, { mode: 'no-cors', priority: 'high' });
-      }
-      if (!fetched.ok && fetched.type !== 'opaque') return null;
-      await cache.put(TRAILER_VIDEO_URL, fetched.clone());
-      response = fetched;
-    }
-    const blob = await response.blob();
-    const typedBlob = blob.type ? blob : new Blob([blob], { type: TRAILER_VIDEO_MIME });
-    return URL.createObjectURL(typedBlob);
-  } catch {
-    return null;
-  }
-}
 
 const EASE: [number, number, number, number] = [0.65, 0, 0.35, 1];
 
@@ -84,7 +58,7 @@ const modalVariants: Variants = {
 };
 
 export default function TrailerModal() {
-  const [phase, setPhase] = useState<'hidden' | 'open' | 'closing' | 'minimizing'>('hidden');
+  const [phase, setPhase] = useState<'hidden' | 'open' | 'closing' | 'minimizing' | 'minimized'>('hidden');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const [muted, setMuted] = useState(true);
@@ -98,16 +72,15 @@ export default function TrailerModal() {
   const [showPill, setShowPill] = useState(false);
   const [scrollUp, setScrollUp] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
-  const [cachedVideoURL, setCachedVideoURL] = useState<string | null>(null);
   const [activeSrc, setActiveSrc] = useState<string | undefined>(undefined);
-  const [prebuffered, setPrebuffered] = useState(false);
   const [isTouchDevice] = useState(() => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches);
   const videoRef = useRef<HTMLVideoElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const seekBarRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
   const hideControlsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const visible = phase !== 'hidden';
+  const mounted = phase !== 'hidden';
+  const visible = phase === 'open' || phase === 'closing' || phase === 'minimizing';
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
   const lenis = useLenis();
 
@@ -124,17 +97,10 @@ export default function TrailerModal() {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    let objectUrl: string | null = null;
-    cacheTrailerVideo().then((url) => {
-      if (cancelled || !url) return;
-      objectUrl = url;
-      setCachedVideoURL(url);
+    if (typeof caches === 'undefined') return;
+    STALE_VIDEO_CACHE_NAMES.forEach((name) => {
+      caches.delete(name).catch(() => {});
     });
-    return () => {
-      cancelled = true;
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
   }, []);
 
   useEffect(() => {
@@ -203,18 +169,17 @@ export default function TrailerModal() {
   };
   useEffect(() => {
     if (phase === 'open' && !activeSrc) {
-      setActiveSrc(cachedVideoURL ?? TRAILER_VIDEO_URL);
+      setActiveSrc(TRAILER_VIDEO_URL);
       setVideoReady(true);
       setBuffering(true);
     }
-  }, [phase, cachedVideoURL, activeSrc]);
+  }, [phase, activeSrc]);
 
   const handleExitComplete = () => {
-    if (phase === 'minimizing' || phase === 'closing') setShowPill(true);
+    setShowPill(true);
     setPhase('hidden');
     setVideoReady(false);
     setActiveSrc(undefined);
-    setPrebuffered(false);
     setMuted(true);
     setEnded(false);
     setBuffering(false);
@@ -245,7 +210,7 @@ export default function TrailerModal() {
   const togglePlay = () => {
     const v = videoRef.current;
     if (!v) return;
-    if (v.paused) v.play(); else v.pause();
+    if (v.paused) v.play().catch(() => {}); else v.pause();
   };
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const next = parseFloat(e.target.value);
@@ -294,19 +259,20 @@ export default function TrailerModal() {
     } catch {}
     if (videoRef.current) {
       videoRef.current.currentTime = 0;
-      videoRef.current.play();
+      videoRef.current.play().catch(() => {});
     }
   };
   return (
     <MotionConfig transition={{ duration: 0.3, ease: EASE }}>
       <AnimatePresence>
-        {visible && (
+        {mounted && (
           <motion.div
             variants={overlayVariants}
             initial="hidden"
-            animate="visible"
+            animate={visible ? 'visible' : 'exit'}
             exit="exit"
-            className={`fixed inset-0 z-[300] flex items-center justify-center backdrop-blur-sm ${isFullscreen ? 'p-0' : 'p-4 sm:p-8'}`}
+            aria-hidden={!visible}
+            className={`fixed inset-0 z-[300] flex items-center justify-center backdrop-blur-sm ${isFullscreen ? 'p-0' : 'p-4 sm:p-8'} ${visible ? '' : 'pointer-events-none'}`}
             style={{ background: 'rgba(4,10,6,0.92)' }}
           >
             <motion.div
@@ -315,11 +281,18 @@ export default function TrailerModal() {
               variants={modalVariants}
               initial="hidden"
               animate={
-                phase === 'closing' ? 'exitClose' : phase === 'minimizing' ? 'exitMinimize' : 'visible'
+                phase === 'closing'
+                  ? 'exitClose'
+                  : phase === 'minimizing' || phase === 'minimized'
+                    ? 'exitMinimize'
+                    : 'visible'
               }
               onAnimationComplete={(definition) => {
-                if (definition === 'exitClose' || definition === 'exitMinimize') {
+                if (definition === 'exitClose') {
                   handleExitComplete();
+                } else if (definition === 'exitMinimize') {
+                  setShowPill(true);
+                  setPhase('minimized');
                 } else if (definition === 'visible' && modalRef.current) {
                   modalRef.current.style.clipPath = '';
                 }
@@ -425,14 +398,6 @@ export default function TrailerModal() {
                       if (!v.buffered.length) return;
                       const bufferedEnd = v.buffered.end(v.buffered.length - 1);
                       if (v.duration) setBuffered((bufferedEnd / v.duration) * 100);
-                      if (!prebuffered) {
-                        const bufferedAhead = bufferedEnd - v.currentTime;
-                        const remaining = v.duration ? v.duration - v.currentTime : Infinity;
-                        if (bufferedAhead >= PREBUFFER_SECONDS || bufferedAhead >= remaining) {
-                          setPrebuffered(true);
-                          v.play().catch(() => {});
-                        }
-                      }
                     }}
                     className="absolute inset-0 w-full h-full object-cover cursor-pointer"
                     controls={false}
