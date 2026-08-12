@@ -128,7 +128,7 @@ const Navbar = () => {
         className="flex items-center justify-between bg-[#064928] text-white shadow-xl py-3 md:py-4"
       >
         <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-          <Link href="https://chennai.vit.ac.in" target="_blank" rel="noopener noreferrer" className="shrink-0 flex items-center">
+          <Link href="https://chennai.vit.ac.in" target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="shrink-0 flex items-center">
             <img
               src="/vit-logo.png"
               alt="VIT Chennai"
@@ -139,6 +139,7 @@ const Navbar = () => {
           <span className="text-[#84C87F] font-bold select-none text-base sm:text-lg md:text-xl">·</span>
           <Link
             href="/"
+            onClick={closeMenu}
             className="font-clash font-bold whitespace-nowrap text-white hover:text-[#84C87F] transition-colors duration-200
               text-base tracking-wider sm:text-lg sm:tracking-widest md:text-xl lg:text-2xl"
           >
