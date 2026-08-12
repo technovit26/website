@@ -1,10 +1,20 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { createContext, useContext, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import Lenis from 'lenis';
-import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+/* A stable ref, not state: consumers (e.g. TrailerModal) only ever read
+   this inside their own effects, so there's no need to re-render anything
+   when Lenis mounts — that would mean calling setState synchronously
+   inside an effect just to force a re-render nothing needs. */
+const LenisContext = createContext<React.RefObject<Lenis | null>>({ current: null });
+
+/** Access the page's Lenis instance, e.g. to lenis.stop()/start() while a modal is open. */
+export function useLenis() {
+  return useContext(LenisContext).current;
+}
 
 export default function SmoothScrolling({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -21,9 +31,8 @@ export default function SmoothScrolling({ children }: { children: React.ReactNod
       touchMultiplier: 2,
       infinite: false,
     });
-    
-    lenisRef.current = lenis;
 
+    lenisRef.current = lenis;
 
     lenis.on('scroll', ScrollTrigger.update);
 
@@ -45,7 +54,7 @@ export default function SmoothScrolling({ children }: { children: React.ReactNod
     if (lenisRef.current) {
       lenisRef.current.scrollTo(0, { immediate: true });
       lenisRef.current.resize();
-      
+
 
       setTimeout(() => {
         ScrollTrigger.refresh();
@@ -54,5 +63,5 @@ export default function SmoothScrolling({ children }: { children: React.ReactNod
     }
   }, [pathname]);
 
-  return <>{children}</>;
+  return <LenisContext.Provider value={lenisRef}>{children}</LenisContext.Provider>;
 }

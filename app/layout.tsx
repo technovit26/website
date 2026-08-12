@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import CustomCursor from "./components/CustomCursor";
 import SmoothScrolling from "./components/SmoothScrolling";
+import TrailerModal from "./components/TrailerModal";
 
 const clashDisplay = localFont({
   src: "../public/fonts/clash.woff2",
@@ -29,8 +30,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${clashDisplay.variable} ${cabinetGrotesk.variable} antialiased`}>
-      <body className="flex flex-col min-h-screen pt-16 md:pt-20 lg:pt-24">
+      <body className="flex flex-col min-h-screen">
         <SmoothScrolling>
+          <TrailerModal />
           <CustomCursor />
           <Navbar />
           <div className="flex-1">{children}</div>
