@@ -165,6 +165,7 @@ export default function ContextMenu() {
 
   useEffect(() => {
     const onContextMenu = (e: MouseEvent) => {
+      if (window.matchMedia('(pointer: coarse)').matches) return;
       const target = e.target as HTMLElement;
       if (target.closest('input, textarea, [contenteditable="true"]')) return;
       e.preventDefault();
