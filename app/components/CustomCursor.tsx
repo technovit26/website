@@ -33,8 +33,8 @@ const CustomCursor = () => {
 
     const moveDotX = gsap.quickTo(dot, 'x', { duration: 0.06, ease: 'none' });
     const moveDotY = gsap.quickTo(dot, 'y', { duration: 0.06, ease: 'none' });
-    const moveRingX = gsap.quickTo(ring, 'x', { duration: 0.25, ease: 'power3.out' });
-    const moveRingY = gsap.quickTo(ring, 'y', { duration: 0.25, ease: 'power3.out' });
+    const moveRingX = gsap.quickTo(ring, 'x', { duration: 0.18, ease: 'power3.out' });
+    const moveRingY = gsap.quickTo(ring, 'y', { duration: 0.18, ease: 'power3.out' });
 
     const onMouseMove = (e: MouseEvent) => {
       lastX = e.clientX;
