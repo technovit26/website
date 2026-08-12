@@ -37,6 +37,13 @@ const Navbar = () => {
         ? { top: 12, left: '50%', xPercent: -50, width: 'calc(100% - 32px)', maxWidth: '100%', paddingLeft: 16, paddingRight: 16, borderRadius: 12 }
         : { top: 20, left: '50%', xPercent: -50, width: '72%', maxWidth: 960, paddingLeft: 32, paddingRight: 32, borderRadius: 16 };
 
+    const getStuckProps = () => ({
+      top: 0, left: 0, xPercent: 0, width: '100%', maxWidth: '100%', borderRadius: 0,
+      paddingLeft: isMobile() ? 16 : 32, paddingRight: isMobile() ? 16 : 32,
+    });
+
+    const isStuckRef = { current: false };
+
     gsap.set(nav, { ...getFloatingProps() });
 
     const st = ScrollTrigger.create({
@@ -44,19 +51,17 @@ const Navbar = () => {
       start: 'top top-=60',
       end: 'top top-=61',
       onEnter: () => {
-        gsap.to(nav, {
-          top: 0, left: 0, xPercent: 0, width: '100%', maxWidth: '100%', borderRadius: 0,
-          paddingLeft: isMobile() ? 16 : 32, paddingRight: isMobile() ? 16 : 32,
-          duration: 0.45, ease: 'power3.inOut',
-        });
+        isStuckRef.current = true;
+        gsap.to(nav, { ...getStuckProps(), duration: 0.45, ease: 'power3.inOut' });
       },
       onLeaveBack: () => {
+        isStuckRef.current = false;
         gsap.to(nav, { duration: 0.45, ease: 'power3.inOut', ...getFloatingProps() });
       },
     });
 
     const handleResize = () => {
-      gsap.set(nav, { ...getFloatingProps() });
+      gsap.set(nav, isStuckRef.current ? { ...getStuckProps() } : { ...getFloatingProps() });
       st.refresh();
     };
     window.addEventListener('resize', handleResize);
