@@ -6,6 +6,7 @@ import Footer from "./components/Footer";
 import CustomCursor from "./components/CustomCursor";
 import SmoothScrolling from "./components/SmoothScrolling";
 import TrailerModal from "./components/TrailerModal";
+import ContextMenu from "./components/ContextMenu";
 
 const clashDisplay = localFont({
   src: "../public/fonts/clash.woff2",
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SmoothScrolling>
           <TrailerModal />
           <CustomCursor />
+          <ContextMenu />
           <Navbar />
           <div className="flex-1">{children}</div>
           <Footer />
