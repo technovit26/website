@@ -1,59 +1,46 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
+import { useEffect, useState } from 'react';
+import { motion, useMotionValue, useSpring } from 'motion/react';
 
 let lastX = 0;
 let lastY = 0;
 let initialized = false;
 
-const CustomCursor = () => {
-  const dotRef = useRef<HTMLDivElement>(null);
-  const ringRef = useRef<HTMLDivElement>(null);
+const RING_SPRING = { stiffness: 220, damping: 20, mass: 0.6 };
+
+export default function CustomCursor() {
+  const [hidden, setHidden] = useState(false);
+  const [hovering, setHovering] = useState(false);
+
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const ringX = useSpring(mouseX, RING_SPRING);
+  const ringY = useSpring(mouseY, RING_SPRING);
 
   useEffect(() => {
-    const dot = dotRef.current;
-    const ring = ringRef.current;
-    if (!dot || !ring) return;
-
-
     if (window.matchMedia('(pointer: coarse)').matches) {
-      gsap.set([dot, ring], { display: 'none' });
+      setHidden(true);
       return;
     }
-
 
     if (!initialized) {
       lastX = window.innerWidth / 2;
       lastY = window.innerHeight / 2;
       initialized = true;
     }
-    gsap.set([dot, ring], { x: lastX, y: lastY });
-
-
-    const moveDotX = gsap.quickTo(dot, 'x', { duration: 0.06, ease: 'none' });
-    const moveDotY = gsap.quickTo(dot, 'y', { duration: 0.06, ease: 'none' });
-    const moveRingX = gsap.quickTo(ring, 'x', { duration: 0.18, ease: 'power3.out' });
-    const moveRingY = gsap.quickTo(ring, 'y', { duration: 0.18, ease: 'power3.out' });
+    mouseX.set(lastX);
+    mouseY.set(lastY);
 
     const onMouseMove = (e: MouseEvent) => {
       lastX = e.clientX;
       lastY = e.clientY;
-      moveDotX(lastX);
-      moveDotY(lastY);
-      moveRingX(lastX);
-      moveRingY(lastY);
+      mouseX.set(lastX);
+      mouseY.set(lastY);
     };
 
-
-    const onMouseEnterLink = () => {
-      gsap.to(ring, { scale: 2.2, borderColor: '#84C87F', duration: 0.25, ease: 'power2.out' });
-      gsap.to(dot, { scale: 0, duration: 0.2 });
-    };
-    const onMouseLeaveLink = () => {
-      gsap.to(ring, { scale: 1, borderColor: '#84C87F99', duration: 0.25, ease: 'power2.out' });
-      gsap.to(dot, { scale: 1, duration: 0.2 });
-    };
+    const onMouseEnterLink = () => setHovering(true);
+    const onMouseLeaveLink = () => setHovering(false);
 
     const addHoverListeners = () => {
       document
@@ -67,7 +54,6 @@ const CustomCursor = () => {
     window.addEventListener('mousemove', onMouseMove);
     addHoverListeners();
 
-
     const observer = new MutationObserver(addHoverListeners);
     observer.observe(document.body, { childList: true, subtree: true });
 
@@ -75,39 +61,45 @@ const CustomCursor = () => {
       window.removeEventListener('mousemove', onMouseMove);
       observer.disconnect();
     };
-  }, []);
+  }, [mouseX, mouseY]);
+
+  if (hidden) return null;
 
   return (
     <>
-
-      <div
-        ref={dotRef}
+      <motion.div
         className="fixed top-0 left-0 pointer-events-none z-[9999]"
         style={{
+          x: mouseX,
+          y: mouseY,
+          translate: '-50% -50%',
           width: 8,
           height: 8,
-          borderRadius: 0,
           backgroundColor: '#ffffff',
           mixBlendMode: 'difference',
-          transform: 'translate(-50%, -50%)',
           willChange: 'transform',
         }}
+        animate={{ scale: hovering ? 0 : 1 }}
+        transition={{ duration: 0.2 }}
       />
-      <div
-        ref={ringRef}
+      <motion.div
         className="fixed top-0 left-0 pointer-events-none z-[9998]"
         style={{
+          x: ringX,
+          y: ringY,
+          translate: '-50% -50%',
           width: 32,
           height: 32,
-          borderRadius: 0,
-          border: '2px solid #ffffff',
+          border: '2px solid #84C87F99',
           mixBlendMode: 'difference',
-          transform: 'translate(-50%, -50%)',
           willChange: 'transform',
         }}
+        animate={{
+          scale: hovering ? 2.2 : 1,
+          borderColor: hovering ? '#84C87F' : '#84C87F99',
+        }}
+        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
       />
     </>
   );
-};
-
-export default CustomCursor;
+}
