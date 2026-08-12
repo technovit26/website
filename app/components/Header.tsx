@@ -59,7 +59,7 @@ const Header = () => {
   }, []);
 
   return (
-    <section className="relative min-h-[60svh] md:min-h-screen flex flex-col overflow-hidden">
+    <section className="relative min-h-[60svh] md:min-h-screen flex flex-col overflow-hidden bg-[#c2e0a5] pt-16 md:pt-20 lg:pt-24">
       <div className="flex-1 flex flex-col items-center justify-center
         px-4 sm:px-6
         pt-6 sm:pt-10 md:pt-20 lg:pt-20">
