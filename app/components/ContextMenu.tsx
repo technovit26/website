@@ -79,7 +79,6 @@ export default function ContextMenu() {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const [visible, setVisible] = useState(false);
-  const [clickPos, setClickPos] = useState({ x: 0, y: 0 });
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [copied, setCopied] = useState(false);
   const [hype, setHype] = useState<string | null>(null);
@@ -171,7 +170,12 @@ export default function ContextMenu() {
       e.preventDefault();
       setCopied(false);
       setShowHint(false);
-      setClickPos({ x: e.clientX, y: e.clientY });
+
+      const menu = menuRef.current;
+      const pad = 8;
+      const x = menu ? Math.max(pad, Math.min(e.clientX, window.innerWidth - menu.offsetWidth - pad)) : e.clientX;
+      const y = menu ? Math.max(pad, Math.min(e.clientY, window.innerHeight - menu.offsetHeight - pad)) : e.clientY;
+      setPos({ x, y });
       setVisible(true);
     };
     const onKey = (e: KeyboardEvent) => {
@@ -195,10 +199,12 @@ export default function ContextMenu() {
     if (!visible || !menuRef.current) return;
     const { offsetWidth: w, offsetHeight: h } = menuRef.current;
     const pad = 8;
-    const x = Math.max(pad, Math.min(clickPos.x, window.innerWidth - w - pad));
-    const y = Math.max(pad, Math.min(clickPos.y, window.innerHeight - h - pad));
-    setPos({ x, y });
-  }, [visible, clickPos]);
+    setPos((prev) => {
+      const x = Math.max(pad, Math.min(prev.x, window.innerWidth - w - pad));
+      const y = Math.max(pad, Math.min(prev.y, window.innerHeight - h - pad));
+      return x === prev.x && y === prev.y ? prev : { x, y };
+    });
+  }, [visible]);
 
   const handleNav = (href: string) => {
     close();
