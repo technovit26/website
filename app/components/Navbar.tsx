@@ -9,8 +9,9 @@ gsap.registerPlugin(ScrollTrigger);
 
 const NAV_LINKS = [
   { href: '/events', label: 'Events' },
-  { href: '/sponsors', label: 'Sponsors' },
   { href: '/team', label: 'Team' },
+  { href: '/merch', label: 'Merch' },
+  { href: '/sponsors', label: 'Sponsors' },
   { href: '/gallery', label: 'Gallery' },
   { href: '/about', label: 'About' },
 ];
@@ -127,7 +128,7 @@ const Navbar = () => {
         className="flex items-center justify-between bg-[#064928] text-white shadow-xl py-3 md:py-4"
       >
         <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-          <Link href="/" className="shrink-0 flex items-center">
+          <Link href="https://chennai.vit.ac.in" target="_blank" rel="noopener noreferrer" className="shrink-0 flex items-center">
             <img
               src="/vit-logo.png"
               alt="VIT Chennai"
@@ -145,7 +146,7 @@ const Navbar = () => {
           </Link>
         </div>
 
-        <div className="hidden xl:flex items-center gap-5 lg:gap-8">
+        <div className="hidden xl:flex items-center gap-4 lg:gap-6">
           {NAV_LINKS.map((link, i) => (
             <a
               key={link.href}
