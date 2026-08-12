@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { motion, useMotionValue, useTransform, useInView, animate, type MotionValue } from 'motion/react';
+import { motion, useMotionValue, useTransform, useInView, animate } from 'motion/react';
+import Marquee from '../components/Marquee';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,52 +16,24 @@ const STATS = [
   { value: 1,    suffix: '',  label: 'Unifying Theme' },
 ];
 
-const DIGIT_STACK = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
-
-function DigitColumn({ place, count }: { place: number; count: MotionValue<number> }) {
-  const y = useTransform(count, (latest) => {
-    const raw = (latest / place) % 10;
-    return `-${raw}em`;
-  });
-
-  return (
-    <span className="relative inline-block h-[1em] overflow-hidden align-top">
-      <span className="invisible">0</span>
-      <motion.span className="absolute inset-0 flex flex-col" style={{ y }}>
-        {DIGIT_STACK.map((d, i) => (
-          <span key={i} className="h-[1em] leading-none flex items-center justify-center">
-            {d}
-          </span>
-        ))}
-      </motion.span>
-    </span>
-  );
-}
-
 function StatCounter({ value, suffix, label }: { value: number; suffix: string; label: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.4 });
 
   const count = useMotionValue(0);
+  const rounded = useTransform(count, (latest) => Math.round(latest));
 
   useEffect(() => {
     if (!inView) return;
-    const controls = animate(count, value, { duration: 1.2, ease: [0.12, 0.8, 0.2, 1] });
+    const controls = animate(count, value, { duration: 1.6, ease: [0.16, 1, 0.3, 1] });
     return controls.stop;
   }, [inView, value, count]);
-
-  const digits = String(value).length;
-  const places = Array.from({ length: digits }, (_, i) => 10 ** (digits - 1 - i));
 
   return (
     <div ref={ref} className="flex flex-col gap-2 items-start">
       <span className="font-clash font-bold text-white leading-none tabular-nums
-        max-[390px]:text-4xl text-5xl sm:text-6xl md:text-6xl lg:text-7xl
-        inline-flex items-baseline">
-        {places.map((place, i) => (
-          <DigitColumn key={i} place={place} count={count} />
-        ))}
-        {suffix}
+        max-[390px]:text-4xl text-5xl sm:text-6xl md:text-6xl lg:text-7xl">
+        <motion.span>{rounded}</motion.span>{suffix}
       </span>
       <span className="font-bold uppercase tracking-[0.25em] text-[#84C87F]/60 max-[390px]:text-[9px] text-[10px] sm:text-xs">
         {label}
@@ -69,88 +42,11 @@ function StatCounter({ value, suffix, label }: { value: number; suffix: string; 
   );
 }
 
-const MARQUEE_BASE_ITEMS = ['Inclusive Innovation', 'High on Tech'];
 
-function MarqueeItem({ text }: { text: string }) {
-  return (
-    <span className="flex items-center shrink-0">
-      <span className="font-clash font-bold uppercase tracking-[0.12em] text-base sm:text-lg md:text-xl px-8 sm:px-10">
-        {text}
-      </span>
-      <span className="text-[#84C87F] font-bold text-lg select-none">·</span>
-    </span>
-  );
-}
-
-
-function Marquee({ reverse = false }: { reverse?: boolean }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const measureRef = useRef<HTMLDivElement>(null);
-  const [repeat, setRepeat] = useState(6);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    const unit = measureRef.current;
-    if (!container || !unit) return;
-
-    const recalc = () => {
-      const unitWidth = unit.scrollWidth;
-      if (!unitWidth) return;
-      const needed = Math.ceil(container.offsetWidth / unitWidth) + 1;
-      setRepeat((prev) => (prev === needed ? prev : needed));
-    };
-
-    recalc();
-    const ro = new ResizeObserver(recalc);
-    ro.observe(container);
-    return () => ro.disconnect();
-  }, []);
-
-  const half = Array.from({ length: repeat }, () => MARQUEE_BASE_ITEMS).flat();
-  const items = [...half, ...half];
-
-  return (
-    <div ref={containerRef} className="relative overflow-hidden w-full" aria-hidden>
-
-      <div
-        ref={measureRef}
-        className="absolute -z-10 opacity-0 pointer-events-none flex items-center whitespace-nowrap"
-      >
-        {MARQUEE_BASE_ITEMS.map((item, i) => (
-          <MarqueeItem key={i} text={item} />
-        ))}
-      </div>
-
-      <div
-        className="flex items-center whitespace-nowrap will-change-transform"
-        style={{
-          animation: `marquee-${reverse ? 'rev' : 'fwd'} ${reverse ? 22 : 20}s linear infinite`,
-        }}
-      >
-        {items.map((item, i) => (
-          <MarqueeItem key={i} text={item} />
-        ))}
-      </div>
-
-
-      <style>{`
-        @keyframes marquee-fwd {
-          from { transform: translateX(0); }
-          to   { transform: translateX(-50%); }
-        }
-        @keyframes marquee-rev {
-          from { transform: translateX(-50%); }
-          to   { transform: translateX(0); }
-        }
-      `}</style>
-    </div>
-  );
-}
 
 
 export default function AboutPage() {
   const bigTitleRef  = useRef<HTMLHeadingElement>(null);
-  const metaRowRef   = useRef<HTMLDivElement>(null);
   const ticker1Ref   = useRef<HTMLDivElement>(null);
   const themeHeadRef = useRef<HTMLDivElement>(null);
   const themeBodyRef = useRef<HTMLDivElement>(null);
@@ -167,10 +63,6 @@ export default function AboutPage() {
       tl.fromTo(bigTitleRef.current,
           { y: 60, opacity: 0, filter: 'blur(12px)' },
           { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.0 })
-        .fromTo(metaRowRef.current,
-          { scaleX: 0, transformOrigin: 'left center', opacity: 0 },
-          { scaleX: 1, opacity: 1, duration: 0.65 },
-          '-=0.4')
         .fromTo(ticker1Ref.current,
           { opacity: 0 },
           { opacity: 1, duration: 0.45 },
@@ -241,8 +133,6 @@ export default function AboutPage() {
             ABOUT
           </h1>
         </div>
-
-        <div ref={metaRowRef} className="mt-2 sm:mt-4 h-px bg-[#064928]/25 w-full" />
 
         <div
           ref={ticker1Ref}
@@ -366,7 +256,7 @@ export default function AboutPage() {
           </h2>
 
           <p className="mt-6 sm:mt-8 text-white/55 text-sm sm:text-base leading-relaxed max-w-md font-[450]">
-            Two days. Thousands of minds. One relentless drive to build something that matters.
+            Two days. Thousands of minds. Non-stop hackathons, showdowns, and builds.
             TechnoVIT&apos;26 — VIT Chennai.
           </p>
 
