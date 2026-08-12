@@ -14,7 +14,9 @@ const EASE: [number, number, number, number] = [0.65, 0, 0.35, 1];
 export default function TrailerModal() {
   const [phase, setPhase] = useState<'hidden' | 'open' | 'closing' | 'minimizing'>('hidden');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const visible = phase !== 'hidden';
   const lenis = useLenis();
 
@@ -54,7 +56,10 @@ export default function TrailerModal() {
     } catch {}
     setPhase('minimizing');
   };
-  const handleExitComplete = () => setPhase('hidden');
+  const handleExitComplete = () => {
+    setPhase('hidden');
+    setVideoReady(false);
+  };
   const toggleFullscreen = () => {
     setIsFullscreen((prev) => !prev);
   };
@@ -64,14 +69,18 @@ export default function TrailerModal() {
     exit: { opacity: 0, transition: { duration: 0.16, ease: EASE } },
   };
   const NO_CLIP = 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)';
+  const GENIE_NARROW = 'polygon(0% 0%, 100% 0%, 68% 100%, 32% 100%)';
+  const GENIE_NARROWER = 'polygon(0% 0%, 100% 0%, 54% 100%, 46% 100%)';
+  const GENIE_TIP = 'polygon(0% 0%, 100% 0%, 50.5% 100%, 49.5% 100%)';
   const modalVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.92, y: 14, clipPath: NO_CLIP },
+    hidden: { opacity: 0, scaleX: 0.08, scaleY: 0.03, y: '74vh', clipPath: GENIE_TIP },
     visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      clipPath: NO_CLIP,
-      transition: { duration: 0.3, ease: EASE, delay: 0.05 },
+      opacity: [0, 0.9, 1, 1],
+      scaleX: [0.08, 0.3, 0.66, 1],
+      scaleY: [0.03, 0.3, 0.84, 1],
+      y: ['74vh', '26vh', '4vh', 0],
+      clipPath: [GENIE_TIP, GENIE_NARROWER, GENIE_NARROW, NO_CLIP],
+      transition: { duration: 0.5, ease: EASE, times: [0, 0.22, 0.55, 1], delay: 0.05 },
     },
     exitClose: {
       opacity: 0,
@@ -85,12 +94,7 @@ export default function TrailerModal() {
       scaleX: [1, 0.66, 0.3, 0.08],
       scaleY: [1, 0.84, 0.3, 0.03],
       y: [0, '4vh', '26vh', '74vh'],
-      clipPath: [
-        NO_CLIP,
-        'polygon(0% 0%, 100% 0%, 68% 100%, 32% 100%)',
-        'polygon(0% 0%, 100% 0%, 54% 100%, 46% 100%)',
-        'polygon(0% 0%, 100% 0%, 50.5% 100%, 49.5% 100%)',
-      ],
+      clipPath: [NO_CLIP, GENIE_NARROW, GENIE_NARROWER, GENIE_TIP],
       transition: { duration: 0.4, ease: EASE, times: [0, 0.22, 0.55, 1] },
     },
   };
@@ -103,10 +107,14 @@ export default function TrailerModal() {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className={`fixed inset-0 z-[300] flex items-center justify-center backdrop-blur-md ${isFullscreen ? 'p-0' : 'p-4 sm:p-8'}`}
+            onAnimationComplete={(definition) => {
+              if (definition === 'visible') setVideoReady(true);
+            }}
+            className={`fixed inset-0 z-[300] flex items-center justify-center backdrop-blur-sm ${isFullscreen ? 'p-0' : 'p-4 sm:p-8'}`}
             style={{ background: 'rgba(4,10,6,0.92)' }}
           >
             <motion.div
+              ref={modalRef}
               layout
               variants={modalVariants}
               initial="hidden"
@@ -116,6 +124,8 @@ export default function TrailerModal() {
               onAnimationComplete={(definition) => {
                 if (definition === 'exitClose' || definition === 'exitMinimize') {
                   handleExitComplete();
+                } else if (definition === 'visible' && modalRef.current) {
+                  modalRef.current.style.clipPath = '';
                 }
               }}
               className={`relative flex flex-col bg-[#03080a] overflow-hidden transition-[border-radius,box-shadow] duration-300 ease-[cubic-bezier(0.65,0,0.35,1)] ${
@@ -127,7 +137,7 @@ export default function TrailerModal() {
                 boxShadow: isFullscreen
                   ? '0 0 0 0 rgba(0,0,0,0)'
                   : '0 0 0 1px rgba(132,200,127,0.2), 0 40px 100px rgba(0,0,0,0.85)',
-                transformOrigin: phase === 'minimizing' ? 'center bottom' : 'center',
+                transformOrigin: phase === 'closing' ? 'center' : 'center bottom',
               }}
             >
               <motion.div layout="position" className="flex items-center justify-between px-4 sm:px-5 py-3.5 bg-[#080f09] border-b border-[#84C87F]/10 shrink-0 z-10 relative">
@@ -168,6 +178,14 @@ export default function TrailerModal() {
                     TechnoVIT - A Sneak Peek
                   </motion.span>
                 </div>
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5, duration: 0.4 }}
+                  className="font-clash font-bold text-[#84C87F]/40 text-[9px] sm:text-[10px] uppercase tracking-[0.18em] hidden sm:block"
+                >
+                  Try the buttons — they work
+                </motion.span>
               </motion.div>
               <motion.div
                 layout
@@ -175,8 +193,9 @@ export default function TrailerModal() {
               >
                 <video
                   ref={videoRef}
-                  src={PLACEHOLDER_VIDEO}
-                  autoPlay
+                  src={videoReady ? PLACEHOLDER_VIDEO : undefined}
+                  autoPlay={videoReady}
+                  preload="none"
                   muted
                   playsInline
                   loop
