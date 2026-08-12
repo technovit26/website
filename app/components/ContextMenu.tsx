@@ -48,7 +48,16 @@ const HYPE_MESSAGES = [
 ];
 
 const HINT_STORAGE_KEY = 'technovit_ctx_hint_seen';
+const HINT_MAX_POKES = 4;
 const MOBILE_HINT_MAX_POKES = 5;
+
+const HINT_MESSAGES = [
+  'Try right clicking',
+  'Psst — right-click anywhere',
+  "You haven't tried right-clicking yet",
+  "There's a menu hiding under right-click",
+  'Right-click. Go on.',
+];
 
 const MOBILE_HINT_MESSAGES = [
   'This one hits different on a PC. Try it there 👀',
@@ -77,6 +86,7 @@ export default function ContextMenu() {
   const [canShare] = useState(() => typeof navigator !== 'undefined' && !!navigator.share);
   const [showHint, setShowHint] = useState(false);
   const [hintPos, setHintPos] = useState({ x: 0, y: 0 });
+  const [hintMessage, setHintMessage] = useState(HINT_MESSAGES[0]);
   const [mobileHint, setMobileHint] = useState<string | null>(null);
 
   const close = useCallback(() => setVisible(false), []);
@@ -86,26 +96,41 @@ export default function ContextMenu() {
     if (localStorage.getItem(HINT_STORAGE_KEY)) return;
 
     let discovered = false;
-    const dismissHint = () => setShowHint(false);
+    let pokes = 0;
+    let lastIndex = -1;
+    let timer: number;
+
     const markSeen = () => {
       discovered = true;
       localStorage.setItem(HINT_STORAGE_KEY, '1');
-      dismissHint();
+      setShowHint(false);
+      window.clearTimeout(timer);
     };
 
     const onMove = (e: MouseEvent) => setHintPos({ x: e.clientX, y: e.clientY });
     window.addEventListener('mousemove', onMove);
     window.addEventListener('contextmenu', markSeen);
 
-    const revealDelay = window.setTimeout(() => {
-      if (discovered) return;
+    const poke = () => {
+      if (discovered || pokes >= HINT_MAX_POKES) return;
+      pokes++;
+
+      let index = Math.floor(Math.random() * HINT_MESSAGES.length);
+      if (index === lastIndex) index = (index + 1) % HINT_MESSAGES.length;
+      lastIndex = index;
+
+      setHintMessage(HINT_MESSAGES[index]);
       setShowHint(true);
-      localStorage.setItem(HINT_STORAGE_KEY, '1');
-      window.setTimeout(dismissHint, 4000);
-    }, 4000 + Math.random() * 5000);
+      timer = window.setTimeout(() => {
+        setShowHint(false);
+        timer = window.setTimeout(poke, 15000 + Math.random() * 15000);
+      }, 4000);
+    };
+
+    timer = window.setTimeout(poke, 4000 + Math.random() * 5000);
 
     return () => {
-      window.clearTimeout(revealDelay);
+      window.clearTimeout(timer);
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('contextmenu', markSeen);
     };
@@ -116,7 +141,7 @@ export default function ContextMenu() {
 
     let pokes = 0;
     let lastIndex = -1;
-    let timer: ReturnType<typeof window.setTimeout>;
+    let timer: number;
 
     const poke = () => {
       if (pokes >= MOBILE_HINT_MAX_POKES) return;
@@ -326,7 +351,7 @@ export default function ContextMenu() {
               flex items-center gap-1.5"
           >
             <MouseRightClick size={14} weight="bold" />
-            Try right clicking
+            {hintMessage}
           </motion.div>
         )}
       </AnimatePresence>
