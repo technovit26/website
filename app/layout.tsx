@@ -31,6 +31,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${clashDisplay.variable} ${cabinetGrotesk.variable} antialiased`}>
+      <head>
+        <link rel="preconnect" href="https://technovit.cdn.a2ys.dev" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://technovit.cdn.a2ys.dev" />
+      </head>
       <body className="flex flex-col min-h-screen">
         <SmoothScrolling>
           <TrailerModal />
