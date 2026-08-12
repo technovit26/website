@@ -58,6 +58,7 @@ export default function TrailerModal() {
   const [progress, setProgress] = useState(0);
   const [buffered, setBuffered] = useState(0);
   const [showPill, setShowPill] = useState(false);
+  const [isTouchDevice] = useState(() => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches);
   const videoRef = useRef<HTMLVideoElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const visible = phase !== 'hidden';
@@ -159,6 +160,7 @@ export default function TrailerModal() {
     });
   };
   const toggleFullscreen = () => {
+    if (isTouchDevice) return;
     setIsFullscreen((prev) => !prev);
   };
   const handleTitleBarDoubleClick = (e: React.MouseEvent) => {
@@ -202,7 +204,7 @@ export default function TrailerModal() {
                   modalRef.current.style.clipPath = '';
                 }
               }}
-              className={`relative flex flex-col bg-[#03080a] overflow-hidden transition-[border-radius,box-shadow] duration-300 ease-[cubic-bezier(0.65,0,0.35,1)] ${
+              className={`relative grid grid-rows-[auto_1fr_auto] bg-[#03080a] overflow-hidden transition-[border-radius,box-shadow] duration-300 ease-[cubic-bezier(0.65,0,0.35,1)] ${
                 isFullscreen
                   ? 'w-full h-full max-w-none rounded-none'
                   : 'w-[95vw] sm:w-[90vw] max-w-[1200px] rounded-2xl'
@@ -234,23 +236,26 @@ export default function TrailerModal() {
                   >
                     <svg className="w-2.5 h-2.5 text-black/60 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M20 12H4" /></svg>
                   </button>
-                  <button
-                    onClick={toggleFullscreen}
-                    className="w-[14px] h-[14px] rounded-full bg-[#27C93F] hover:bg-[#27C93F]/80 flex items-center justify-center group transition-colors"
-                    aria-label="Fullscreen"
-                  >
-                    {isFullscreen ? (
-                      <svg className="w-2.5 h-2.5 text-black/60 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" /></svg>
-                    ) : (
-                      <svg className="w-2.5 h-2.5 text-black/60 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg>
-                    )}
-                  </button>
+                  {!isTouchDevice && (
+                    <button
+                      onClick={toggleFullscreen}
+                      className="w-[14px] h-[14px] rounded-full bg-[#27C93F] hover:bg-[#27C93F]/80 flex items-center justify-center group transition-colors"
+                      aria-label="Fullscreen"
+                    >
+                      {isFullscreen ? (
+                        <svg className="w-2.5 h-2.5 text-black/60 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" /></svg>
+                      ) : (
+                        <svg className="w-2.5 h-2.5 text-black/60 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg>
+                      )}
+                    </button>
+                  )}
                 </div>
                 <motion.span
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.15, duration: 0.25 }}
-                  className="absolute left-1/2 -translate-x-1/2 font-clash font-bold text-[#84C87F]/70 text-[11px] uppercase tracking-[0.22em] hidden sm:block pointer-events-none"
+                  className="absolute right-4 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 max-w-[45%] sm:max-w-none truncate
+                    font-clash font-bold text-[#84C87F]/70 text-[9px] sm:text-[11px] uppercase tracking-[0.15em] sm:tracking-[0.22em] pointer-events-none"
                 >
                   TechnoVIT - A Sneak Peek
                 </motion.span>
@@ -264,7 +269,7 @@ export default function TrailerModal() {
                 </motion.span>
               </motion.div>
               <div
-                className={`relative w-full bg-[#03080a] overflow-hidden flex flex-col justify-center ${isFullscreen ? 'flex-grow min-h-0' : 'aspect-video'}`}
+                className={`relative w-full bg-[#03080a] overflow-hidden min-h-0 ${!isFullscreen ? 'aspect-video' : ''}`}
               >
                 <div className="absolute inset-5 sm:inset-6 overflow-hidden rounded-lg">
                   <video
