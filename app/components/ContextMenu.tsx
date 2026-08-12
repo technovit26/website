@@ -14,7 +14,6 @@ import {
   ShareNetwork,
   ArrowClockwise,
   ArrowLineUp,
-  Printer,
   Sparkle,
   Check,
   MouseRightClick,
@@ -232,11 +231,6 @@ export default function ContextMenu() {
     else window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handlePrint = () => {
-    close();
-    window.print();
-  };
-
   const handleReload = () => window.location.reload();
 
   const handleHype = () => {
@@ -294,10 +288,6 @@ export default function ContextMenu() {
               <button onClick={handleScrollTop} className={ITEM_CLS}>
                 <ArrowLineUp size={15} weight="bold" />
                 Scroll to Top
-              </button>
-              <button onClick={handlePrint} className={ITEM_CLS}>
-                <Printer size={15} weight="bold" />
-                Print Page
               </button>
               <button onClick={handleReload} className={ITEM_CLS}>
                 <ArrowClockwise size={15} weight="bold" />
