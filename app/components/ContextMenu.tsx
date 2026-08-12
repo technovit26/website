@@ -256,7 +256,7 @@ export default function ContextMenu() {
             exit={{ opacity: 0, scale: 0.97 }}
             transition={{ duration: 0.14, ease: [0.16, 1, 0.3, 1] }}
             style={{ position: 'fixed', top: pos.y, left: pos.x, zIndex: 9999 }}
-            className="w-60 bg-[#064928] border border-white/10 rounded-xl shadow-2xl overflow-hidden py-1.5"
+            className="w-60 bg-[#064928] border border-white/10 rounded-md shadow-2xl overflow-hidden py-1.5"
             onContextMenu={(e) => e.preventDefault()}
           >
             <div className="px-3.5 pt-2.5 pb-2 border-b border-white/10 mb-1">
