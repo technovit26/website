@@ -48,12 +48,16 @@ const HYPE_MESSAGES = [
 ];
 
 const HINT_STORAGE_KEY = 'technovit_ctx_hint_seen';
-const MOBILE_HINT_STORAGE_KEY = 'technovit_mobile_hint_seen';
+const MOBILE_HINT_MAX_POKES = 5;
 
 const MOBILE_HINT_MESSAGES = [
   'This one hits different on a PC. Try it there 👀',
   'Psst — the full experience lives on desktop.',
   "You're missing the good stuff. Pull up a PC.",
+  'There’s a custom cursor and a secret menu on desktop.',
+  'Built for a bigger screen. Come back on a PC.',
+  "Right-click does something on desktop. You'll see.",
+  'This site has range — desktop shows all of it.',
 ];
 
 const ITEM_CLS =
@@ -78,6 +82,7 @@ export default function ContextMenu() {
   const close = useCallback(() => setVisible(false), []);
 
   useEffect(() => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
     if (localStorage.getItem(HINT_STORAGE_KEY)) return;
 
     let discovered = false;
@@ -108,15 +113,29 @@ export default function ContextMenu() {
 
   useEffect(() => {
     if (!window.matchMedia('(pointer: coarse)').matches) return;
-    if (localStorage.getItem(MOBILE_HINT_STORAGE_KEY)) return;
 
-    const revealDelay = window.setTimeout(() => {
-      setMobileHint(MOBILE_HINT_MESSAGES[Math.floor(Math.random() * MOBILE_HINT_MESSAGES.length)]);
-      localStorage.setItem(MOBILE_HINT_STORAGE_KEY, '1');
-      window.setTimeout(() => setMobileHint(null), 5000);
-    }, 5000 + Math.random() * 6000);
+    let pokes = 0;
+    let lastIndex = -1;
+    let timer: ReturnType<typeof window.setTimeout>;
 
-    return () => window.clearTimeout(revealDelay);
+    const poke = () => {
+      if (pokes >= MOBILE_HINT_MAX_POKES) return;
+      pokes++;
+
+      let index = Math.floor(Math.random() * MOBILE_HINT_MESSAGES.length);
+      if (index === lastIndex) index = (index + 1) % MOBILE_HINT_MESSAGES.length;
+      lastIndex = index;
+
+      setMobileHint(MOBILE_HINT_MESSAGES[index]);
+      timer = window.setTimeout(() => {
+        setMobileHint(null);
+        timer = window.setTimeout(poke, 25000 + Math.random() * 20000);
+      }, 5000);
+    };
+
+    timer = window.setTimeout(poke, 6000 + Math.random() * 6000);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
