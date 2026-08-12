@@ -9,7 +9,7 @@ const FINAL_TEXT = "technoVIT'26";
 
 const Header = () => {
   const h1Ref = useRef<HTMLHeadingElement>(null);
-  const themeRef = useRef<HTMLParagraphElement>(null);
+  const themeRef = useRef<HTMLDivElement>(null);
   const dateRef = useRef<HTMLParagraphElement>(null);
   const countdownRef = useRef<HTMLDivElement>(null);
 
@@ -66,28 +66,31 @@ const Header = () => {
         px-4 sm:px-6
         pt-6 sm:pt-10 md:pt-20 lg:pt-20">
 
-        <p
-          ref={themeRef}
-          className="font-bold uppercase text-[#019153] tracking-[0.15em] sm:tracking-[0.2em]
-            mb-2 sm:mb-3 md:mb-4
-            text-xs sm:text-sm md:text-base lg:text-lg"
-        >
-          Inclusive Innovation
-        </p>
-
         <h1
           ref={h1Ref}
           className="font-clash font-bold leading-none text-center text-[#08414a]
-            text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl"
+            text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl"
         >
           {FINAL_TEXT}
         </h1>
+
+        <div
+          ref={themeRef}
+          className="bg-[#08414a] px-5 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 mt-1 sm:mt-2 md:mt-2 lg:mt-3 shadow-xl"
+        >
+          <p
+            className="font-clash font-bold uppercase text-[#c2e0a5] tracking-[0.2em] sm:tracking-[0.25em] md:tracking-[0.3em]
+              text-sm sm:text-base md:text-xl lg:text-2xl leading-none translate-y-[1px] ml-[0.2em] sm:ml-[0.25em] md:ml-[0.3em]"
+          >
+            Inclusive Innovation
+          </p>
+        </div>
 
         <p
           ref={dateRef}
           className="font-bold uppercase text-[#08414a] opacity-80
             tracking-[0.15em] sm:tracking-[0.2em]
-            mt-3 sm:mt-4 md:mt-6
+            mt-7 sm:mt-9 md:mt-12 lg:mt-16
             text-xs sm:text-sm md:text-xl xl:text-2xl"
         >
           3rd September - 4th September
@@ -96,7 +99,7 @@ const Header = () => {
         <div
           ref={countdownRef}
           className="w-full flex justify-center
-            mt-6 sm:mt-8 md:mt-10
+            mt-4 sm:mt-5 md:mt-6
             px-2 sm:px-4"
         >
           <Countdown targetDate="2026-09-03T00:00:00" />
