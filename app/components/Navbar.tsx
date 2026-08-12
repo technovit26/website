@@ -29,7 +29,7 @@ const Navbar = () => {
     const nav = navRef.current;
     if (!nav) return;
 
-    const isMobile = () => window.innerWidth < 768;
+    const isMobile = () => window.innerWidth < 1280;
 
     const getFloatingProps = () =>
       isMobile()
@@ -145,7 +145,7 @@ const Navbar = () => {
           </Link>
         </div>
 
-        <div className="hidden md:flex items-center gap-5 lg:gap-8">
+        <div className="hidden xl:flex items-center gap-5 lg:gap-8">
           {NAV_LINKS.map((link, i) => (
             <a
               key={link.href}
@@ -168,7 +168,7 @@ const Navbar = () => {
 
         <button
           onClick={toggleMenu}
-          className="md:hidden flex flex-col justify-center items-center gap-1.5 p-1.5 w-8 h-8"
+          className="xl:hidden flex flex-col justify-center items-center gap-1.5 p-1.5 w-8 h-8"
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
         >
@@ -190,7 +190,7 @@ const Navbar = () => {
           pointerEvents: 'none',
           paddingTop: '3.5rem',
         }}
-        className="md:hidden bg-[#064928] border-t border-white/10 shadow-xl"
+        className="xl:hidden bg-[#064928] border-t border-white/10 shadow-xl"
       >
         <div className="flex flex-col py-4">
           {NAV_LINKS.map((link, i) => (

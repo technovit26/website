@@ -21,7 +21,8 @@ const FlipUnit = ({ value, label }: { value: string; label: string }) => {
   }, [value]);
 
   return (
-    <div className="flex flex-col items-center gap-0.5 sm:gap-1">
+    <div className="flex flex-col items-center justify-center gap-0.5 sm:gap-1
+      w-[50px] sm:w-[70px] md:w-[100px] lg:w-[120px] xl:w-[150px]">
       <span
         ref={numRef}
         className="font-bold font-clash leading-none tabular-nums
@@ -29,7 +30,8 @@ const FlipUnit = ({ value, label }: { value: string; label: string }) => {
           sm:text-4xl
           md:text-6xl
           lg:text-7xl
-          xl:text-8xl"
+          xl:text-8xl
+          w-full text-center"
       >
         {value}
       </span>
@@ -72,7 +74,7 @@ const Countdown = ({ targetDate }: { targetDate: string }) => {
 
   return (
     <div className="flex justify-center items-end text-[#08414a]
-      gap-3 sm:gap-5 md:gap-8 lg:gap-10 xl:gap-12">
+      gap-1 sm:gap-2 md:gap-4 lg:gap-5 xl:gap-6">
       {units.map(({ label, value }) => (
         <FlipUnit
           key={label}

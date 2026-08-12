@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { motion, useMotionValue, useTransform, useInView, animate, type MotionValue } from 'motion/react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -14,45 +15,54 @@ const STATS = [
   { value: 1,    suffix: '',  label: 'Unifying Theme' },
 ];
 
+const DIGIT_STACK = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
 
-function useCounter(target: number, duration = 1.8, start = false) {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!start) return;
-    const obj = { val: 0 };
-    gsap.to(obj, {
-      val: target,
-      duration,
-      ease: 'power2.out',
-      onUpdate: () => setCount(Math.round(obj.val)),
-    });
-  }, [start, target, duration]);
-  return count;
+function DigitColumn({ place, count }: { place: number; count: MotionValue<number> }) {
+  const y = useTransform(count, (latest) => {
+    const raw = (latest / place) % 10;
+    return `-${raw}em`;
+  });
+
+  return (
+    <span className="relative inline-block h-[1em] overflow-hidden align-top">
+      <span className="invisible">0</span>
+      <motion.span className="absolute inset-0 flex flex-col" style={{ y }}>
+        {DIGIT_STACK.map((d, i) => (
+          <span key={i} className="h-[1em] leading-none flex items-center justify-center">
+            {d}
+          </span>
+        ))}
+      </motion.span>
+    </span>
+  );
 }
 
-
 function StatCounter({ value, suffix, label }: { value: number; suffix: string; label: string }) {
-  const [triggered, setTriggered] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const count = useCounter(value, 1.6, triggered);
+  const inView = useInView(ref, { once: true, amount: 0.4 });
+
+  const count = useMotionValue(0);
 
   useEffect(() => {
-    if (!ref.current) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setTriggered(true); },
-      { threshold: 0.4 }
-    );
-    observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
+    if (!inView) return;
+    const controls = animate(count, value, { duration: 1.2, ease: [0.12, 0.8, 0.2, 1] });
+    return controls.stop;
+  }, [inView, value, count]);
+
+  const digits = String(value).length;
+  const places = Array.from({ length: digits }, (_, i) => 10 ** (digits - 1 - i));
 
   return (
     <div ref={ref} className="flex flex-col gap-2 items-start">
       <span className="font-clash font-bold text-white leading-none tabular-nums
-        text-5xl sm:text-6xl md:text-6xl lg:text-7xl">
-        {count}{suffix}
+        max-[390px]:text-4xl text-5xl sm:text-6xl md:text-6xl lg:text-7xl
+        inline-flex items-baseline">
+        {places.map((place, i) => (
+          <DigitColumn key={i} place={place} count={count} />
+        ))}
+        {suffix}
       </span>
-      <span className="font-bold uppercase tracking-[0.25em] text-[#84C87F]/60 text-[10px] sm:text-xs">
+      <span className="font-bold uppercase tracking-[0.25em] text-[#84C87F]/60 max-[390px]:text-[9px] text-[10px] sm:text-xs">
         {label}
       </span>
     </div>
@@ -220,7 +230,7 @@ export default function AboutPage() {
 
 
       <section className="relative bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24
-        pt-16 sm:pt-20 md:pt-24 pb-0 overflow-hidden">
+        pt-20 sm:pt-20 md:pt-24 lg:pt-24 pb-0 overflow-hidden">
 
         <div className="flex-1 flex items-center justify-center pointer-events-none select-none">
           <h1
@@ -288,12 +298,14 @@ export default function AboutPage() {
 
       <section className="bg-[#064928] px-5 sm:px-10 md:px-16 lg:px-24 py-16 sm:py-20 md:py-28">
         <div ref={statsRef} className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 divide-x-0 md:divide-x divide-white/10">
+          <div className="grid grid-cols-2 xl:grid-cols-4">
             {STATS.map((s, i) => (
-              <div key={i} className={`flex flex-col gap-2 px-0 md:px-8 lg:px-12
-                ${i === 0 ? 'md:pl-0' : ''}
-                ${i % 2 === 0 ? 'border-b md:border-b-0 border-white/10 pb-10 md:pb-0' : 'pb-10 md:pb-0 border-b md:border-b-0 border-white/10'}
-                pt-0 mt-10 md:mt-0 first:mt-0 [&:nth-child(2)]:mt-10 md:[&:nth-child(2)]:mt-0`}>
+              <div key={i} className={`flex flex-col gap-2 py-10 xl:py-0
+                ${i % 2 === 0 ? 'border-r border-white/10' : ''} 
+                ${i < 2 ? 'border-b border-white/10 xl:border-b-0' : ''}
+                ${i !== 3 ? 'xl:border-r xl:border-white/10' : 'xl:border-r-0'}
+                px-4 sm:px-8 xl:px-12 ${i === 0 ? 'xl:pl-0' : ''}
+              `}>
                 <StatCounter value={s.value} suffix={s.suffix} label={s.label} />
               </div>
             ))}
