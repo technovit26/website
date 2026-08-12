@@ -9,14 +9,16 @@ const FINAL_TEXT = "technoVIT'26";
 
 const Header = () => {
   const h1Ref = useRef<HTMLHeadingElement>(null);
+  const themeRef = useRef<HTMLParagraphElement>(null);
   const dateRef = useRef<HTMLParagraphElement>(null);
   const countdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const h1 = h1Ref.current;
+    const theme = themeRef.current;
     const date = dateRef.current;
     const countdown = countdownRef.current;
-    if (!h1 || !date || !countdown) return;
+    if (!h1 || !theme || !date || !countdown) return;
 
     let iteration = 0;
     const totalChars = FINAL_TEXT.length;
@@ -34,7 +36,7 @@ const Header = () => {
         h1.innerText = FINAL_TEXT;
         clearInterval(scrambleInterval);
         gsap.fromTo(
-          [date, countdown],
+          [theme, date, countdown],
           { y: 24, opacity: 0, filter: 'blur(6px)' },
           {
             y: 0, opacity: 1, filter: 'blur(0px)',
@@ -53,7 +55,7 @@ const Header = () => {
     );
 
 
-    gsap.set([date, countdown], { opacity: 0 });
+    gsap.set([theme, date, countdown], { opacity: 0 });
 
     return () => clearInterval(scrambleInterval);
   }, []);
@@ -63,6 +65,15 @@ const Header = () => {
       <div className="flex-1 flex flex-col items-center justify-center
         px-4 sm:px-6
         pt-6 sm:pt-10 md:pt-20 lg:pt-20">
+
+        <p
+          ref={themeRef}
+          className="font-bold uppercase text-[#019153] tracking-[0.15em] sm:tracking-[0.2em]
+            mb-2 sm:mb-3 md:mb-4
+            text-xs sm:text-sm md:text-base lg:text-lg"
+        >
+          Inclusive Innovation
+        </p>
 
         <h1
           ref={h1Ref}
