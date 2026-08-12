@@ -147,7 +147,7 @@ export default function AboutPage() {
   const statsRef     = useRef<HTMLDivElement>(null);
   const whatRef      = useRef<HTMLDivElement>(null);
   const closingRef   = useRef<HTMLDivElement>(null);
-  const accentRef    = useRef<HTMLSpanElement>(null);
+
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -167,15 +167,7 @@ export default function AboutPage() {
           '-=0.15');
 
 
-      if (accentRef.current) {
-        gsap.to(accentRef.current, {
-          opacity: 0.72,
-          duration: 2.2,
-          ease: 'sine.inOut',
-          yoyo: true,
-          repeat: -1,
-        });
-      }
+
 
 
       if (themeHeadRef.current) {
@@ -228,28 +220,19 @@ export default function AboutPage() {
 
 
       <section className="relative bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24
-        pt-24 sm:pt-32 md:pt-36 lg:pt-40 pb-0 overflow-hidden">
+        pt-16 sm:pt-20 md:pt-24 pb-0 overflow-hidden">
 
-
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden" aria-hidden>
-          <span className="font-clash font-bold text-[28vw] leading-none text-[#064928] opacity-[0.07] uppercase translate-y-4">
+        <div className="flex-1 flex items-center justify-center pointer-events-none select-none">
+          <h1
+            ref={bigTitleRef}
+            className="font-clash font-bold text-[#04331c] opacity-[0.22] leading-none
+              text-[28vw] tracking-tight uppercase -mt-[2vw] -mb-[3vw]"
+          >
             ABOUT
-          </span>
+          </h1>
         </div>
 
-
-        <h1
-          ref={bigTitleRef}
-          className="font-clash font-bold text-[#08414a] leading-none
-            text-[17vw] sm:text-[15vw] md:text-[13vw] lg:text-[11vw] xl:text-[10vw]
-            tracking-tight"
-        >
-          techno<span ref={accentRef} className="text-[#84C87F]">VIT</span><span className="text-[#08414a]">&apos;26</span>
-        </h1>
-
-
-        <div ref={metaRowRef} className="mt-7 sm:mt-9 h-px bg-[#064928]/25 w-full" />
-
+        <div ref={metaRowRef} className="mt-2 sm:mt-4 h-px bg-[#064928]/25 w-full" />
 
         <div
           ref={ticker1Ref}
