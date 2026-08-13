@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Question } from '@phosphor-icons/react';
 import { useLenis } from './SmoothScrolling';
-import { useStackOffset } from '../hooks/useBottomStack';
-import { on } from '../hooks/useEventBus';
+import { useStackOffset, useElementHeight, STACK_GAP } from '../hooks/useBottomStack';
 import { playSound } from './SoundManager';
 
 const CLICKED_KEY = 'technovit_question_clicked';
@@ -20,8 +19,8 @@ export default function QuestionMark() {
   const [everClicked, setEverClicked] = useState(true);
   const [open, setOpen] = useState(false);
   const [scrollUp, setScrollUp] = useState(true);
-  const [playPillVisible, setPlayPillVisible] = useState(false);
-  const playPillOffset = useStackOffset('play-pill');
+  const soundIconOffset = useStackOffset('sound-icon');
+  const soundIconHeight = useElementHeight('sound-icon-self');
 
   useEffect(() => {
     try {
@@ -31,8 +30,6 @@ export default function QuestionMark() {
       });
     } catch {}
   }, []);
-
-  useEffect(() => on<boolean>('trailer:play-pill-visible', setPlayPillVisible), []);
 
   useEffect(() => {
     let lastY = typeof window !== 'undefined' ? window.scrollY : 0;
@@ -90,7 +87,7 @@ export default function QuestionMark() {
 
   if (dismissed) return null;
 
-  const visible = scrollUp && !open && playPillVisible;
+  const visible = scrollUp && !open && soundIconHeight > 0;
 
   return (
     <>
@@ -102,14 +99,14 @@ export default function QuestionMark() {
             aria-label="What is this site?"
             data-cursor="?"
             initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: -playPillOffset }}
+            animate={{ opacity: 1, y: -(soundIconHeight + STACK_GAP + soundIconOffset) }}
             exit={{ opacity: 0, y: 24 }}
             transition={
               everClicked
                 ? { type: 'spring', stiffness: 300, damping: 26 }
                 : { type: 'spring', stiffness: 240, damping: 12 }
             }
-            className="fixed bottom-[88px] left-1/2 -translate-x-1/2 z-[200] w-9 h-9 sm:w-10 sm:h-10 rounded-full
+            className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-[200] w-9 h-9 sm:w-10 sm:h-10 rounded-full
               border border-[#84C87F]/30 bg-[#064928] text-[#84C87F] flex items-center justify-center
               shadow-lg hover:bg-[#84C87F] hover:text-[#064928] hover:border-[#84C87F] transition-colors"
           >

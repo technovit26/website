@@ -7,7 +7,6 @@ import { useStackPush } from '../hooks/useBottomStack';
 import { playSound } from './SoundManager';
 
 const KONAMI_UNLOCKED_KEY = 'technovit_konami_unlocked';
-const BADGE_HEIGHT = 40;
 const FLASH_VISIBLE_MS = 2200;
 
 export default function Konami() {
@@ -33,12 +32,13 @@ export default function Konami() {
   }, []);
 
   useKonamiCode(handleSuccess);
-  useStackPush('sound-icon', unlocked, BADGE_HEIGHT);
+  const badgeRef = useStackPush<HTMLDivElement>('sound-icon', unlocked);
 
   return (
     <>
       {unlocked && (
         <motion.div
+          ref={badgeRef}
           initial={{ opacity: 0, scale: 0.4, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 320, damping: 20 }}

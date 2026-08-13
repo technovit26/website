@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { emit, on } from '../hooks/useEventBus';
-import { useStackOffset } from '../hooks/useBottomStack';
+import { useStackOffset, useBroadcastHeight } from '../hooks/useBottomStack';
 
-type SoundName = 'hover' | 'click' | 'toggle' | 'transition' | 'keystroke' | 'denied' | 'ask' | 'play';
+type SoundName = 'hover' | 'click' | 'toggle' | 'transition' | 'keystroke' | 'denied' | 'ask' | 'play' | 'chomp';
 
 interface ToneSpec {
   type: OscillatorType;
@@ -70,6 +70,42 @@ class SoundEngine {
     osc.stop(now + spec.duration + 0.02);
   }
 
+  private noiseBite(peakGain: number, filterFreq: number) {
+    if (this.muted) return;
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const duration = 0.09;
+    const bufferSize = Math.ceil(ctx.sampleRate * duration);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(filterFreq, now);
+    filter.frequency.exponentialRampToValueAtTime(Math.max(filterFreq * 0.4, 200), now + duration);
+    filter.Q.value = 1.2;
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(peakGain, now + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    noise.start(now);
+    noise.stop(now + duration + 0.02);
+  }
+
   play(name: SoundName) {
     switch (name) {
       case 'hover':
@@ -92,6 +128,10 @@ class SoundEngine {
         break;
       case 'play':
         this.tone({ type: 'sine', freqFrom: 440, freqTo: 880, duration: 0.13, peakGain: 0.05 });
+        break;
+      case 'chomp':
+        this.noiseBite(0.09, 2200);
+        setTimeout(() => this.noiseBite(0.08, 1600), 110);
         break;
       case 'transition':
         this.tone({
@@ -180,11 +220,13 @@ export default function SoundManager() {
 
   const toggle = () => requestSoundMute(!muted);
   const pushOffset = useStackOffset('sound-icon');
+  const iconRef = useBroadcastHeight<HTMLButtonElement>('sound-icon-self');
 
   if (terminalOpen) return null;
 
   return (
     <motion.button
+      ref={iconRef}
       onClick={toggle}
       aria-label={muted ? 'Unmute sounds' : 'Mute sounds'}
       aria-pressed={muted}
