@@ -30,46 +30,49 @@ const Navbar = () => {
     const nav = navRef.current;
     if (!nav) return;
 
-    const isMobile = () => window.innerWidth < 1280;
+    const ctx = gsap.context(() => {
+      const isMobile = () => window.innerWidth < 1280;
 
-    const getFloatingProps = () =>
-      isMobile()
-        ? { top: 12, left: '50%', xPercent: -50, x: 0, width: 'calc(100% - 32px)', maxWidth: '100%', paddingLeft: 16, paddingRight: 16, borderRadius: 12 }
-        : { top: 20, left: '50%', xPercent: -50, x: 0, width: '72%', maxWidth: 960, paddingLeft: 32, paddingRight: 32, borderRadius: 16 };
+      const getFloatingProps = () =>
+        isMobile()
+          ? { top: 12, left: '50%', xPercent: -50, x: 0, width: 'calc(100% - 32px)', maxWidth: '100%', paddingLeft: 16, paddingRight: 16, borderRadius: 12 }
+          : { top: 20, left: '50%', xPercent: -50, x: 0, width: '72%', maxWidth: 960, paddingLeft: 32, paddingRight: 32, borderRadius: 16 };
 
-    const getStuckProps = () => ({
-      top: 0, left: 0, xPercent: 0, x: 0, width: '100%', maxWidth: '100%', borderRadius: 0,
-      paddingLeft: isMobile() ? 16 : 32, paddingRight: isMobile() ? 16 : 32,
+      const getStuckProps = () => ({
+        top: 0, left: 0, xPercent: 0, x: 0, width: '100%', maxWidth: '100%', borderRadius: 0,
+        paddingLeft: isMobile() ? 16 : 32, paddingRight: isMobile() ? 16 : 32,
+      });
+
+      const isStuckRef = { current: false };
+
+      gsap.set(nav, { ...getFloatingProps() });
+
+      const st = ScrollTrigger.create({
+        trigger: document.body,
+        start: 'top top-=60',
+        end: 'top top-=61',
+        onEnter: () => {
+          isStuckRef.current = true;
+          gsap.to(nav, { ...getStuckProps(), duration: 0.45, ease: 'power3.inOut' });
+        },
+        onLeaveBack: () => {
+          isStuckRef.current = false;
+          gsap.to(nav, { duration: 0.45, ease: 'power3.inOut', ...getFloatingProps() });
+        },
+      });
+
+      const handleResize = () => {
+        gsap.set(nav, isStuckRef.current ? { ...getStuckProps() } : { ...getFloatingProps() });
+        st.refresh();
+      };
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
     });
 
-    const isStuckRef = { current: false };
-
-    gsap.set(nav, { ...getFloatingProps() });
-
-    const st = ScrollTrigger.create({
-      trigger: document.body,
-      start: 'top top-=60',
-      end: 'top top-=61',
-      onEnter: () => {
-        isStuckRef.current = true;
-        gsap.to(nav, { ...getStuckProps(), duration: 0.45, ease: 'power3.inOut' });
-      },
-      onLeaveBack: () => {
-        isStuckRef.current = false;
-        gsap.to(nav, { duration: 0.45, ease: 'power3.inOut', ...getFloatingProps() });
-      },
-    });
-
-    const handleResize = () => {
-      gsap.set(nav, isStuckRef.current ? { ...getStuckProps() } : { ...getFloatingProps() });
-      st.refresh();
-    };
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      st.kill();
-      window.removeEventListener('resize', handleResize);
-    };
+    return () => ctx.revert();
   }, []);
 
   useEffect(() => {
@@ -135,14 +138,14 @@ const Navbar = () => {
           xl:top-[20px] xl:w-[72%] xl:max-w-[960px] xl:px-[32px] xl:rounded-[16px]"
       >
         <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-          <Link href="https://chennai.vit.ac.in" target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="shrink-0 flex items-center">
+          <a href="https://chennai.vit.ac.in" target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="shrink-0 flex items-center">
             <img
               src="/vit-logo.png"
               alt="VIT Chennai"
               style={{ filter: 'brightness(0) invert(1)' }}
               className="object-contain block h-8 w-auto sm:h-9 md:h-10"
             />
-          </Link>
+          </a>
           <span className="text-[#84C87F] font-bold select-none text-base sm:text-lg md:text-xl">·</span>
           <Link
             href="/"
