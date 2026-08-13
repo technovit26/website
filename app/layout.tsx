@@ -34,6 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <link rel="preconnect" href="https://technovit.cdn.a2ys.dev" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://technovit.cdn.a2ys.dev" />
+        <link rel="preload" as="image" href="/bg.svg" />
         <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f02c938088bc4e53841f29ebcd62b663"}'></script>
       </head>
       <body className="flex flex-col min-h-screen">

@@ -129,8 +129,10 @@ const Navbar = () => {
     <>
       <nav
         ref={navRef}
-        style={{ position: 'fixed', zIndex: 50 }}
-        className="flex items-center justify-between bg-[#064928] text-white shadow-xl py-3 md:py-4"
+        style={{ position: 'fixed', zIndex: 50, left: '50%', transform: 'translateX(-50%)' }}
+        className="flex items-center justify-between bg-[#064928] text-white shadow-xl py-3 md:py-4
+          top-[12px] w-[calc(100%-32px)] px-[16px] rounded-[12px]
+          xl:top-[20px] xl:w-[72%] xl:max-w-[960px] xl:px-[32px] xl:rounded-[16px]"
       >
         <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
           <Link href="https://chennai.vit.ac.in" target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="shrink-0 flex items-center">

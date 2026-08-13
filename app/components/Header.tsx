@@ -68,7 +68,7 @@ const Header = () => {
 
         <h1
           ref={h1Ref}
-          className="font-clash font-bold leading-none text-center text-[#08414a]
+          className="font-clash font-bold leading-none text-center text-[#08414a] whitespace-nowrap
             text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl"
         >
           {FINAL_TEXT}
@@ -107,7 +107,7 @@ const Header = () => {
       </div>
 
       <div className="w-full pointer-events-none select-none shrink-0 -mt-10 sm:-mt-16 md:-mt-22 lg:-mt-28">
-        <img src="/bg.svg" alt="Background landscape" className="w-full h-auto block" />
+        <img src="/bg.svg" alt="Background landscape" fetchPriority="high" className="w-full h-auto block" />
       </div>
     </section>
   );
