@@ -3,11 +3,9 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { emit } from '../hooks/useEventBus';
 
-gsap.registerPlugin(ScrollTrigger);
-
-const NAV_LINKS = [
+export const NAV_LINKS = [
   { href: '/events', label: 'Events' },
   { href: '/team', label: 'Team' },
   { href: '/merch', label: 'Merch' },
@@ -25,55 +23,6 @@ const Navbar = () => {
   const lineBotRef = useRef<HTMLSpanElement>(null);
   const menuPanelRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const nav = navRef.current;
-    if (!nav) return;
-
-    const ctx = gsap.context(() => {
-      const isMobile = () => window.innerWidth < 1280;
-
-      const getFloatingProps = () =>
-        isMobile()
-          ? { top: 12, left: '50%', xPercent: -50, x: 0, width: 'calc(100% - 32px)', maxWidth: '100%', paddingLeft: 16, paddingRight: 16, borderRadius: 12 }
-          : { top: 20, left: '50%', xPercent: -50, x: 0, width: '72%', maxWidth: 960, paddingLeft: 32, paddingRight: 32, borderRadius: 16 };
-
-      const getStuckProps = () => ({
-        top: 0, left: 0, xPercent: 0, x: 0, width: '100%', maxWidth: '100%', borderRadius: 0,
-        paddingLeft: isMobile() ? 16 : 32, paddingRight: isMobile() ? 16 : 32,
-      });
-
-      const isStuckRef = { current: false };
-
-      gsap.set(nav, { ...getFloatingProps() });
-
-      const st = ScrollTrigger.create({
-        trigger: document.body,
-        start: 'top top-=60',
-        end: 'top top-=61',
-        onEnter: () => {
-          isStuckRef.current = true;
-          gsap.to(nav, { ...getStuckProps(), duration: 0.45, ease: 'power3.inOut' });
-        },
-        onLeaveBack: () => {
-          isStuckRef.current = false;
-          gsap.to(nav, { duration: 0.45, ease: 'power3.inOut', ...getFloatingProps() });
-        },
-      });
-
-      const handleResize = () => {
-        gsap.set(nav, isStuckRef.current ? { ...getStuckProps() } : { ...getFloatingProps() });
-        st.refresh();
-      };
-      window.addEventListener('resize', handleResize);
-
-      return () => {
-        window.removeEventListener('resize', handleResize);
-      };
-    });
-
-    return () => ctx.revert();
-  }, []);
 
   const openMenu = () => {
     setMenuOpen(true);
@@ -101,6 +50,20 @@ const Navbar = () => {
       onComplete: () => setMenuOpen(false),
     });
   };
+
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) closeMenu();
+        emit('navbar:collapsed', !entry.isIntersecting);
+      },
+      { threshold: 0 }
+    );
+    observer.observe(nav);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeMenu(); };
@@ -134,10 +97,10 @@ const Navbar = () => {
     <>
       <nav
         ref={navRef}
-        style={{ position: 'fixed', zIndex: 50, left: '50%', transform: 'translateX(-50%)' }}
-        className="flex items-center justify-between bg-[#064928] text-white shadow-xl py-3 md:py-4
-          top-[12px] w-[calc(100%-32px)] px-[16px] rounded-[12px]
-          xl:top-[20px] xl:w-[72%] xl:max-w-[960px] xl:px-[32px] xl:rounded-[16px]"
+        className="relative z-50 mx-auto mt-3 sm:mt-5 w-[calc(100%-32px)]
+          xl:w-[72%] xl:max-w-[960px]
+          flex items-center justify-between bg-[#064928] text-white shadow-xl
+          py-3 md:py-4 px-4 xl:px-8 rounded-xl xl:rounded-2xl"
       >
         <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
           <a
@@ -214,7 +177,7 @@ const Navbar = () => {
           zIndex: 49,
           opacity: 0,
           pointerEvents: 'none',
-          paddingTop: '3.5rem',
+          paddingTop: '4.5rem',
         }}
         className="xl:hidden bg-[#064928] border-t border-white/10 shadow-xl"
       >
