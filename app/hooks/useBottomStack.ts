@@ -1,20 +1,34 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { emit, on } from './useEventBus';
 
-
-const STACK_GAP = 12;
+export const STACK_GAP = 12;
 
 type PushPayload = { anchor: string; amount: number };
 type PopPayload = { anchor: string };
 
-export function useStackPush(anchor: string, active: boolean, amount: number) {
+export function useStackPush<T extends HTMLElement>(anchor: string, active: boolean) {
+  const ref = useRef<T>(null);
+
   useEffect(() => {
     if (!active) return;
-    emit<PushPayload>('stack:push', { anchor, amount: amount + STACK_GAP });
-    return () => emit<PopPayload>('stack:pop', { anchor });
-  }, [anchor, active, amount]);
+    const el = ref.current;
+    if (!el) return;
+
+    const report = () => emit<PushPayload>('stack:push', { anchor, amount: el.offsetHeight + STACK_GAP });
+    report();
+
+    const observer = new ResizeObserver(report);
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      emit<PopPayload>('stack:pop', { anchor });
+    };
+  }, [anchor, active]);
+
+  return ref;
 }
 
 export function useStackOffset(anchor: string) {
@@ -32,4 +46,32 @@ export function useStackOffset(anchor: string) {
     };
   }, [anchor]);
   return offset;
+}
+
+type HeightPayload = { anchor: string; height: number };
+
+export function useBroadcastHeight<T extends HTMLElement>(anchor: string) {
+  const ref = useRef<T>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const report = () => emit<HeightPayload>('rect:height', { anchor, height: el.offsetHeight });
+    report();
+    const observer = new ResizeObserver(report);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [anchor]);
+  return ref;
+}
+
+export function useElementHeight(anchor: string) {
+  const [height, setHeight] = useState(0);
+  useEffect(
+    () =>
+      on<HeightPayload>('rect:height', (p) => {
+        if (p.anchor === anchor) setHeight(p.height);
+      }),
+    [anchor]
+  );
+  return height;
 }
