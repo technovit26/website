@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'motion/react';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "motion/react";
 import {
   House,
   CalendarBlank,
@@ -18,59 +18,66 @@ import {
   Check,
   MouseRightClick,
   Monitor,
+  TerminalWindow,
   type Icon,
-} from '@phosphor-icons/react';
-import { useLenis } from './SmoothScrolling';
+} from "@phosphor-icons/react";
+import { useLenis } from "./SmoothScrolling";
+import { TERMINAL_SEEN_KEY } from "./Terminal";
+import { emit } from "../hooks/useEventBus";
+import { useStackPush } from "../hooks/useBottomStack";
 
 const NAV_ITEMS: { href: string; label: string; icon: Icon }[] = [
-  { href: '/', label: 'Home', icon: House },
-  { href: '/events', label: 'Events', icon: CalendarBlank },
-  { href: '/team', label: 'Team', icon: Users },
-  { href: '/gallery', label: 'Gallery', icon: Images },
-  { href: '/sponsors', label: 'Sponsors', icon: Handshake },
-  { href: '/about', label: 'About', icon: Info },
+  { href: "/", label: "Home", icon: House },
+  { href: "/events", label: "Events", icon: CalendarBlank },
+  { href: "/team", label: "Team", icon: Users },
+  { href: "/gallery", label: "Gallery", icon: Images },
+  { href: "/sponsors", label: "Sponsors", icon: Handshake },
+  { href: "/about", label: "About", icon: Info },
 ];
 
 const HYPE_MESSAGES = [
-  'Two days. Every discipline. See you there.',
+  "Two days. Every discipline. See you there.",
   "Inclusive Innovation — that's the theme.",
-  '5000+ minds, one relentless drive to build.',
-  'High on tech. See you at TechnoVIT’26.',
-  '5000+ registrations and counting.',
-  '50+ events. Pick your battlefield.',
-  'Hackathons, robotics, and everything between.',
-  'Every school. Every skill level. One fest.',
-  'From first hackathon to tenth — you belong here.',
-  'VIT Chennai, gearing up for two relentless days.',
-  'The gatekeeping ends. The building begins.',
-  'Talent and curiosity — the only entry requirements.',
+  "5000+ minds, one relentless drive to build.",
+  "High on tech. See you at TechnoVIT’26.",
+  "5000+ registrations and counting.",
+  "50+ events. Pick your battlefield.",
+  "Hackathons, robotics, and everything between.",
+  "Every school. Every skill level. One fest.",
+  "From first hackathon to tenth — you belong here.",
+  "VIT Chennai, gearing up for two relentless days.",
+  "The gatekeeping ends. The building begins.",
+  "Talent and curiosity — the only entry requirements.",
 ];
 
-const HINT_STORAGE_KEY = 'technovit_ctx_hint_seen';
+const HYPE_PILL_HEIGHT = 48;
+const MOBILE_HINT_HEIGHT = 64;
+
+const HINT_STORAGE_KEY = "technovit_ctx_hint_seen";
 const HINT_MAX_POKES = 4;
 const MOBILE_HINT_MAX_POKES = 5;
 
 const HINT_MESSAGES = [
-  'Try right clicking',
-  'Psst — right-click anywhere',
+  "Try right clicking",
+  "Psst — right-click anywhere",
   "You haven't tried right-clicking yet",
   "There's a menu hiding under right-click",
-  'Right-click. Go on.',
+  "Right-click. Go on.",
 ];
 
 const MOBILE_HINT_MESSAGES = [
-  'This one hits different on a PC. Try it there 👀',
-  'Psst — the full experience lives on desktop.',
+  "This one hits different on a PC. Try it there 👀",
+  "Psst — the full experience lives on desktop.",
   "You're missing the good stuff. Pull up a PC.",
-  'There’s a custom cursor and a secret menu on desktop.',
-  'Built for a bigger screen. Come back on a PC.',
+  "There’s a custom cursor and a secret menu on desktop.",
+  "Built for a bigger screen. Come back on a PC.",
   "Right-click does something on desktop. You'll see.",
-  'This site has range — desktop shows all of it.',
+  "This site has range — desktop shows all of it.",
 ];
 
 const ITEM_CLS =
-  'w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-left ' +
-  'text-white/80 text-[13px] font-medium hover:bg-white/10 hover:text-[#84C87F] transition-colors duration-150';
+  "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-left " +
+  "text-white/80 text-[13px] font-medium hover:bg-white/10 hover:text-[#84C87F] transition-colors duration-150";
 
 export default function ContextMenu() {
   const router = useRouter();
@@ -81,16 +88,23 @@ export default function ContextMenu() {
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [copied, setCopied] = useState(false);
   const [hype, setHype] = useState<string | null>(null);
-  const [canShare] = useState(() => typeof navigator !== 'undefined' && !!navigator.share);
+  const [canShare] = useState(
+    () => typeof navigator !== "undefined" && !!navigator.share,
+  );
   const [showHint, setShowHint] = useState(false);
   const [hintPos, setHintPos] = useState({ x: 0, y: 0 });
   const [hintMessage, setHintMessage] = useState(HINT_MESSAGES[0]);
   const [mobileHint, setMobileHint] = useState<string | null>(null);
+  const [showTerminalTip, setShowTerminalTip] = useState(false);
+  const [showTerminalButton, setShowTerminalButton] = useState(false);
 
   const close = useCallback(() => setVisible(false), []);
 
+  useStackPush("play-pill", hype !== null, HYPE_PILL_HEIGHT);
+  useStackPush("play-pill", mobileHint !== null, MOBILE_HINT_HEIGHT);
+
   useEffect(() => {
-    if (window.matchMedia('(pointer: coarse)').matches) return;
+    if (window.matchMedia("(pointer: coarse)").matches) return;
     if (localStorage.getItem(HINT_STORAGE_KEY)) return;
 
     let discovered = false;
@@ -100,14 +114,15 @@ export default function ContextMenu() {
 
     const markSeen = () => {
       discovered = true;
-      localStorage.setItem(HINT_STORAGE_KEY, '1');
+      localStorage.setItem(HINT_STORAGE_KEY, "1");
       setShowHint(false);
       window.clearTimeout(timer);
     };
 
-    const onMove = (e: MouseEvent) => setHintPos({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('contextmenu', markSeen);
+    const onMove = (e: MouseEvent) =>
+      setHintPos({ x: e.clientX, y: e.clientY });
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("contextmenu", markSeen);
 
     const poke = () => {
       if (discovered || pokes >= HINT_MAX_POKES) return;
@@ -129,13 +144,13 @@ export default function ContextMenu() {
 
     return () => {
       window.clearTimeout(timer);
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('contextmenu', markSeen);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("contextmenu", markSeen);
     };
   }, []);
 
   useEffect(() => {
-    if (!window.matchMedia('(pointer: coarse)').matches) return;
+    if (!window.matchMedia("(pointer: coarse)").matches) return;
 
     let pokes = 0;
     let lastIndex = -1;
@@ -146,7 +161,8 @@ export default function ContextMenu() {
       pokes++;
 
       let index = Math.floor(Math.random() * MOBILE_HINT_MESSAGES.length);
-      if (index === lastIndex) index = (index + 1) % MOBILE_HINT_MESSAGES.length;
+      if (index === lastIndex)
+        index = (index + 1) % MOBILE_HINT_MESSAGES.length;
       lastIndex = index;
 
       setMobileHint(MOBILE_HINT_MESSAGES[index]);
@@ -163,34 +179,57 @@ export default function ContextMenu() {
 
   useEffect(() => {
     const onContextMenu = (e: MouseEvent) => {
-      if (window.matchMedia('(pointer: coarse)').matches) return;
+      if (window.matchMedia("(pointer: coarse)").matches) return;
       const target = e.target as HTMLElement;
-      if (target.closest('input, textarea, [contenteditable="true"]')) return;
+      if (
+        target.closest(
+          'input, textarea, [contenteditable="true"], [data-no-context-menu]',
+        )
+      )
+        return;
       e.preventDefault();
       setCopied(false);
       setShowHint(false);
+      try {
+        const discovered = !!localStorage.getItem(TERMINAL_SEEN_KEY);
+        setShowTerminalTip(!discovered);
+        setShowTerminalButton(discovered);
+      } catch {
+        setShowTerminalTip(false);
+        setShowTerminalButton(false);
+      }
 
       const menu = menuRef.current;
       const pad = 8;
-      const x = menu ? Math.max(pad, Math.min(e.clientX, window.innerWidth - menu.offsetWidth - pad)) : e.clientX;
-      const y = menu ? Math.max(pad, Math.min(e.clientY, window.innerHeight - menu.offsetHeight - pad)) : e.clientY;
+      const x = menu
+        ? Math.max(
+            pad,
+            Math.min(e.clientX, window.innerWidth - menu.offsetWidth - pad),
+          )
+        : e.clientX;
+      const y = menu
+        ? Math.max(
+            pad,
+            Math.min(e.clientY, window.innerHeight - menu.offsetHeight - pad),
+          )
+        : e.clientY;
       setPos({ x, y });
       setVisible(true);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') close();
+      if (e.key === "Escape") close();
     };
 
-    document.addEventListener('contextmenu', onContextMenu);
-    document.addEventListener('keydown', onKey);
-    window.addEventListener('scroll', close, true);
-    window.addEventListener('resize', close);
+    document.addEventListener("contextmenu", onContextMenu);
+    document.addEventListener("keydown", onKey);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
 
     return () => {
-      document.removeEventListener('contextmenu', onContextMenu);
-      document.removeEventListener('keydown', onKey);
-      window.removeEventListener('scroll', close, true);
-      window.removeEventListener('resize', close);
+      document.removeEventListener("contextmenu", onContextMenu);
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
     };
   }, [close]);
 
@@ -210,6 +249,11 @@ export default function ContextMenu() {
     router.push(href);
   };
 
+  const handleOpenTerminal = () => {
+    close();
+    emit("terminal:request-open");
+  };
+
   const handleCopyLink = async () => {
     await navigator.clipboard.writeText(window.location.href);
     setCopied(true);
@@ -218,9 +262,12 @@ export default function ContextMenu() {
 
   const handleShare = async () => {
     try {
-      await navigator.share({ title: document.title, url: window.location.href });
+      await navigator.share({
+        title: document.title,
+        url: window.location.href,
+      });
     } catch {
-      // user cancelled the share sheet — nothing to do
+
     }
     close();
   };
@@ -228,7 +275,7 @@ export default function ContextMenu() {
   const handleScrollTop = () => {
     close();
     if (lenis) lenis.scrollTo(0, { duration: 1.2 });
-    else window.scrollTo({ top: 0, behavior: 'smooth' });
+    else window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleReload = () => window.location.reload();
@@ -251,68 +298,100 @@ export default function ContextMenu() {
             />
             <motion.div
               ref={menuRef}
-            initial={{ opacity: 0, scale: 0.96, y: -4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97 }}
-            transition={{ duration: 0.14, ease: [0.16, 1, 0.3, 1] }}
-            style={{ position: 'fixed', top: pos.y, left: pos.x, zIndex: 9999 }}
-            className="w-60 bg-[#064928] border border-white/10 rounded-md shadow-2xl overflow-hidden py-1.5"
-            onContextMenu={(e) => e.preventDefault()}
-          >
-            <div className="px-3.5 pt-2.5 pb-2 border-b border-white/10 mb-1">
-              <span className="font-clash font-bold text-white text-sm tracking-wide">technoVIT&apos;26</span>
-            </div>
+              initial={{ opacity: 0, scale: 0.96, y: -4 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              transition={{ duration: 0.14, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                position: "fixed",
+                top: pos.y,
+                left: pos.x,
+                zIndex: 9999,
+              }}
+              className="w-60 bg-[#064928] border border-white/10 rounded-md shadow-2xl overflow-hidden py-1.5"
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              <div className="px-3.5 pt-2.5 pb-2 border-b border-white/10 mb-1">
+                <span className="font-clash font-bold text-white text-sm tracking-wide">
+                  technoVIT&apos;26
+                </span>
+              </div>
 
-            <div className="px-1.5 py-1">
-              {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
-                <button key={href} onClick={() => handleNav(href)} className={ITEM_CLS}>
-                  <Icon size={15} weight="bold" />
-                  {label}
+              <div className="px-1.5 py-1">
+                {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
+                  <button
+                    key={href}
+                    onClick={() => handleNav(href)}
+                    className={ITEM_CLS}
+                  >
+                    <Icon size={15} weight="bold" />
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="h-px bg-white/10 my-1" />
+
+              <div className="px-1.5 py-1">
+                {showTerminalButton && (
+                  <button onClick={handleOpenTerminal} className={ITEM_CLS}>
+                    <TerminalWindow size={15} weight="bold" />
+                    Terminal
+                  </button>
+                )}
+                <button onClick={handleCopyLink} className={ITEM_CLS}>
+                  {copied ? (
+                    <Check size={15} weight="bold" className="text-[#84C87F]" />
+                  ) : (
+                    <LinkSimple size={15} weight="bold" />
+                  )}
+                  {copied ? "Copied!" : "Copy Link"}
                 </button>
-              ))}
-            </div>
-
-            <div className="h-px bg-white/10 my-1" />
-
-            <div className="px-1.5 py-1">
-              <button onClick={handleCopyLink} className={ITEM_CLS}>
-                {copied ? <Check size={15} weight="bold" className="text-[#84C87F]" /> : <LinkSimple size={15} weight="bold" />}
-                {copied ? 'Copied!' : 'Copy Link'}
-              </button>
-              {canShare && (
-                <button onClick={handleShare} className={ITEM_CLS}>
-                  <ShareNetwork size={15} weight="bold" />
-                  Share
+                {canShare && (
+                  <button onClick={handleShare} className={ITEM_CLS}>
+                    <ShareNetwork size={15} weight="bold" />
+                    Share
+                  </button>
+                )}
+                <button onClick={handleScrollTop} className={ITEM_CLS}>
+                  <ArrowLineUp size={15} weight="bold" />
+                  Scroll to Top
                 </button>
-              )}
-              <button onClick={handleScrollTop} className={ITEM_CLS}>
-                <ArrowLineUp size={15} weight="bold" />
-                Scroll to Top
-              </button>
-              <button onClick={handleReload} className={ITEM_CLS}>
-                <ArrowClockwise size={15} weight="bold" />
-                Reload
-              </button>
-            </div>
+                <button onClick={handleReload} className={ITEM_CLS}>
+                  <ArrowClockwise size={15} weight="bold" />
+                  Reload
+                </button>
+              </div>
 
-            <div className="h-px bg-white/10 my-1" />
+              <div className="h-px bg-white/10 my-1" />
 
-            <div className="px-1.5 py-1">
-              <button
-                onClick={handleHype}
-                className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-left
+              <div className="px-1.5 py-1">
+                <button
+                  onClick={handleHype}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-left
                   text-[#84C87F] text-[13px] font-semibold hover:bg-[#84C87F]/10 transition-colors duration-150"
-              >
-                <Sparkle size={15} weight="fill" />
-                Hype Me Up
-              </button>
-            </div>
+                >
+                  <Sparkle size={15} weight="fill" />
+                  Hype Me Up
+                </button>
+              </div>
 
-            <div className="px-3.5 pt-1.5 pb-2 border-t border-white/10 mt-1">
-              <p className="text-white/30 text-[9px] uppercase tracking-[0.15em]">
-                Made with 💚 by The Website Team
-              </p>
-            </div>
+              {showTerminalTip && (
+                <>
+                  <div className="h-px bg-white/10 my-1" />
+                  <div className="px-3.5 py-2">
+                    <p className="text-[#84C87F]/70 text-[10px] font-terminal tracking-wide flex items-center gap-1.5">
+                      btw, ctrl + ` opens a terminal
+                    </p>
+                  </div>
+                </>
+              )}
+
+              <div className="px-3.5 pt-1.5 pb-2 border-t border-white/10 mt-1">
+                <p className="text-white/30 text-[9px] uppercase tracking-[0.15em]">
+                  Made with 💚 by The Website Team
+                </p>
+              </div>
             </motion.div>
           </>
         )}
@@ -342,7 +421,12 @@ export default function ContextMenu() {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: -4, scale: 0.95 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            style={{ position: 'fixed', top: hintPos.y, left: hintPos.x + 20, zIndex: 999997 }}
+            style={{
+              position: "fixed",
+              top: hintPos.y,
+              left: hintPos.x + 20,
+              zIndex: 999997,
+            }}
             className="pointer-events-none -translate-y-1/2 bg-[#064928] text-[#84C87F] text-xs font-semibold
               px-3.5 py-2 rounded-full shadow-2xl border border-[#84C87F]/30 whitespace-nowrap
               flex items-center gap-1.5"
