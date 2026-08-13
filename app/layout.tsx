@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -7,6 +8,10 @@ import CustomCursor from "./components/CustomCursor";
 import SmoothScrolling from "./components/SmoothScrolling";
 import TrailerModal from "./components/TrailerModal";
 import ContextMenu from "./components/ContextMenu";
+import SoundManager from "./components/SoundManager";
+import Terminal from "./components/Terminal";
+import Konami from "./components/Konami";
+import QuestionMark from "./components/QuestionMark";
 
 const clashDisplay = localFont({
   src: "../public/fonts/clash.woff2",
@@ -22,6 +27,13 @@ const cabinetGrotesk = localFont({
   weight: "200 700",
 });
 
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-ibm-plex-mono",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "TechnoVIT'26 | VIT Chennai",
   description:
@@ -30,7 +42,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${clashDisplay.variable} ${cabinetGrotesk.variable} antialiased`}>
+    <html lang="en" className={`${clashDisplay.variable} ${cabinetGrotesk.variable} ${ibmPlexMono.variable} antialiased`}>
       <head>
         <link rel="preconnect" href="https://technovit.cdn.a2ys.dev" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://technovit.cdn.a2ys.dev" />
@@ -42,6 +54,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <TrailerModal />
           <CustomCursor />
           <ContextMenu />
+          <SoundManager />
+          <Terminal />
+          <Konami />
+          <QuestionMark />
           <Navbar />
           <div className="flex-1">{children}</div>
           <Footer />

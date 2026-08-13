@@ -82,6 +82,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.label}
+                  data-cursor={s.label}
                   className="text-white/60 hover:text-[#84C87F] transition-colors duration-200"
                 >
                   {s.icon}
@@ -101,6 +102,7 @@ const Footer = () => {
               <Link
                 key={link.href}
                 href={link.href}
+                data-cursor={link.label}
                 className="text-sm sm:text-base font-semibold text-white/70 hover:text-[#84C87F] transition-colors duration-200 uppercase tracking-wide"
               >
                 {link.label}
@@ -114,6 +116,7 @@ const Footer = () => {
             </span>
             <a
               href="mailto:technovit@vit.ac.in"
+              data-cursor="Email"
               className="text-sm sm:text-base font-semibold text-white/70 hover:text-[#84C87F] transition-colors duration-200"
             >
               technovit@vit.ac.in

@@ -1,5 +1,6 @@
 import Header from "./components/Header";
 import Marquee from "./components/Marquee";
+import HomepageContent from "./components/HomepageContent";
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
       <div className="relative z-10 -mt-1 bg-[#064928] text-[#84C87F] py-3.5 sm:py-4 overflow-hidden w-full">
         <Marquee />
       </div>
+      <HomepageContent />
     </>
   );
 }
