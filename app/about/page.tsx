@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { motion, useMotionValue, useTransform, useInView, animate } from 'motion/react';
@@ -121,8 +121,7 @@ export default function AboutPage() {
     <main className="relative min-h-screen bg-white overflow-x-hidden">
 
 
-      <section className="relative bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24
-        pt-20 sm:pt-20 md:pt-24 lg:pt-24 pb-0 overflow-hidden">
+      <section className="relative bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 pb-0 overflow-hidden">
 
         <div className="flex-1 flex items-center justify-center pointer-events-none select-none">
           <h1

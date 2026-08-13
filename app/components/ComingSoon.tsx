@@ -31,7 +31,7 @@ export default function ComingSoon({ title }: { title: string }) {
 
   return (
     <section className="flex-1 flex flex-col items-center justify-center min-h-[65svh] md:min-h-[85vh] px-4 text-center
-      bg-[#c2e0a5] pt-16 md:pt-20 lg:pt-24">
+      bg-[#c2e0a5]">
       <h1
         ref={titleRef}
         className="font-clash font-bold text-5xl sm:text-7xl md:text-8xl lg:text-[9rem] xl:text-[11rem] leading-none text-[#08414a] uppercase"

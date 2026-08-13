@@ -12,6 +12,7 @@ import SoundManager from "./components/SoundManager";
 import Terminal from "./components/Terminal";
 import Konami from "./components/Konami";
 import QuestionMark from "./components/QuestionMark";
+import BottomNavCluster from "./components/BottomNavCluster";
 
 const clashDisplay = localFont({
   src: "../public/fonts/clash.woff2",
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Terminal />
           <Konami />
           <QuestionMark />
+          <BottomNavCluster />
           <Navbar />
           <div className="flex-1">{children}</div>
           <Footer />
