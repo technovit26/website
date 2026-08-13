@@ -2,16 +2,14 @@
 
 import { createContext, useContext, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import gsap from 'gsap';
 import Lenis from 'lenis';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-/* A stable ref, not state: consumers (e.g. TrailerModal) only ever read
-   this inside their own effects, so there's no need to re-render anything
-   when Lenis mounts — that would mean calling setState synchronously
-   inside an effect just to force a re-render nothing needs. */
+gsap.registerPlugin(ScrollTrigger);
+
 const LenisContext = createContext<React.RefObject<Lenis | null>>({ current: null });
 
-/** Access the page's Lenis instance, e.g. to lenis.stop()/start() while a modal is open. */
 export function useLenis() {
   return useContext(LenisContext).current;
 }
