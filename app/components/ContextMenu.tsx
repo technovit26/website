@@ -50,9 +50,6 @@ const HYPE_MESSAGES = [
   "Talent and curiosity — the only entry requirements.",
 ];
 
-const HYPE_PILL_HEIGHT = 48;
-const MOBILE_HINT_HEIGHT = 64;
-
 const HINT_STORAGE_KEY = "technovit_ctx_hint_seen";
 const HINT_MAX_POKES = 4;
 const MOBILE_HINT_MAX_POKES = 5;
@@ -100,8 +97,8 @@ export default function ContextMenu() {
 
   const close = useCallback(() => setVisible(false), []);
 
-  useStackPush("play-pill", hype !== null, HYPE_PILL_HEIGHT);
-  useStackPush("play-pill", mobileHint !== null, MOBILE_HINT_HEIGHT);
+  const hypeRef = useStackPush<HTMLDivElement>("play-pill", hype !== null);
+  const mobileHintRef = useStackPush<HTMLDivElement>("play-pill", mobileHint !== null);
 
   useEffect(() => {
     if (window.matchMedia("(pointer: coarse)").matches) return;
@@ -400,6 +397,7 @@ export default function ContextMenu() {
       <AnimatePresence>
         {hype && (
           <motion.div
+            ref={hypeRef}
             initial={{ opacity: 0, y: 16, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.97 }}
@@ -440,6 +438,7 @@ export default function ContextMenu() {
       <AnimatePresence>
         {mobileHint && (
           <motion.div
+            ref={mobileHintRef}
             initial={{ opacity: 0, y: 16, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.97 }}
