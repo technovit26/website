@@ -34,11 +34,11 @@ const Navbar = () => {
 
     const getFloatingProps = () =>
       isMobile()
-        ? { top: 12, left: '50%', xPercent: -50, width: 'calc(100% - 32px)', maxWidth: '100%', paddingLeft: 16, paddingRight: 16, borderRadius: 12 }
-        : { top: 20, left: '50%', xPercent: -50, width: '72%', maxWidth: 960, paddingLeft: 32, paddingRight: 32, borderRadius: 16 };
+        ? { top: 12, left: '50%', xPercent: -50, x: 0, width: 'calc(100% - 32px)', maxWidth: '100%', paddingLeft: 16, paddingRight: 16, borderRadius: 12 }
+        : { top: 20, left: '50%', xPercent: -50, x: 0, width: '72%', maxWidth: 960, paddingLeft: 32, paddingRight: 32, borderRadius: 16 };
 
     const getStuckProps = () => ({
-      top: 0, left: 0, xPercent: 0, width: '100%', maxWidth: '100%', borderRadius: 0,
+      top: 0, left: 0, xPercent: 0, x: 0, width: '100%', maxWidth: '100%', borderRadius: 0,
       paddingLeft: isMobile() ? 16 : 32, paddingRight: isMobile() ? 16 : 32,
     });
 
