@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, MotionConfig, Variants } from 'motion/react';
 import { ArrowClockwise, Pause, Play, SpeakerSimpleHigh, SpeakerSimpleX } from '@phosphor-icons/react';
 import { useLenis } from './SmoothScrolling';
-import { useStackOffset } from '../hooks/useBottomStack';
-import { emit } from '../hooks/useEventBus';
+import { emit, on } from '../hooks/useEventBus';
 import { playSound } from './SoundManager';
 
 const formatTime = (seconds: number) => {
@@ -86,7 +85,6 @@ export default function TrailerModal() {
   const visible = phase === 'open' || phase === 'closing' || phase === 'minimizing';
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
   const lenis = useLenis();
-  const playPillOffset = useStackOffset('play-pill');
 
   useEffect(() => {
     emit('trailer:play-pill-visible', showPill && scrollUp);
@@ -202,11 +200,13 @@ export default function TrailerModal() {
     setControlsVisible(true);
     if (hideControlsTimerRef.current) clearTimeout(hideControlsTimerRef.current);
   };
-  const handleOpen = () => {
+  const handleOpen = useCallback(() => {
     playSound('play');
     setShowPill(false);
     setPhase('open');
-  };
+  }, []);
+
+  useEffect(() => on('trailer:request-open', handleOpen), [handleOpen]);
   const toggleMute = () => {
     setMuted((prev) => {
       const next = !prev;
@@ -532,29 +532,6 @@ export default function TrailerModal() {
               </motion.div>
             </motion.div>
           </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {showPill && scrollUp && (
-          <motion.button
-            key="trailer-play-button"
-            onClick={handleOpen}
-            initial={{ opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: -playPillOffset }}
-            exit={{ opacity: 0, y: 60 }}
-            transition={{
-              opacity: { duration: 0.35, ease: EASE, delay: 0.06 },
-              y: { type: 'spring', stiffness: 300, damping: 26, delay: 0.06 },
-            }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] w-12 h-12 rounded-full
-              bg-[#84C87F] text-[#064928] shadow-2xl flex items-center justify-center
-              hover:bg-[#9ed898] transition-colors"
-            aria-label="Watch trailer"
-            data-cursor="Play"
-          >
-            <Play size={18} weight="fill" />
-          </motion.button>
         )}
       </AnimatePresence>
     </MotionConfig>
