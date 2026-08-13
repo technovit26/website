@@ -3,6 +3,7 @@
 @theme {
   --font-clash: var(--font-clash-display), sans-serif;
   --font-cabinet-grotesk: var(--font-cabinet-grotesk), sans-serif;
+  --font-terminal: var(--font-ibm-plex-mono), "Courier New", monospace;
 }
 
 :root {
@@ -14,7 +15,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: var(--font-ibm-plex-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -53,4 +54,46 @@ body::-webkit-scrollbar {
   * {
     cursor: none !important;
   }
+}
+
+@keyframes terminal-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.terminal-cursor {
+  animation: terminal-blink 1s step-end infinite;
+}
+
+.terminal-scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.25;
+  mix-blend-mode: overlay;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.35) 2px,
+    rgba(0, 0, 0, 0.35) 4px
+  );
+}
+
+.terminal-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(132, 200, 127, 0.4) transparent;
+}
+.terminal-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.terminal-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.terminal-scroll::-webkit-scrollbar-thumb {
+  background: rgba(132, 200, 127, 0.35);
+  border-radius: 999px;
+}
+.terminal-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(132, 200, 127, 0.55);
 }

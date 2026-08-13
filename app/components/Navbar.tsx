@@ -75,12 +75,6 @@ const Navbar = () => {
     return () => ctx.revert();
   }, []);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeMenu(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
-
   const openMenu = () => {
     setMenuOpen(true);
 
@@ -107,6 +101,12 @@ const Navbar = () => {
       onComplete: () => setMenuOpen(false),
     });
   };
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeMenu(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const toggleMenu = () => menuOpen ? closeMenu() : openMenu();
 
@@ -140,7 +140,14 @@ const Navbar = () => {
           xl:top-[20px] xl:w-[72%] xl:max-w-[960px] xl:px-[32px] xl:rounded-[16px]"
       >
         <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-          <a href="https://chennai.vit.ac.in" target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="shrink-0 flex items-center">
+          <a
+            href="https://chennai.vit.ac.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={closeMenu}
+            data-cursor="Its VIT Chennai"
+            className="shrink-0 flex items-center"
+          >
             <img
               src="/vit-logo.png"
               alt="VIT Chennai"
@@ -148,10 +155,14 @@ const Navbar = () => {
               className="object-contain block h-8 w-auto sm:h-9 md:h-10"
             />
           </a>
-          <span className="text-[#84C87F] font-bold select-none text-base sm:text-lg md:text-xl">·</span>
+          <span
+            aria-hidden
+            className="shrink-0 w-[3px] h-4 sm:h-5 rounded-full bg-gradient-to-b from-white/80 via-[#c2e0a5] to-[#84C87F]"
+          />
           <Link
             href="/"
             onClick={closeMenu}
+            data-cursor="Homepage"
             className="font-clash font-bold whitespace-nowrap text-white hover:text-[#84C87F] transition-colors duration-200
               text-base tracking-wider sm:text-lg sm:tracking-widest md:text-xl lg:text-2xl"
           >
@@ -167,6 +178,7 @@ const Navbar = () => {
               ref={(el) => { linkRefs.current[i] = el; }}
               onMouseEnter={() => handleMouseEnter(i)}
               onMouseLeave={() => handleMouseLeave(i)}
+              data-cursor={link.label}
               className="relative text-white font-semibold uppercase pb-0.5 cursor-pointer
                 text-sm tracking-wide lg:text-base lg:tracking-wider"
               style={{ textDecoration: 'none' }}
@@ -207,7 +219,7 @@ const Navbar = () => {
         className="xl:hidden bg-[#064928] border-t border-white/10 shadow-xl"
       >
         <div className="flex flex-col py-4">
-          {NAV_LINKS.map((link, i) => (
+          {NAV_LINKS.map((link) => (
             <a
               key={link.href}
               href={link.href}
