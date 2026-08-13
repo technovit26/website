@@ -1,8 +1,8 @@
-# technoVIT'26 ⚡
+# technoVIT'26
 
 The official web platform for **technoVIT'26**, VIT Chennai's premier Annual Tech Fest. Built with Next.js, GSAP, and a whole lot of green terminal energy.
 
-## 🚀 Getting Started
+## Getting Started
 
 This project is built using the modern React stack with [Next.js](https://nextjs.org/) and uses `pnpm` for blazing-fast package management.
 
@@ -13,11 +13,13 @@ Make sure you have Node.js and `pnpm` installed on your machine.
 ### Installation & Running Locally
 
 1. Install all required dependencies:
+
    ```bash
    pnpm install
    ```
 
 2. Start the local development server:
+
    ```bash
    pnpm dev
    ```
@@ -27,16 +29,18 @@ Make sure you have Node.js and `pnpm` installed on your machine.
 ### Build for Production
 
 To create an optimized production build:
+
 ```bash
 pnpm build
 ```
 
 To start the production server:
+
 ```bash
 pnpm start
 ```
 
-## 📜 License & Copyright
+## License & Copyright
 
 **Proprietary and Confidential.**
 
