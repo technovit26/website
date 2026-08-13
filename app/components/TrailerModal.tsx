@@ -154,8 +154,8 @@ export default function TrailerModal() {
     } catch {}
   };
   const handleClose = () => {
-    savePlaybackPosition();
     try {
+      localStorage.removeItem(POSITION_STORAGE_KEY);
       localStorage.setItem(STORAGE_KEY, 'closed');
     } catch {}
     setPhase('closing');
