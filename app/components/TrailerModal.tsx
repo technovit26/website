@@ -4,6 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, MotionConfig, Variants } from 'motion/react';
 import { ArrowClockwise, Pause, Play, SpeakerSimpleHigh, SpeakerSimpleX } from '@phosphor-icons/react';
 import { useLenis } from './SmoothScrolling';
+import { useStackOffset } from '../hooks/useBottomStack';
+import { emit } from '../hooks/useEventBus';
+import { playSound } from './SoundManager';
 
 const formatTime = (seconds: number) => {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -83,14 +86,19 @@ export default function TrailerModal() {
   const visible = phase === 'open' || phase === 'closing' || phase === 'minimizing';
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
   const lenis = useLenis();
+  const playPillOffset = useStackOffset('play-pill');
+
+  useEffect(() => {
+    emit('trailer:play-pill-visible', showPill && scrollUp);
+  }, [showPill, scrollUp]);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored === 'minimized' || stored === 'closed') {
-        setShowPill(true);
+        queueMicrotask(() => setShowPill(true));
       } else if (!stored) {
-        setPhase('open');
+        queueMicrotask(() => setPhase('open'));
       }
     } catch {
     }
@@ -154,6 +162,7 @@ export default function TrailerModal() {
     } catch {}
   };
   const handleClose = () => {
+    videoRef.current?.pause();
     try {
       localStorage.removeItem(POSITION_STORAGE_KEY);
       localStorage.setItem(STORAGE_KEY, 'closed');
@@ -162,6 +171,7 @@ export default function TrailerModal() {
   };
   const handleMinimize = () => {
     savePlaybackPosition();
+    videoRef.current?.pause();
     try {
       localStorage.setItem(STORAGE_KEY, 'minimized');
     } catch {}
@@ -169,9 +179,11 @@ export default function TrailerModal() {
   };
   useEffect(() => {
     if (phase === 'open' && !activeSrc) {
-      setActiveSrc(TRAILER_VIDEO_URL);
-      setVideoReady(true);
-      setBuffering(true);
+      queueMicrotask(() => {
+        setActiveSrc(TRAILER_VIDEO_URL);
+        setVideoReady(true);
+        setBuffering(true);
+      });
     }
   }, [phase, activeSrc]);
 
@@ -191,6 +203,7 @@ export default function TrailerModal() {
     if (hideControlsTimerRef.current) clearTimeout(hideControlsTimerRef.current);
   };
   const handleOpen = () => {
+    playSound('play');
     setShowPill(false);
     setPhase('open');
   };
@@ -319,30 +332,20 @@ export default function TrailerModal() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleClose}
-                    className="w-[14px] h-[14px] rounded-full bg-[#FF5F56] hover:bg-[#FF5F56]/80 flex items-center justify-center group transition-colors"
+                    className="w-[14px] h-[14px] rounded-full bg-[#FF5F56] hover:bg-[#FF5F56]/80 transition-colors"
                     aria-label="Close"
-                  >
-                    <svg className="w-2.5 h-2.5 text-black/60 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                  </button>
+                  />
                   <button
                     onClick={handleMinimize}
-                    className="w-[14px] h-[14px] rounded-full bg-[#FFBD2E] hover:bg-[#FFBD2E]/80 flex items-center justify-center group transition-colors"
+                    className="w-[14px] h-[14px] rounded-full bg-[#FFBD2E] hover:bg-[#FFBD2E]/80 transition-colors"
                     aria-label="Minimize"
-                  >
-                    <svg className="w-2.5 h-2.5 text-black/60 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M20 12H4" /></svg>
-                  </button>
+                  />
                   {!isTouchDevice && (
                     <button
                       onClick={toggleFullscreen}
-                      className="w-[14px] h-[14px] rounded-full bg-[#27C93F] hover:bg-[#27C93F]/80 flex items-center justify-center group transition-colors"
+                      className="w-[14px] h-[14px] rounded-full bg-[#27C93F] hover:bg-[#27C93F]/80 transition-colors"
                       aria-label="Fullscreen"
-                    >
-                      {isFullscreen ? (
-                        <svg className="w-2.5 h-2.5 text-black/60 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" /></svg>
-                      ) : (
-                        <svg className="w-2.5 h-2.5 text-black/60 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg>
-                      )}
-                    </button>
+                    />
                   )}
                 </div>
                 <motion.span
@@ -355,7 +358,8 @@ export default function TrailerModal() {
                   TechnoVIT - A Sneak Peek
                 </motion.span>
               </motion.div>
-              <div
+              <motion.div
+                layout
                 className={`relative w-full bg-[#03080a] overflow-hidden min-h-0 ${!isFullscreen ? 'aspect-video' : ''}`}
                 onMouseMove={showControlsTemporarily}
                 onTouchStart={showControlsTemporarily}
@@ -517,7 +521,7 @@ export default function TrailerModal() {
                     </motion.button>
                   )}
                 </AnimatePresence>
-              </div>
+              </motion.div>
               <motion.div
                 layout="position"
                 className={`flex items-center justify-center py-3.5 bg-[#080f09] border-t border-[#84C87F]/10 shrink-0 z-10 relative ${
@@ -537,13 +541,17 @@ export default function TrailerModal() {
             key="trailer-play-button"
             onClick={handleOpen}
             initial={{ opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: -playPillOffset }}
             exit={{ opacity: 0, y: 60 }}
-            transition={{ duration: 0.35, ease: EASE }}
+            transition={{
+              opacity: { duration: 0.35, ease: EASE, delay: 0.06 },
+              y: { type: 'spring', stiffness: 300, damping: 26, delay: 0.06 },
+            }}
             className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] w-12 h-12 rounded-full
               bg-[#84C87F] text-[#064928] shadow-2xl flex items-center justify-center
               hover:bg-[#9ed898] transition-colors"
             aria-label="Watch trailer"
+            data-cursor="Play"
           >
             <Play size={18} weight="fill" />
           </motion.button>
