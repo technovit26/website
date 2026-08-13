@@ -100,6 +100,8 @@ const Navbar = () => {
     gsap.to(lineMidRef.current, { scaleX: 1, opacity: 1, duration: 0.2, delay: 0.08 });
     gsap.to(lineBotRef.current, { rotate: 0, y: 0, duration: 0.3, ease: 'power2.inOut' });
 
+    gsap.set(menuPanelRef.current, { pointerEvents: 'none' });
+
     gsap.to(menuPanelRef.current, {
       opacity: 0, y: -12, duration: 0.25, ease: 'power2.in',
       onComplete: () => setMenuOpen(false),
