@@ -63,7 +63,7 @@ const Header = () => {
   }, []);
 
   return (
-    <section className="relative min-h-[60svh] md:min-h-screen flex flex-col overflow-hidden bg-[#c2e0a5]">
+    <section className="home-hero-text relative flex flex-col overflow-hidden bg-[#c2e0a5]">
       <div className="flex-1 flex flex-col items-center justify-center
         px-4 sm:px-6
         pt-6 sm:pt-10 md:pt-20 lg:pt-20">
@@ -116,10 +116,6 @@ const Header = () => {
         >
           <Countdown targetDate="2026-09-03T00:00:00" />
         </div>
-      </div>
-
-      <div className="w-full pointer-events-none select-none shrink-0 -mt-10 sm:-mt-16 md:-mt-22 lg:-mt-28">
-        <img src="/bg.svg" alt="Background landscape" fetchPriority="high" className="w-full h-auto block" />
       </div>
     </section>
   );

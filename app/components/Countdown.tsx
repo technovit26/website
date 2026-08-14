@@ -43,7 +43,7 @@ const FlipUnit = ({ value, label }: { value: string; label: string }) => {
   );
 };
 
-const Countdown = ({ targetDate }: { targetDate: string }) => {
+const Countdown = ({ targetDate, className = 'text-[#08414a]' }: { targetDate: string; className?: string }) => {
   const [timeLeft, setTimeLeft] = useState({
     days: 0, hours: 0, minutes: 0, seconds: 0,
   });
@@ -73,8 +73,7 @@ const Countdown = ({ targetDate }: { targetDate: string }) => {
   ];
 
   return (
-    <div className="flex justify-center items-end text-[#08414a]
-      gap-1 sm:gap-2 md:gap-4 lg:gap-5 xl:gap-6">
+    <div className={`flex justify-center items-end gap-1 sm:gap-2 md:gap-4 lg:gap-5 xl:gap-6 ${className}`}>
       {units.map(({ label, value }) => (
         <FlipUnit
           key={label}
