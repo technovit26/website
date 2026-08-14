@@ -97,3 +97,22 @@ body::-webkit-scrollbar {
 .terminal-scroll::-webkit-scrollbar-thumb:hover {
   background: rgba(132, 200, 127, 0.55);
 }
+
+.home-hero-text {
+  min-height: calc(60svh - 100vw * 0.474652 + 40px);
+}
+@media (min-width: 640px) {
+  .home-hero-text {
+    min-height: calc(60svh - 100vw * 0.474652 + 64px);
+  }
+}
+@media (min-width: 768px) {
+  .home-hero-text {
+    min-height: calc(100vh - 100vw * 0.474652 + 88px);
+  }
+}
+@media (min-width: 1024px) {
+  .home-hero-text {
+    min-height: calc(100vh - 100vw * 0.474652 + 112px);
+  }
+}

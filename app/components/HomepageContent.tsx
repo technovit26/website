@@ -1,46 +1,11 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { animate, useInView } from 'motion/react';
 import { ArrowRight } from '@phosphor-icons/react';
-
-function StatBlock({ value, suffix = '', label }: { value: number; suffix?: string; label: string }) {
-  const numberRef = useRef<HTMLSpanElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const inView = useInView(containerRef, { once: true, margin: '-80px' });
-
-  useEffect(() => {
-    if (!inView || !numberRef.current) return;
-    const controls = animate(0, value, {
-      duration: 1.4,
-      ease: [0.16, 1, 0.3, 1],
-      onUpdate: (v) => {
-        if (numberRef.current) numberRef.current.textContent = Math.round(v).toLocaleString();
-      },
-    });
-    return () => controls.stop();
-  }, [inView, value]);
-
-  return (
-    <div ref={containerRef} className="flex flex-col items-center text-center">
-      <span
-        className="font-clash font-bold leading-none text-[#c2e0a5] tabular-nums"
-        style={{ fontSize: 'clamp(2.5rem, 8vw, 5.5rem)' }}
-      >
-        <span ref={numberRef}>0</span>
-        {suffix}
-      </span>
-      <span className="mt-1 font-semibold uppercase tracking-[0.2em] text-[#84C87F]/70 text-xs sm:text-sm">
-        {label}
-      </span>
-    </div>
-  );
-}
 
 export default function HomepageContent() {
   return (
-    <div className="bg-[#064928] text-[#c2e0a5]">
+    <div className="relative z-20 bg-[#064928] text-[#c2e0a5]">
       <section className="px-6 sm:px-10 md:px-16 lg:px-24 xl:px-32 py-20 sm:py-28 md:py-36">
         <p
           className="font-clash font-bold leading-[0.88] text-[#c2e0a5]"
@@ -57,15 +22,6 @@ export default function HomepageContent() {
           engineering, design, robotics, coding, and more. No gatekeeping. Talent and curiosity
           are the only entry requirements.
         </p>
-      </section>
-
-      <section className="px-6 sm:px-10 md:px-16 lg:px-24 xl:px-32 pb-20 sm:pb-28">
-        <div className="h-px bg-[#84C87F]/20 mb-12 sm:mb-16" />
-        <div className="grid grid-cols-3 gap-4 sm:gap-8 md:gap-12">
-          <StatBlock value={50} suffix="+" label="Events" />
-          <StatBlock value={5000} suffix="+" label="Minds" />
-          <StatBlock value={2} label="Days" />
-        </div>
       </section>
 
       <section
