@@ -1,13 +1,27 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { motion, useMotionValue, useTransform, useInView, animate } from 'motion/react';
+import { AnimatePresence, motion, useMotionValue, useTransform, useInView, animate } from 'motion/react';
 import Marquee from '../components/Marquee';
+import MarqueeCTA from '../components/MarqueeCTA';
+import Countdown from '../components/Countdown';
+import { playSound } from '../components/SoundManager';
+import { useStackPush } from '../hooks/useBottomStack';
+import { markEggFound, ABOUT_EGG_KEY } from '../hooks/useEggsFound';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const EGG_SEEN_KEY = ABOUT_EGG_KEY;
+const EGG_VISIBLE_MS = 2200;
+const EGG_MESSAGES = ["You found it. There's more hiding around here.", 'Still here, huh?', 'Okay, okay. Keep looking.'];
+
+const HINT_MAX_POKES = 3;
+const HINT_VISIBLE_MS = 3200;
+const HINT_MESSAGES = ["That text isn't just decoration.", 'Go on, click it.', 'Still there. Still clickable.'];
+
+const COVER_MARQUEE_ITEMS = ["TechnoVIT'26"];
 
 const STATS = [
   { value: 5000, suffix: '+', label: 'Registrations' },
@@ -31,7 +45,7 @@ function StatCounter({ value, suffix, label }: { value: number; suffix: string; 
 
   return (
     <div ref={ref} className="flex flex-col gap-2 items-start">
-      <span className="font-clash font-bold text-white leading-none tabular-nums
+      <span className="font-clash font-bold text-[#c2e0a5] leading-none tabular-nums
         max-[390px]:text-4xl text-5xl sm:text-6xl md:text-6xl lg:text-7xl">
         <motion.span>{rounded}</motion.span>{suffix}
       </span>
@@ -42,34 +56,66 @@ function StatCounter({ value, suffix, label }: { value: number; suffix: string; 
   );
 }
 
-
-
-
 export default function AboutPage() {
-  const bigTitleRef  = useRef<HTMLHeadingElement>(null);
-  const ticker1Ref   = useRef<HTMLDivElement>(null);
-  const themeHeadRef = useRef<HTMLDivElement>(null);
-  const themeBodyRef = useRef<HTMLDivElement>(null);
-  const statsRef     = useRef<HTMLDivElement>(null);
-  const whatRef      = useRef<HTMLDivElement>(null);
-  const closingRef   = useRef<HTMLDivElement>(null);
+  const bigTitleRef     = useRef<HTMLHeadingElement>(null);
+  const heroSectionRef  = useRef<HTMLDivElement>(null);
+  const themeHeadRef    = useRef<HTMLDivElement>(null);
+  const themeBodyRef    = useRef<HTMLDivElement>(null);
+  const coverSectionRef = useRef<HTMLDivElement>(null);
+  const statsRef        = useRef<HTMLDivElement>(null);
+  const closingRef      = useRef<HTMLDivElement>(null);
 
+  const [egg, setEgg] = useState<string | null>(null);
+  const eggRef = useStackPush<HTMLDivElement>('play-pill', egg !== null);
+
+  const [hint, setHint] = useState<string | null>(null);
+  const hintRef = useStackPush<HTMLDivElement>('play-pill', hint !== null);
+
+  const triggerEgg = useCallback(() => {
+    let firstTime = false;
+    try {
+      firstTime = !localStorage.getItem(EGG_SEEN_KEY);
+    } catch {}
+    markEggFound(ABOUT_EGG_KEY);
+    setHint(null);
+    playSound('toggle');
+    setEgg(firstTime ? EGG_MESSAGES[0] : EGG_MESSAGES[1 + Math.floor(Math.random() * (EGG_MESSAGES.length - 1))]);
+    setTimeout(() => setEgg(null), EGG_VISIBLE_MS);
+  }, []);
+
+  useEffect(() => {
+    let seen = false;
+    try {
+      seen = !!localStorage.getItem(EGG_SEEN_KEY);
+    } catch {}
+    if (seen) return;
+
+    let pokes = 0;
+    let timer: number;
+
+    const poke = () => {
+      try {
+        if (localStorage.getItem(EGG_SEEN_KEY)) return;
+      } catch {}
+      if (pokes >= HINT_MAX_POKES) return;
+      setHint(HINT_MESSAGES[pokes]);
+      pokes++;
+      timer = window.setTimeout(() => {
+        setHint(null);
+        timer = window.setTimeout(poke, 9000 + Math.random() * 6000);
+      }, HINT_VISIBLE_MS);
+    };
+
+    timer = window.setTimeout(poke, 3500);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
 
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
-      tl.fromTo(bigTitleRef.current,
-          { y: 60, opacity: 0, filter: 'blur(12px)' },
-          { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.0 })
-        .fromTo(ticker1Ref.current,
-          { opacity: 0 },
-          { opacity: 1, duration: 0.45 },
-          '-=0.15');
-
-
-
+      gsap.fromTo(bigTitleRef.current,
+        { y: 60, opacity: 0, filter: 'blur(12px)' },
+        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.0, ease: 'power3.out' });
 
 
       if (themeHeadRef.current) {
@@ -97,20 +143,21 @@ export default function AboutPage() {
       }
 
 
-      if (whatRef.current) {
-        const items = whatRef.current.querySelectorAll('.what-para');
-        gsap.fromTo(items,
-          { y: 30, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.65, stagger: 0.1, ease: 'power3.out',
-            scrollTrigger: { trigger: whatRef.current, start: 'top 82%' } });
-      }
-
-
       if (closingRef.current) {
         gsap.fromTo(closingRef.current,
           { opacity: 0, y: 40 },
           { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
             scrollTrigger: { trigger: closingRef.current, start: 'top 88%' } });
+      }
+
+      if (heroSectionRef.current && coverSectionRef.current) {
+        ScrollTrigger.create({
+          trigger: heroSectionRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          pin: true,
+          pinSpacing: false,
+        });
       }
     });
 
@@ -118,42 +165,49 @@ export default function AboutPage() {
   }, []);
 
   return (
-    <main className="relative min-h-screen bg-white overflow-x-hidden">
+    <main className="relative min-h-screen bg-[#064928] overflow-x-hidden">
 
 
-      <section className="relative bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 pb-0 overflow-hidden">
-
-        <div className="flex-1 flex items-center justify-center pointer-events-none select-none">
-          <h1
-            ref={bigTitleRef}
-            className="font-clash font-bold text-[#04331c] opacity-[0.22] leading-none
-              text-[28vw] tracking-tight uppercase -mt-[2vw] -mb-[3vw]"
-          >
-            ABOUT
-          </h1>
-        </div>
-
-        <div
-          ref={ticker1Ref}
-          className="mt-0 -mx-5 sm:-mx-10 md:-mx-16 lg:-mx-24
-            bg-[#064928] text-[#84C87F] py-3.5 sm:py-4 overflow-hidden"
+      <section
+        ref={heroSectionRef}
+        className="relative z-0 min-h-screen flex items-center justify-center select-none
+          bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 overflow-hidden"
+      >
+        <h1
+          ref={bigTitleRef}
+          onClick={triggerEgg}
+          data-cursor="26"
+          className="font-clash font-bold text-[#04331c] opacity-[0.22] hover:opacity-[0.32] leading-none
+            text-[28vw] tracking-tight uppercase cursor-pointer transition-opacity duration-300"
         >
-          <Marquee />
-        </div>
+          ABOUT
+        </h1>
       </section>
 
 
-      <section className="px-5 sm:px-10 md:px-16 lg:px-24 py-16 sm:py-20 md:py-28">
-        <div className="max-w-5xl mx-auto">
+      <section
+        ref={coverSectionRef}
+        className="relative z-10 min-h-screen flex flex-col justify-center gap-6 sm:gap-8
+          bg-[#84C87F] text-[#04331c] py-16 overflow-hidden"
+      >
+        <Marquee items={COVER_MARQUEE_ITEMS} size="lg" />
+        <Marquee reverse size="lg" />
+      </section>
+
+
+      <section
+        className="relative bg-[#064928] px-5 sm:px-10 md:px-16 lg:px-24 py-16 sm:py-20 md:py-28"
+      >
+        <div className="max-w-5xl mx-auto w-full">
 
 
           <div ref={themeHeadRef} className="mb-10 md:mb-14">
-            <span className="font-bold uppercase tracking-[0.3em] text-[#019153] text-[10px] sm:text-xs block mb-4">
+            <span className="font-bold uppercase tracking-[0.3em] text-[#84C87F] text-[10px] sm:text-xs block mb-4">
               TechnoVIT&apos;26 Theme
             </span>
 
             <div>
-              <p className="font-clash font-bold text-[#08414a] leading-none uppercase
+              <p className="font-clash font-bold text-[#c2e0a5] leading-none uppercase
                 text-[9vw] sm:text-[7vw] md:text-[6vw] lg:text-[5.5vw] tracking-tight">
                 Inclusive
               </p>
@@ -174,8 +228,8 @@ export default function AboutPage() {
               "TechnoVIT'26 — two days, every discipline, every skill level welcome. Come be part of it.",
             ].map((text, i) => (
               <div key={i}
-                className="para border-t border-[#064928]/10 last:border-b py-6 sm:py-7">
-                <p className="text-[#08414a]/70 text-base sm:text-lg leading-relaxed font-[450]">
+                className="para border-t border-[#84C87F]/15 last:border-b py-6 sm:py-7">
+                <p className="text-[#c2e0a5]/70 text-base sm:text-lg leading-relaxed font-[450]">
                   {text}
                 </p>
               </div>
@@ -185,14 +239,14 @@ export default function AboutPage() {
       </section>
 
 
-      <section className="bg-[#064928] px-5 sm:px-10 md:px-16 lg:px-24 py-16 sm:py-20 md:py-28">
+      <section className="relative bg-[#064928] px-5 sm:px-10 md:px-16 lg:px-24 py-16 sm:py-20 md:py-28">
         <div ref={statsRef} className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 xl:grid-cols-4">
             {STATS.map((s, i) => (
               <div key={i} className={`flex flex-col gap-2 py-10 xl:py-0
-                ${i % 2 === 0 ? 'border-r border-white/10' : ''} 
-                ${i < 2 ? 'border-b border-white/10 xl:border-b-0' : ''}
-                ${i !== 3 ? 'xl:border-r xl:border-white/10' : 'xl:border-r-0'}
+                ${i % 2 === 0 ? 'border-r border-[#84C87F]/10' : ''}
+                ${i < 2 ? 'border-b border-[#84C87F]/10 xl:border-b-0' : ''}
+                ${i !== 3 ? 'xl:border-r xl:border-[#84C87F]/10' : 'xl:border-r-0'}
                 px-4 sm:px-8 xl:px-12 ${i === 0 ? 'xl:pl-0' : ''}
               `}>
                 <StatCounter value={s.value} suffix={s.suffix} label={s.label} />
@@ -201,39 +255,6 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-
-
-      <section className="px-5 sm:px-10 md:px-16 lg:px-24 py-16 sm:py-20 md:py-24">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-10 md:gap-16 items-start">
-
-
-          <div className="md:sticky md:top-32">
-            <h2 className="font-clash font-bold text-[#08414a] text-3xl sm:text-4xl md:text-5xl leading-tight">
-              What is<br />TechnoVIT?
-            </h2>
-            <div className="mt-5 w-10 h-[3px] bg-[#84C87F] rounded-full" />
-          </div>
-
-
-          <div ref={whatRef} className="flex flex-col gap-5 sm:gap-6 md:gap-7">
-            {[
-              "TechnoVIT is the annual technical festival of VIT Chennai — a celebration where engineering, creativity, and innovation converge on campus every year. It's the stage where students from across India come to compete, collaborate, and push the boundaries of what's possible.",
-              "TechnoVIT brings together thousands of participants across technical events, workshops, hackathons, guest lectures, and cultural showcases — all packed into two electrifying days.",
-              "From paper presentations to robotics competitions, from coding marathons to design challenges — TechnoVIT is where ambition meets opportunity, and where the next generation of innovators makes their mark.",
-            ].map((p, i) => (
-              <p key={i} className="what-para text-[#08414a]/75 text-base sm:text-lg leading-relaxed font-[450]
-                border-l-2 border-[#064928]/10 pl-5 hover:border-[#84C87F] transition-colors duration-300">
-                {p}
-              </p>
-            ))}
-          </div>
-        </div>
-      </section>
-
-
-      <div className="bg-[#064928] text-[#84C87F] py-3.5 sm:py-4 overflow-hidden">
-        <Marquee reverse />
-      </div>
 
 
       <section className="relative overflow-hidden bg-[#064928]
@@ -246,44 +267,52 @@ export default function AboutPage() {
           </span>
         </div>
 
-        <div ref={closingRef} className="relative max-w-7xl mx-auto">
-          <h2 className="font-clash font-bold text-white leading-[0.92] uppercase
-            text-[11vw] sm:text-[9vw] md:text-[7vw] lg:text-6xl xl:text-7xl
-            max-w-3xl tracking-tight">
-            Make your<br />
-            <span className="text-[#84C87F]">mark here.</span>
-          </h2>
+        <div ref={closingRef} className="relative max-w-7xl mx-auto flex flex-col items-center text-center gap-8 sm:gap-10">
+          <Countdown targetDate="2026-09-03T00:00:00" className="text-[#c2e0a5]" />
 
-          <p className="mt-6 sm:mt-8 text-white/55 text-sm sm:text-base leading-relaxed max-w-md font-[450]">
-            Two days. Thousands of minds. Non-stop hackathons, showdowns, and builds.
-            TechnoVIT&apos;26 — VIT Chennai.
+          <p className="text-white/55 text-xs sm:text-sm uppercase tracking-[0.3em] font-bold">
+            Until TechnoVIT&apos;26 · VIT Chennai
           </p>
 
-          <div className="mt-8 sm:mt-10 flex flex-wrap gap-3 sm:gap-4">
-            <a
-              href="/events"
-              id="about-explore-events"
-              className="inline-flex items-center gap-2 px-7 sm:px-8 py-3.5 sm:py-4
-                bg-[#84C87F] text-[#08414a] font-bold uppercase tracking-widest text-xs
-                hover:bg-white transition-colors duration-200"
-            >
-              Explore Events
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-3.5 h-3.5">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </a>
-            <a
-              href="/team"
-              id="about-meet-team"
-              className="inline-flex items-center gap-2 px-7 sm:px-8 py-3.5 sm:py-4
-                border border-white/25 text-white font-bold uppercase tracking-widest text-xs
-                hover:border-[#84C87F] hover:text-[#84C87F] transition-colors duration-200"
-            >
-              Meet the Team
-            </a>
-          </div>
+          <div className="w-16 sm:w-20 h-px bg-[#84C87F]/25" />
+
+          <MarqueeCTA href="/events" label="Explore Events" dataCursor="Explore" />
         </div>
       </section>
+
+      <AnimatePresence>
+        {egg && (
+          <motion.div
+            ref={eggRef}
+            initial={{ opacity: 0, y: 16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.97 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] bg-[#064928] text-[#84C87F]
+              font-clash font-bold text-sm px-5 py-3 rounded-full shadow-2xl border border-[#84C87F]/30
+              flex items-center gap-2 whitespace-nowrap"
+          >
+            {egg}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {hint && (
+          <motion.div
+            ref={hintRef}
+            initial={{ opacity: 0, y: 16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.97 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] bg-[#064928] text-[#84C87F]/80
+              font-clash font-bold text-sm px-5 py-3 rounded-full shadow-2xl border border-[#84C87F]/20
+              flex items-center gap-2 whitespace-nowrap"
+          >
+            {hint}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </main>
   );
