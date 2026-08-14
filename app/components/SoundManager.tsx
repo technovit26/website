@@ -5,7 +5,7 @@ import { motion } from 'motion/react';
 import { emit, on } from '../hooks/useEventBus';
 import { useStackOffset, useBroadcastHeight } from '../hooks/useBottomStack';
 
-type SoundName = 'hover' | 'click' | 'toggle' | 'transition' | 'keystroke' | 'denied' | 'ask' | 'play' | 'chomp';
+type SoundName = 'hover' | 'click' | 'toggle' | 'transition' | 'keystroke' | 'denied' | 'ask' | 'play' | 'chomp' | 'shutter';
 
 interface ToneSpec {
   type: OscillatorType;
@@ -70,13 +70,12 @@ class SoundEngine {
     osc.stop(now + spec.duration + 0.02);
   }
 
-  private noiseBite(peakGain: number, filterFreq: number) {
+  private noiseBite(peakGain: number, filterFreq: number, duration = 0.09) {
     if (this.muted) return;
     const ctx = this.ensureContext();
     if (!ctx) return;
 
     const now = ctx.currentTime;
-    const duration = 0.09;
     const bufferSize = Math.ceil(ctx.sampleRate * duration);
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -132,6 +131,10 @@ class SoundEngine {
       case 'chomp':
         this.noiseBite(0.09, 2200);
         setTimeout(() => this.noiseBite(0.08, 1600), 110);
+        break;
+      case 'shutter':
+        this.noiseBite(0.12, 3600, 0.032);
+        setTimeout(() => this.noiseBite(0.08, 2000, 0.045), 55);
         break;
       case 'transition':
         this.tone({
