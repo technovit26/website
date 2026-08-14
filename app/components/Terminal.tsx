@@ -6,9 +6,11 @@ import { AnimatePresence, motion } from 'motion/react';
 import { TerminalWindow } from '@phosphor-icons/react';
 import { useLenis } from './SmoothScrolling';
 import { emit, on } from '../hooks/useEventBus';
+import { markEggFound, TERMINAL_EGG_KEY } from '../hooks/useEggsFound';
+import { useStackPush } from '../hooks/useBottomStack';
 import { playSound, requestSoundMute, soundEngine } from './SoundManager';
 
-export const TERMINAL_SEEN_KEY = 'technovit_terminal_seen';
+export const TERMINAL_SEEN_KEY = TERMINAL_EGG_KEY;
 
 type Line =
   | { type: 'output' | 'input' | 'accent'; text: string }
@@ -173,6 +175,8 @@ export default function Terminal() {
   const [hintMessage, setHintMessage] = useState(HINT_MESSAGES[0]);
   const [busy, setBusy] = useState(false);
 
+  const hintRef = useStackPush<HTMLButtonElement>('terminal-hint', showHint && !open);
+
   const hasBooted = useRef(false);
   const abortRef = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -194,9 +198,7 @@ export default function Terminal() {
   const openTerminal = useCallback(() => {
     playSound('toggle');
     setShowHint(false);
-    try {
-      localStorage.setItem(TERMINAL_SEEN_KEY, '1');
-    } catch {}
+    markEggFound(TERMINAL_EGG_KEY);
     if (!hasBooted.current) {
       hasBooted.current = true;
       setLines(BOOT_LINES);
@@ -637,6 +639,7 @@ export default function Terminal() {
       <AnimatePresence>
         {showHint && !open && (
           <motion.button
+            ref={hintRef}
             onClick={toggleTerminal}
             initial={{ opacity: 0, x: -10, scale: 0.92 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}

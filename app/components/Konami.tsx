@@ -4,9 +4,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useKonamiCode } from '../hooks/useKonamiCode';
 import { useStackPush } from '../hooks/useBottomStack';
+import { markEggFound, KONAMI_EGG_KEY } from '../hooks/useEggsFound';
 import { playSound } from './SoundManager';
 
-const KONAMI_UNLOCKED_KEY = 'technovit_konami_unlocked';
 const FLASH_VISIBLE_MS = 2200;
 
 export default function Konami() {
@@ -15,16 +15,16 @@ export default function Konami() {
 
   useEffect(() => {
     try {
-      if (localStorage.getItem(KONAMI_UNLOCKED_KEY)) queueMicrotask(() => setUnlocked(true));
+      if (localStorage.getItem(KONAMI_EGG_KEY)) queueMicrotask(() => setUnlocked(true));
     } catch {}
   }, []);
 
   const handleSuccess = useCallback(() => {
     let firstTime = false;
     try {
-      firstTime = !localStorage.getItem(KONAMI_UNLOCKED_KEY);
-      localStorage.setItem(KONAMI_UNLOCKED_KEY, '1');
+      firstTime = !localStorage.getItem(KONAMI_EGG_KEY);
     } catch {}
+    markEggFound(KONAMI_EGG_KEY);
     playSound('toggle');
     setUnlocked(true);
     setFlash(firstTime ? 'Konami Discovered!' : 'Konami!');

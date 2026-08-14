@@ -25,6 +25,7 @@ import { useLenis } from "./SmoothScrolling";
 import { TERMINAL_SEEN_KEY } from "./Terminal";
 import { emit } from "../hooks/useEventBus";
 import { useStackPush } from "../hooks/useBottomStack";
+import { markEggFound, CONTEXT_MENU_EGG_KEY } from "../hooks/useEggsFound";
 
 const NAV_ITEMS: { href: string; label: string; icon: Icon }[] = [
   { href: "/", label: "Home", icon: House },
@@ -50,7 +51,7 @@ const HYPE_MESSAGES = [
   "Talent and curiosity — the only entry requirements.",
 ];
 
-const HINT_STORAGE_KEY = "technovit_ctx_hint_seen";
+const HINT_STORAGE_KEY = CONTEXT_MENU_EGG_KEY;
 const HINT_MAX_POKES = 4;
 const MOBILE_HINT_MAX_POKES = 5;
 
@@ -111,7 +112,7 @@ export default function ContextMenu() {
 
     const markSeen = () => {
       discovered = true;
-      localStorage.setItem(HINT_STORAGE_KEY, "1");
+      markEggFound(CONTEXT_MENU_EGG_KEY);
       setShowHint(false);
       window.clearTimeout(timer);
     };
