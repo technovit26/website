@@ -59,12 +59,12 @@ export default function NotFound() {
   }, []);
 
   return (
-    <section className="relative min-h-[60svh] md:min-h-screen flex flex-col overflow-hidden bg-[#c2e0a5]">
-
-      <div className="flex-1 flex flex-col items-center justify-center text-center
-        px-4 sm:px-6
-        pt-6 sm:pt-10 md:pt-20 lg:pt-20
-        pb-4 sm:pb-6">
+    <main className="w-full overflow-hidden">
+      <div className="home-hero-text relative flex flex-col overflow-hidden bg-[#c2e0a5]">
+        <div className="flex-1 flex flex-col items-center justify-center text-center
+          px-4 sm:px-6
+          pt-6 sm:pt-10 md:pt-20 lg:pt-20
+          pb-4 sm:pb-6">
 
         <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-6
           leading-none font-clash font-bold text-[#08414a] select-none">
@@ -110,14 +110,15 @@ export default function NotFound() {
         </Link>
       </div>
 
-      <div className="w-full pointer-events-none select-none shrink-0 -mt-10 sm:-mt-16 md:-mt-22 lg:-mt-28">
+      </div>
+
+      <div className="relative z-10 w-full pointer-events-none select-none shrink-0 -mt-10 sm:-mt-16 md:-mt-22 lg:-mt-28">
         <img
           src="/bg.svg"
           alt="Background landscape"
           className="w-full h-auto block"
         />
       </div>
-
-    </section>
+    </main>
   );
 }
