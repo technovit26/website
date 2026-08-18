@@ -1,11 +1,16 @@
 'use client';
 
-import { useLayoutEffect, useRef } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
+import { AnimatePresence, motion } from 'motion/react';
 import Countdown from './Countdown';
+import { playSound } from './SoundManager';
+import { markEggFound, HOME_EGG_KEY } from '../hooks/useEggsFound';
 
 const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!%&';
 const FINAL_TEXT = "technoVIT'26";
+const REPLAY_TRIGGER_COUNT = 5;
+const FLASH_VISIBLE_MS = 2400;
 
 const Header = () => {
   const h1Ref = useRef<HTMLHeadingElement>(null);
@@ -13,6 +18,40 @@ const Header = () => {
   const themeRef = useRef<HTMLDivElement>(null);
   const dateRef = useRef<HTMLParagraphElement>(null);
   const countdownRef = useRef<HTMLDivElement>(null);
+  const clicksRef = useRef(0);
+  const replayIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [flash, setFlash] = useState<string | null>(null);
+
+  const handleTitleClick = useCallback(() => {
+    const h1 = h1Ref.current;
+    if (!h1) return;
+
+    clicksRef.current += 1;
+    playSound('keystroke');
+
+    if (replayIntervalRef.current) clearInterval(replayIntervalRef.current);
+    let iteration = 0;
+    const totalChars = FINAL_TEXT.length;
+    replayIntervalRef.current = setInterval(() => {
+      h1.innerText = FINAL_TEXT.split('').map((char, i) => {
+        if (i < Math.floor(iteration)) return char;
+        if (char === "'" || char === ' ') return char;
+        return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+      }).join('');
+      iteration += 0.5;
+      if (iteration >= totalChars) {
+        h1.innerText = FINAL_TEXT;
+        if (replayIntervalRef.current) clearInterval(replayIntervalRef.current);
+      }
+    }, 30);
+
+    if (clicksRef.current === REPLAY_TRIGGER_COUNT) {
+      markEggFound(HOME_EGG_KEY);
+      playSound('toggle');
+      setFlash('Okay, persistence noted. Respect.');
+      setTimeout(() => setFlash(null), FLASH_VISIBLE_MS);
+    }
+  }, []);
 
   useLayoutEffect(() => {
     const h1 = h1Ref.current;
@@ -59,7 +98,10 @@ const Header = () => {
 
 
 
-    return () => clearInterval(scrambleInterval);
+    return () => {
+      clearInterval(scrambleInterval);
+      if (replayIntervalRef.current) clearInterval(replayIntervalRef.current);
+    };
   }, []);
 
   return (
@@ -71,8 +113,10 @@ const Header = () => {
         <div className="relative pb-4 sm:pb-5 md:pb-6 mb-14 sm:mb-16 md:mb-20">
           <h1
             ref={h1Ref}
+            onClick={handleTitleClick}
+            data-cursor="Recompile"
             className="font-clash font-bold leading-none text-center text-[#08414a] whitespace-nowrap
-              text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl"
+              text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl cursor-pointer select-none"
           >
             {FINAL_TEXT}
           </h1>
@@ -117,6 +161,30 @@ const Header = () => {
           <Countdown targetDate="2026-09-03T00:00:00" />
         </div>
       </div>
+
+      <AnimatePresence>
+        {flash && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: -16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.92, y: -10 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+            className="fixed top-[14%] left-1/2 -translate-x-1/2 z-[999996] bg-[#064928] text-[#84C87F]
+              font-clash font-bold text-base px-6 py-3.5 rounded-full border border-[#84C87F]/40
+              flex items-center gap-2.5 whitespace-nowrap"
+            style={{ boxShadow: '0 0 40px rgba(132,200,127,0.35), 0 20px 60px rgba(0,0,0,0.5)' }}
+          >
+            <motion.span
+              className="text-xl"
+              animate={{ rotate: [0, -12, 12, -8, 0] }}
+              transition={{ duration: 0.6, ease: 'easeInOut' }}
+            >
+              💻
+            </motion.span>
+            {flash}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
