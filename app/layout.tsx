@@ -15,6 +15,8 @@ import QuestionMark from "./components/QuestionMark";
 import BottomNavCluster from "./components/BottomNavCluster";
 import EggMaster from "./components/EggMaster";
 import ConsoleEgg from "./components/ConsoleEgg";
+import SiteMaintenance from "./components/SiteMaintenance";
+import { SITE_MAINTENANCE_MODE } from "./maintenance";
 
 const clashDisplay = localFont({
   src: "../public/fonts/clash.woff2",
@@ -53,21 +55,25 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f02c938088bc4e53841f29ebcd62b663"}'></script>
       </head>
       <body className="flex flex-col min-h-screen">
-        <SmoothScrolling>
-          <TrailerModal />
-          <CustomCursor />
-          <ContextMenu />
-          <SoundManager />
-          <Terminal />
-          <Konami />
-          <QuestionMark />
-          <BottomNavCluster />
-          <EggMaster />
-          <ConsoleEgg />
-          <Navbar />
-          <div className="flex-1">{children}</div>
-          <Footer />
-        </SmoothScrolling>
+        {SITE_MAINTENANCE_MODE ? (
+          <SiteMaintenance />
+        ) : (
+          <SmoothScrolling>
+            <TrailerModal />
+            <CustomCursor />
+            <ContextMenu />
+            <SoundManager />
+            <Terminal />
+            <Konami />
+            <QuestionMark />
+            <BottomNavCluster />
+            <EggMaster />
+            <ConsoleEgg />
+            <Navbar />
+            <div className="flex-1">{children}</div>
+            <Footer />
+          </SmoothScrolling>
+        )}
       </body>
     </html>
   );
