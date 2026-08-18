@@ -129,12 +129,13 @@ export default function QuestionMark() {
         data-no-context-menu
         onClick={(e) => e.stopPropagation()}
         className={`fixed z-[201] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[92vw] sm:w-[440px] max-w-[92vw]
+          max-h-[88dvh] flex flex-col
           rounded-xl overflow-hidden border border-[#84C87F]/25 bg-[#03080a] font-terminal
           shadow-[0_0_0_1px_rgba(132,200,127,0.15),0_40px_100px_rgba(0,0,0,0.85)]
           transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
           ${open ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}`}
       >
-        <div className="flex items-center justify-between px-4 py-2.5 bg-[#080f09] border-b border-[#84C87F]/10 relative select-none">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-[#080f09] border-b border-[#84C87F]/10 relative select-none shrink-0">
           <div className="flex items-center gap-2">
             <button
               onClick={cut}
@@ -154,7 +155,7 @@ export default function QuestionMark() {
           </span>
         </div>
 
-        <div className="px-6 py-7 space-y-4">
+        <div className="terminal-scroll min-h-0 overflow-y-auto px-6 py-7 space-y-4">
           <p className="font-clash font-bold leading-[1.1] text-2xl sm:text-3xl md:text-4xl text-white">
             Not just a website.
             <br />

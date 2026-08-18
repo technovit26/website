@@ -285,12 +285,14 @@ export default function TrailerModal() {
             animate={visible ? 'visible' : 'exit'}
             exit="exit"
             aria-hidden={!visible}
+            onClick={handleClose}
             className={`fixed inset-0 z-[300] flex items-center justify-center backdrop-blur-sm ${isFullscreen ? 'p-0' : 'p-4 sm:p-8'} ${visible ? '' : 'pointer-events-none'}`}
             style={{ background: 'rgba(4,10,6,0.92)' }}
           >
             <motion.div
               ref={modalRef}
               layout
+              onClick={(e) => e.stopPropagation()}
               variants={modalVariants}
               initial="hidden"
               animate={
@@ -313,7 +315,7 @@ export default function TrailerModal() {
               className={`relative grid grid-rows-[auto_1fr_auto] bg-[#03080a] overflow-hidden transition-[border-radius,box-shadow] duration-300 ease-[cubic-bezier(0.65,0,0.35,1)] ${
                 isFullscreen
                   ? 'w-full h-full max-w-none rounded-none'
-                  : 'w-[95vw] sm:w-[90vw] max-w-[1200px] rounded-2xl'
+                  : 'w-[95vw] sm:w-[90vw] max-w-[1200px] max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-4rem)] rounded-2xl'
               }`}
               style={{
                 boxShadow: isFullscreen
