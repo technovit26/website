@@ -60,8 +60,9 @@ const NO_ARG_COMMANDS = new Set([
 
 const HYPE_LINES = [
   'Two days. Every discipline. Compile your excitement.',
-  '50+ events queued in the runtime.',
-  '5000+ minds, zero merge conflicts.',
+  '150+ events queued in the runtime.',
+  '25,000+ minds, zero merge conflicts.',
+  '20+ countries, one build target.',
   'Booting confidence.exe ...',
   "TechnoVIT'26 — no segfaults, just hype.",
 ];
@@ -442,13 +443,12 @@ export default function Terminal() {
 
   useEffect(() => {
     const measure = () => {
-      const probe = document.createElement('span');
-      probe.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;font-size:13px;';
-      probe.style.fontFamily = 'var(--font-terminal)';
-      probe.textContent = '0'.repeat(20);
-      document.body.appendChild(probe);
-      const width = probe.getBoundingClientRect().width / 20;
-      document.body.removeChild(probe);
+      const el = contentRef.current;
+      if (!el) return;
+      const ctx = document.createElement('canvas').getContext('2d');
+      if (!ctx) return;
+      ctx.font = `13px ${getComputedStyle(el).fontFamily}`;
+      const width = ctx.measureText('0'.repeat(20)).width / 20;
       if (width > 0) setCharWidth(width);
     };
     measure();
@@ -535,8 +535,8 @@ export default function Terminal() {
           font-terminal transition-[opacity,transform,width,height,border-radius] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
           ${
             isFullscreen
-              ? 'w-[calc(100vw-24px)] h-[calc(100vh-24px)] sm:w-[calc(100vw-48px)] sm:h-[calc(100vh-48px)] rounded-lg'
-              : 'w-[92vw] sm:w-[640px] max-w-[92vw] h-[60vh] max-h-[520px] rounded-xl'
+              ? 'w-[calc(100vw-24px)] h-[calc(100dvh-24px)] sm:w-[calc(100vw-48px)] sm:h-[calc(100dvh-48px)] rounded-lg'
+              : 'w-[92vw] sm:w-[640px] max-w-[92vw] h-[60dvh] max-h-[520px] rounded-xl'
           }
           ${open ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}`}
       >

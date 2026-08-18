@@ -24,10 +24,10 @@ const HINT_MESSAGES = ["That text isn't just decoration.", 'Go on, click it.', '
 const COVER_MARQUEE_ITEMS = ["TechnoVIT'26"];
 
 const STATS = [
-  { value: 5000, suffix: '+', label: 'Registrations' },
-  { value: 50,   suffix: '+', label: 'Events' },
-  { value: 2,    suffix: '',  label: 'Power-packed Days' },
-  { value: 1,    suffix: '',  label: 'Unifying Theme' },
+  { value: 25000, suffix: '+', label: 'Participants' },
+  { value: 150,   suffix: '+', label: 'Events' },
+  { value: 20,    suffix: '+', label: 'Countries' },
+  { value: 2,     suffix: '',  label: 'Power-packed Days' },
 ];
 
 function StatCounter({ value, suffix, label }: { value: number; suffix: string; label: string }) {
@@ -58,10 +58,8 @@ function StatCounter({ value, suffix, label }: { value: number; suffix: string; 
 
 export default function AboutPage() {
   const bigTitleRef     = useRef<HTMLHeadingElement>(null);
-  const heroSectionRef  = useRef<HTMLDivElement>(null);
   const themeHeadRef    = useRef<HTMLDivElement>(null);
   const themeBodyRef    = useRef<HTMLDivElement>(null);
-  const coverSectionRef = useRef<HTMLDivElement>(null);
   const statsRef        = useRef<HTMLDivElement>(null);
   const closingRef      = useRef<HTMLDivElement>(null);
 
@@ -150,15 +148,6 @@ export default function AboutPage() {
             scrollTrigger: { trigger: closingRef.current, start: 'top 88%' } });
       }
 
-      if (heroSectionRef.current && coverSectionRef.current) {
-        ScrollTrigger.create({
-          trigger: heroSectionRef.current,
-          start: 'top top',
-          end: 'bottom top',
-          pin: true,
-          pinSpacing: false,
-        });
-      }
     });
 
     return () => ctx.revert();
@@ -169,8 +158,7 @@ export default function AboutPage() {
 
 
       <section
-        ref={heroSectionRef}
-        className="relative z-0 min-h-screen flex items-center justify-center select-none
+        className="sticky top-0 z-0 min-h-screen flex items-center justify-center select-none
           bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 overflow-hidden"
       >
         <h1
@@ -186,7 +174,6 @@ export default function AboutPage() {
 
 
       <section
-        ref={coverSectionRef}
         className="relative z-10 min-h-screen flex flex-col justify-center gap-6 sm:gap-8
           bg-[#84C87F] text-[#04331c] py-16 overflow-hidden"
       >
