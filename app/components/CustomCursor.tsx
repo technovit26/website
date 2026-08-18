@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion, useMotionValue, useSpring } from 'motion/react';
 import { setCursorMode, subscribeCursorMode, type CursorMode } from '../hooks/useCursorMode';
+import { useIsTouchDevice } from '../hooks/useIsTouchDevice';
 
 let lastX = 0;
 let lastY = 0;
@@ -25,7 +26,7 @@ const TRAIL_OPACITIES = [0.45, 0.35, 0.28, 0.2, 0.13, 0.07];
 
 export default function CustomCursor() {
   const pathname = usePathname();
-  const [hidden] = useState(() => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches);
+  const hidden = useIsTouchDevice();
   const [hovering, setHovering] = useState(false);
   const [mode, setMode] = useState<CursorMode>('');
 

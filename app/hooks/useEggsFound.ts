@@ -9,6 +9,9 @@ export const CONTEXT_MENU_EGG_KEY = 'technovit_ctx_hint_seen';
 export const ABOUT_EGG_KEY = 'technovit_about_egg_seen';
 export const GALLERY_EGG_KEY = 'technovit_gallery_egg_seen';
 export const HOME_EGG_KEY = 'technovit_home_egg_seen';
+export const SANDWICH_EGG_KEY = 'technovit_sandwich_egg_seen';
+export const SEARCH_EGG_KEY = 'technovit_search_egg_seen';
+export const SLIDER_EGG_KEY = 'technovit_slider_egg_seen';
 
 export const EGG_KEYS = [
   KONAMI_EGG_KEY,
@@ -17,6 +20,9 @@ export const EGG_KEYS = [
   ABOUT_EGG_KEY,
   GALLERY_EGG_KEY,
   HOME_EGG_KEY,
+  SANDWICH_EGG_KEY,
+  SEARCH_EGG_KEY,
+  SLIDER_EGG_KEY,
 ] as const;
 export type EggKey = (typeof EGG_KEYS)[number];
 

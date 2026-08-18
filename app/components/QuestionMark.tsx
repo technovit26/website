@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { Question } from '@phosphor-icons/react';
 import { useLenis } from './SmoothScrolling';
 import { useStackOffset, useElementHeight, STACK_GAP } from '../hooks/useBottomStack';
+import { useIsTouchDevice } from '../hooks/useIsTouchDevice';
 import { playSound } from './SoundManager';
 
 const CLICKED_KEY = 'technovit_question_clicked';
@@ -12,9 +13,7 @@ const DISMISSED_KEY = 'technovit_question_dismissed';
 
 export default function QuestionMark() {
   const lenis = useLenis();
-  const [isTouchDevice] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
-  );
+  const isTouchDevice = useIsTouchDevice();
   const [dismissed, setDismissed] = useState(true);
   const [everClicked, setEverClicked] = useState(true);
   const [open, setOpen] = useState(false);

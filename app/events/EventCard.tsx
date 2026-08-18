@@ -38,7 +38,7 @@ export default function EventCard({
 
       <div className="flex-1 min-w-0 flex flex-col justify-between p-4 sm:p-5">
         <div className="flex flex-col gap-1.5">
-          <span className="font-terminal text-[9px] uppercase tracking-[0.2em] text-[#84C87F]/50">
+          <span className="font-terminal text-[9px] uppercase tracking-[0.2em] text-[#84C87F]/50 truncate">
             {event.clubName}
           </span>
           <h3 className="font-clash font-bold text-[#c2e0a5] text-xl sm:text-2xl leading-tight line-clamp-2">
@@ -56,7 +56,7 @@ export default function EventCard({
             <MapPin size={13} weight="bold" className="shrink-0" />
             <span className="truncate">{event.eventVenue}</span>
           </div>
-          <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-[#84C87F]/60 text-xs">
               <UsersThree size={13} weight="bold" className="shrink-0" />
               <span>{event.participationType}{event.participationType === 'Team' ? ` · up to ${event.teamSize}` : ''}</span>

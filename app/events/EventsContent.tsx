@@ -17,6 +17,7 @@ import {
 import Marquee from '../components/Marquee';
 import HScrollRow from '../components/HScrollRow';
 import { playSound } from '../components/SoundManager';
+import { markEggFound, SEARCH_EGG_KEY, SLIDER_EGG_KEY } from '../hooks/useEggsFound';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import EventCard from './EventCard';
 import EventModal from './EventModal';
@@ -149,6 +150,15 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
   };
 
   useEffect(() => {
+    if (debouncedSearch.trim().toLowerCase() === '42') markEggFound(SEARCH_EGG_KEY);
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    if (priceMin === priceMax) return;
+    if (priceRange[0] === priceRange[1]) markEggFound(SLIDER_EGG_KEY);
+  }, [priceRange, priceMin, priceMax]);
+
+  useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         heroRef.current,
@@ -206,9 +216,9 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
   }, []);
 
   return (
-    <main className="relative min-h-screen bg-[#064928] overflow-x-hidden">
+    <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
       <section
-        className="sticky top-0 z-0 min-h-screen flex items-center justify-center select-none
+        className="sticky top-0 z-0 min-h-[100dvh] flex items-center justify-center select-none
           bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 overflow-hidden"
       >
         <h1
@@ -221,7 +231,7 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
       </section>
 
       <section
-        className="relative z-10 min-h-screen flex flex-col justify-center gap-6 sm:gap-8
+        className="relative z-10 min-h-[100dvh] flex flex-col justify-center gap-6 sm:gap-8
           bg-[#84C87F] text-[#04331c] py-16 overflow-hidden"
       >
         <Marquee items={CURTAIN_ITEMS} size="lg" />

@@ -6,8 +6,9 @@ import { AnimatePresence, motion } from 'motion/react';
 import { TerminalWindow } from '@phosphor-icons/react';
 import { useLenis } from './SmoothScrolling';
 import { emit, on } from '../hooks/useEventBus';
-import { markEggFound, TERMINAL_EGG_KEY } from '../hooks/useEggsFound';
+import { markEggFound, TERMINAL_EGG_KEY, SANDWICH_EGG_KEY } from '../hooks/useEggsFound';
 import { useStackPush } from '../hooks/useBottomStack';
+import { useIsTouchDevice } from '../hooks/useIsTouchDevice';
 import { playSound, requestSoundMute, soundEngine } from './SoundManager';
 
 export const TERMINAL_SEEN_KEY = TERMINAL_EGG_KEY;
@@ -161,9 +162,7 @@ function CreditsDemo({ onDone, abortRef }: { onDone: () => void; abortRef: React
 export default function Terminal() {
   const router = useRouter();
   const lenis = useLenis();
-  const [isTouchDevice] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
-  );
+  const isTouchDevice = useIsTouchDevice();
   const [open, setOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [lines, setLines] = useState<Line[]>([]);
@@ -330,8 +329,23 @@ export default function Terminal() {
           }
           break;
         case 'sudo':
-          playSound('denied');
-          appendOutput(`sudo${arg ? `: ${arg}` : ''}: ${pickRandom(SUDO_LINES)}`, true);
+          if (arg.toLowerCase().trim() === 'make me a sandwich') {
+            markEggFound(SANDWICH_EGG_KEY);
+            playSound('toggle');
+            appendOutput('Okay.', true);
+          } else {
+            playSound('denied');
+            appendOutput(`sudo${arg ? `: ${arg}` : ''}: ${pickRandom(SUDO_LINES)}`, true);
+          }
+          break;
+        case 'make':
+          if (arg.toLowerCase().trim() === 'me a sandwich') {
+            playSound('denied');
+            appendOutput('What? Make it yourself.', true);
+          } else {
+            playSound('denied');
+            appendOutput(`command not found: ${cmd} — type 'help'`, true);
+          }
           break;
         case 'rm':
           if (arg.includes('-rf') && arg.includes('/')) {

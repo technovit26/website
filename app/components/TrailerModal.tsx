@@ -5,6 +5,7 @@ import { motion, AnimatePresence, MotionConfig, Variants } from 'motion/react';
 import { ArrowClockwise, Pause, Play, SpeakerSimpleHigh, SpeakerSimpleX } from '@phosphor-icons/react';
 import { useLenis } from './SmoothScrolling';
 import { emit, on } from '../hooks/useEventBus';
+import { useIsTouchDevice } from '../hooks/useIsTouchDevice';
 import { playSound } from './SoundManager';
 
 const formatTime = (seconds: number) => {
@@ -75,7 +76,7 @@ export default function TrailerModal() {
   const [scrollUp, setScrollUp] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [activeSrc, setActiveSrc] = useState<string | undefined>(undefined);
-  const [isTouchDevice] = useState(() => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches);
+  const isTouchDevice = useIsTouchDevice();
   const videoRef = useRef<HTMLVideoElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const seekBarRef = useRef<HTMLDivElement>(null);

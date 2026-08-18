@@ -154,11 +154,11 @@ export default function AboutPage() {
   }, []);
 
   return (
-    <main className="relative min-h-screen bg-[#064928] overflow-x-hidden">
+    <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
 
 
       <section
-        className="sticky top-0 z-0 min-h-screen flex items-center justify-center select-none
+        className="sticky top-0 z-0 min-h-[100dvh] flex items-center justify-center select-none
           bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 overflow-hidden"
       >
         <h1
@@ -174,7 +174,7 @@ export default function AboutPage() {
 
 
       <section
-        className="relative z-10 min-h-screen flex flex-col justify-center gap-6 sm:gap-8
+        className="relative z-10 min-h-[100dvh] flex flex-col justify-center gap-6 sm:gap-8
           bg-[#84C87F] text-[#04331c] py-16 overflow-hidden"
       >
         <Marquee items={COVER_MARQUEE_ITEMS} size="lg" />
