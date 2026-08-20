@@ -47,14 +47,6 @@ function buildCoreItems(images: GalleryImage[]): CoreItem[] {
   }));
 }
 
-const AMBIENT_COUNT = 46;
-const AMBIENT_ITEMS = Array.from({ length: AMBIENT_COUNT }, (_, i) => ({
-  id: i,
-  seed: `technovit-amb-${i}`,
-}));
-
-const ambientUrl = (seed: string) => `https://picsum.photos/seed/${seed}/460/460`;
-
 const SPAN_CLS: Record<Span, string> = {
   sq: 'row-span-4',
   tall: 'row-span-5',
@@ -115,24 +107,41 @@ function CoreCard({ item, onOpen }: { item: CoreItem; onOpen: (item: CoreItem) =
 }
 
 const AMBIENT_ROW_COUNT = 6;
-const AMBIENT_ROWS: { seed: string }[][] = Array.from({ length: AMBIENT_ROW_COUNT }, () => []);
-AMBIENT_ITEMS.forEach((item, i) => AMBIENT_ROWS[i % AMBIENT_ROW_COUNT].push(item));
+const MIN_TILES_PER_ROW = 10;
 const ROW_SPEEDS = [70, 85, 62, 95, 74, 88];
 
-function AmbientWall() {
+function identityUrl(url: string) {
+  return url;
+}
+
+function buildAmbientRows(images: GalleryImage[]): { seed: string }[][] {
+  if (images.length === 0) return [];
+  const tilesPerRow = Math.max(MIN_TILES_PER_ROW, Math.ceil(images.length / AMBIENT_ROW_COUNT));
+  return Array.from({ length: AMBIENT_ROW_COUNT }, (_, row) =>
+    Array.from({ length: tilesPerRow }, (_, i) => {
+      const img = images[(row + i * AMBIENT_ROW_COUNT) % images.length];
+      return { seed: img.url };
+    })
+  );
+}
+
+function AmbientWall({ images }: { images: GalleryImage[] }) {
+  const rows = useMemo(() => buildAmbientRows(images), [images]);
+  if (rows.length === 0) return null;
+
   return (
     <div>
       <div className="flex items-center gap-3 mb-5 sm:mb-6">
         <div className="h-px flex-1 bg-[#84C87F]/15" />
         <span className="font-bold uppercase tracking-[0.3em] text-[#84C87F]/50 text-[10px] sm:text-xs whitespace-nowrap">
-          The rest of the roll — {AMBIENT_COUNT} frames
+          The rest of the roll — {images.length} frames
         </span>
         <div className="h-px flex-1 bg-[#84C87F]/15" />
       </div>
 
       <div className="flex flex-col gap-[3px]">
-        {AMBIENT_ROWS.map((row, i) => (
-          <PhotoRow key={i} items={row} reverse={i % 2 === 1} speed={ROW_SPEEDS[i]} imgUrl={ambientUrl} />
+        {rows.map((row, i) => (
+          <PhotoRow key={i} items={row} reverse={i % 2 === 1} speed={ROW_SPEEDS[i]} imgUrl={identityUrl} />
         ))}
       </div>
     </div>
@@ -271,7 +280,13 @@ function Lightbox({
   );
 }
 
-export default function GalleryContent({ images }: { images: GalleryImage[] }) {
+export default function GalleryContent({
+  images,
+  ambientImages,
+}: {
+  images: GalleryImage[];
+  ambientImages: GalleryImage[];
+}) {
   const coreItems = useMemo(() => buildCoreItems(images), [images]);
 
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -391,11 +406,9 @@ export default function GalleryContent({ images }: { images: GalleryImage[] }) {
         </section>
       )}
 
-      {/* Rest of the roll — hidden for now
       <section ref={wallRef} className="px-5 sm:px-10 md:px-16 lg:px-24 pb-20 sm:pb-28">
-        <AmbientWall />
+        <AmbientWall images={ambientImages} />
       </section>
-      */}
 
       <AnimatePresence>
         {active && (
