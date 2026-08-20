@@ -13,10 +13,14 @@ interface GalleryResponse {
 export async function fetchSpecialGalleryImages(): Promise<GalleryImage[]> {
   try {
     const res = await fetch(GALLERY_ENDPOINT, { next: { revalidate: REVALIDATE_SECONDS } });
-    if (!res.ok) return [];
+    if (!res.ok) {
+      console.error(`[gallery] fetch failed: ${res.status} ${res.statusText}`);
+      return [];
+    }
     const data: GalleryResponse = await res.json();
     return (data.images ?? []).filter((img) => img.isSpecial);
-  } catch {
+  } catch (err) {
+    console.error('[gallery] fetch threw', err);
     return [];
   }
 }
