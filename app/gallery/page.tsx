@@ -8,6 +8,11 @@ export const metadata = {
 };
 
 export default async function GalleryPage() {
-  const specialImages = await fetchSpecialGalleryImages();
-  return <GalleryContent images={specialImages} />;
+  const { images, debug } = await fetchSpecialGalleryImages();
+  return (
+    <>
+      <span data-gallery-debug={debug} aria-hidden style={{ display: 'none' }} />
+      <GalleryContent images={images} />
+    </>
+  );
 }

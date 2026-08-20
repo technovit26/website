@@ -10,17 +10,26 @@ interface GalleryResponse {
   images: GalleryImage[];
 }
 
-export async function fetchSpecialGalleryImages(): Promise<GalleryImage[]> {
+export interface GalleryFetchResult {
+  images: GalleryImage[];
+  debug: string;
+}
+
+export async function fetchSpecialGalleryImages(): Promise<GalleryFetchResult> {
   try {
     const res = await fetch(GALLERY_ENDPOINT, { next: { revalidate: REVALIDATE_SECONDS } });
     if (!res.ok) {
-      console.error(`[gallery] fetch failed: ${res.status} ${res.statusText}`);
-      return [];
+      const debug = `fetch failed: ${res.status} ${res.statusText}`;
+      console.error(`[gallery] ${debug}`);
+      return { images: [], debug };
     }
     const data: GalleryResponse = await res.json();
-    return (data.images ?? []).filter((img) => img.isSpecial);
+    const all = data.images ?? [];
+    const special = all.filter((img) => img.isSpecial);
+    return { images: special, debug: `ok: ${all.length} total, ${special.length} special` };
   } catch (err) {
-    console.error('[gallery] fetch threw', err);
-    return [];
+    const debug = `fetch threw: ${err instanceof Error ? err.message : String(err)}`;
+    console.error(`[gallery] ${debug}`);
+    return { images: [], debug };
   }
 }
