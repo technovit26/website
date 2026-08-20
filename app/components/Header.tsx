@@ -149,7 +149,7 @@ const Header = () => {
             tracking-[0.15em] sm:tracking-[0.2em]
             text-xs sm:text-sm md:text-xl xl:text-2xl"
         >
-          3rd September - 4th September
+          3rd September and 4th September
         </p>
 
         <div
