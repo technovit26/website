@@ -1,10 +1,13 @@
-import UnderMaintenance from '../components/UnderMaintenance';
-import { GALLERY_EGG_KEY } from '../hooks/useEggsFound';
+import GalleryContent from './GalleryContent';
+import { fetchSpecialGalleryImages } from './data';
+
+export const revalidate = 300;
 
 export const metadata = {
   title: 'Gallery | technoVIT\'26',
 };
 
-export default function GalleryPage() {
-  return <UnderMaintenance title="Gallery" eggKey={GALLERY_EGG_KEY} />;
+export default async function GalleryPage() {
+  const specialImages = await fetchSpecialGalleryImages();
+  return <GalleryContent images={specialImages} />;
 }

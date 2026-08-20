@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -10,36 +10,42 @@ import PhotoRow from '../components/PhotoRow';
 import { useLenis } from '../components/SmoothScrolling';
 import { playSound } from '../components/SoundManager';
 import { markEggFound, GALLERY_EGG_KEY } from '../hooks/useEggsFound';
+import { type GalleryImage } from './data';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const CURTAIN_ITEMS = ["TechnoVIT'26"];
 
 type Span = 'sq' | 'tall' | 'wide';
+const SPAN_CYCLE: Span[] = ['tall', 'wide', 'sq'];
 
 interface CoreItem {
   id: number;
-  seed: string;
-  w: number;
-  h: number;
+  url: string;
   label: string;
   tag: string;
   span: Span;
 }
 
-const CORE_ITEMS: CoreItem[] = [
-  { id: 1,  seed: 'technovit-01', w: 700, h: 900, label: 'Hackathon — Finals Night', tag: 'HACK',  span: 'tall' },
-  { id: 2,  seed: 'technovit-02', w: 900, h: 650, label: 'RoboWars — Arena',          tag: 'ROBO',  span: 'wide' },
-  { id: 3,  seed: 'technovit-03', w: 750, h: 750, label: 'Workshop — AI & ML',        tag: 'WKSP',  span: 'sq' },
-  { id: 4,  seed: 'technovit-04', w: 700, h: 900, label: 'Coding Marathon',           tag: 'CODE',  span: 'tall' },
-  { id: 5,  seed: 'technovit-05', w: 750, h: 750, label: 'Paper Presentation',        tag: 'PAPER', span: 'sq' },
-  { id: 6,  seed: 'technovit-06', w: 900, h: 650, label: 'Design Sprint',             tag: 'DSGN',  span: 'wide' },
-  { id: 7,  seed: 'technovit-07', w: 700, h: 900, label: 'Guest Lecture',             tag: 'TALK',  span: 'tall' },
-  { id: 8,  seed: 'technovit-08', w: 750, h: 750, label: 'Late-Night Build',          tag: 'BUILD', span: 'sq' },
-  { id: 9,  seed: 'technovit-09', w: 900, h: 650, label: 'CTF — Live Round',          tag: 'CTF',   span: 'wide' },
-  { id: 10, seed: 'technovit-10', w: 700, h: 900, label: 'Team Photo',                tag: 'CREW',  span: 'tall' },
-  { id: 11, seed: 'technovit-11', w: 750, h: 750, label: 'Closing Ceremony',          tag: 'CLOSE', span: 'sq' },
-];
+function filenameOf(url: string): string {
+  return url.split('/').pop() || 'photo';
+}
+
+function deriveTag(url: string): string {
+  const name = filenameOf(url).replace(/\.[^.]+$/, '');
+  const alpha = name.match(/[A-Za-z]+/)?.[0] ?? 'IMG';
+  return alpha.slice(0, 5).toUpperCase();
+}
+
+function buildCoreItems(images: GalleryImage[]): CoreItem[] {
+  return images.map((img, i) => ({
+    id: i,
+    url: img.url,
+    label: "TechnoVIT'26",
+    tag: deriveTag(img.url),
+    span: SPAN_CYCLE[i % SPAN_CYCLE.length],
+  }));
+}
 
 const AMBIENT_COUNT = 46;
 const AMBIENT_ITEMS = Array.from({ length: AMBIENT_COUNT }, (_, i) => ({
@@ -47,7 +53,6 @@ const AMBIENT_ITEMS = Array.from({ length: AMBIENT_COUNT }, (_, i) => ({
   seed: `technovit-amb-${i}`,
 }));
 
-const coreUrl = (item: CoreItem) => `https://picsum.photos/seed/${item.seed}/${item.w}/${item.h}`;
 const ambientUrl = (seed: string) => `https://picsum.photos/seed/${seed}/460/460`;
 
 const SPAN_CLS: Record<Span, string> = {
@@ -78,7 +83,7 @@ function CoreCard({ item, onOpen }: { item: CoreItem; onOpen: (item: CoreItem) =
 
       <div className="relative h-[calc(100%-30px)] overflow-hidden">
         <img
-          src={coreUrl(item)}
+          src={item.url}
           alt={item.label}
           loading="lazy"
           className="absolute inset-0 w-full h-full object-cover
@@ -209,10 +214,8 @@ function Lightbox({
 
         <div className="relative inline-block align-bottom leading-none bg-black">
           <img
-            src={coreUrl(item)}
+            src={item.url}
             alt={item.label}
-            width={item.w}
-            height={item.h}
             className="block w-auto h-auto max-w-[92vw] max-h-[calc(88dvh-70px)] object-contain"
           />
 
@@ -268,7 +271,9 @@ function Lightbox({
   );
 }
 
-export default function GalleryContent() {
+export default function GalleryContent({ images }: { images: GalleryImage[] }) {
+  const coreItems = useMemo(() => buildCoreItems(images), [images]);
+
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const wallRef = useRef<HTMLDivElement>(null);
@@ -277,10 +282,10 @@ export default function GalleryContent() {
 
   const openItem = (item: CoreItem) => {
     playSound('shutter');
-    setOpenIndex(CORE_ITEMS.findIndex((i) => i.id === item.id));
+    setOpenIndex(coreItems.findIndex((i) => i.id === item.id));
 
     viewedRef.current.add(item.id);
-    if (viewedRef.current.size >= CORE_ITEMS.length) {
+    if (viewedRef.current.size >= coreItems.length) {
       markEggFound(GALLERY_EGG_KEY);
     }
   };
@@ -288,8 +293,8 @@ export default function GalleryContent() {
     playSound('toggle');
     setOpenIndex(null);
   };
-  const prev = () => setOpenIndex((i) => (i === null ? null : (i - 1 + CORE_ITEMS.length) % CORE_ITEMS.length));
-  const next = () => setOpenIndex((i) => (i === null ? null : (i + 1) % CORE_ITEMS.length));
+  const prev = () => setOpenIndex((i) => (i === null ? null : (i - 1 + coreItems.length) % coreItems.length));
+  const next = () => setOpenIndex((i) => (i === null ? null : (i + 1) % coreItems.length));
 
   const goPrev = () => {
     playSound('shutter');
@@ -325,7 +330,7 @@ export default function GalleryContent() {
     return () => ctx.revert();
   }, []);
 
-  const active = openIndex !== null ? CORE_ITEMS[openIndex] : null;
+  const active = openIndex !== null ? coreItems[openIndex] : null;
 
   return (
     <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
@@ -364,29 +369,33 @@ export default function GalleryContent() {
         </div>
       </section>
 
-      <section className="px-5 sm:px-10 md:px-16 lg:px-24 py-16 sm:py-20">
-        <div className="flex items-center gap-3 mb-5 sm:mb-6">
-          <div className="h-px flex-1 bg-[#84C87F]/15" />
-          <span className="font-bold uppercase tracking-[0.3em] text-[#84C87F]/50 text-[10px] sm:text-xs whitespace-nowrap">
-            Core Memories — {CORE_ITEMS.length} selects
-          </span>
-          <div className="h-px flex-1 bg-[#84C87F]/15" />
-        </div>
+      {coreItems.length > 0 && (
+        <section className="px-5 sm:px-10 md:px-16 lg:px-24 py-16 sm:py-20">
+          <div className="flex items-center gap-3 mb-5 sm:mb-6">
+            <div className="h-px flex-1 bg-[#84C87F]/15" />
+            <span className="font-bold uppercase tracking-[0.3em] text-[#84C87F]/50 text-[10px] sm:text-xs whitespace-nowrap">
+              Core Memories — {coreItems.length} selects
+            </span>
+            <div className="h-px flex-1 bg-[#84C87F]/15" />
+          </div>
 
-        <div
-          ref={gridRef}
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4
-            grid-flow-dense auto-rows-[70px] sm:auto-rows-[80px]"
-        >
-          {CORE_ITEMS.map((item) => (
-            <CoreCard key={item.id} item={item} onOpen={openItem} />
-          ))}
-        </div>
-      </section>
+          <div
+            ref={gridRef}
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4
+              grid-flow-dense auto-rows-[70px] sm:auto-rows-[80px]"
+          >
+            {coreItems.map((item) => (
+              <CoreCard key={item.id} item={item} onOpen={openItem} />
+            ))}
+          </div>
+        </section>
+      )}
 
+      {/* Rest of the roll — hidden for now
       <section ref={wallRef} className="px-5 sm:px-10 md:px-16 lg:px-24 pb-20 sm:pb-28">
         <AmbientWall />
       </section>
+      */}
 
       <AnimatePresence>
         {active && (
