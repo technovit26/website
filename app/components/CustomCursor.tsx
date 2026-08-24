@@ -67,23 +67,34 @@ export default function CustomCursor() {
     mouseX.set(lastX);
     mouseY.set(lastY);
 
+    // elementFromPoint() forces a hit-test (and can force a synchronous layout
+    // flush), so it's throttled to once per animation frame here — running it
+    // on every raw mousemove (which can fire well above 60Hz) competes with
+    // scroll's own rAF work and is what caused hover-heavy sections like the
+    // gallery grid to drop frames whenever the cursor crossed a card mid-scroll.
+    let rafId: number | null = null;
     const onMouseMove = (e: MouseEvent) => {
       lastX = e.clientX;
       lastY = e.clientY;
       mouseX.set(lastX);
       mouseY.set(lastY);
 
-      const target = document.elementFromPoint(e.clientX, e.clientY);
-      setHovering(!!target?.closest(HOVER_SELECTOR));
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const target = document.elementFromPoint(lastX, lastY);
+        setHovering(!!target?.closest(HOVER_SELECTOR));
 
-      const cursorEl = target?.closest<HTMLElement>('[data-cursor]');
-      setCursorMode(cursorEl?.dataset.cursor ?? '');
+        const cursorEl = target?.closest<HTMLElement>('[data-cursor]');
+        setCursorMode(cursorEl?.dataset.cursor ?? '');
+      });
     };
 
     window.addEventListener('mousemove', onMouseMove);
 
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
+      if (rafId !== null) cancelAnimationFrame(rafId);
     };
   }, [hidden, mouseX, mouseY]);
 
