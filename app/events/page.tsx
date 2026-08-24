@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import EventsContent from './EventsContent';
 import { fetchEvents } from './data';
 
@@ -9,5 +10,9 @@ export const metadata = {
 
 export default async function EventsPage() {
   const events = await fetchEvents();
-  return <EventsContent events={events} />;
+  return (
+    <Suspense>
+      <EventsContent events={events} />
+    </Suspense>
+  );
 }

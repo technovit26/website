@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -97,7 +98,15 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
   const [participation, setParticipation] = useState<string>(DEFAULT_PARTICIPATION);
   const [eventFor, setEventFor] = useState<string>(DEFAULT_FOR);
   const [priceRange, setPriceRange] = useState<[number, number]>(() => [priceMin, priceMax]);
-  const [activeEvent, setActiveEvent] = useState<EventItem | null>(null);
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const deepLinkedEventId = searchParams.get('event');
+  const activeEvent = useMemo(
+    () => (deepLinkedEventId ? events.find((e) => e.id === deepLinkedEventId) ?? null : null),
+    [deepLinkedEventId, events]
+  );
 
   const debouncedSearch = useDebouncedValue(search, 250);
 
@@ -140,14 +149,22 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
     });
   }, [regularEvents, debouncedSearch, eventType, participation, eventFor, priceRange]);
 
-  const openEvent = (event: EventItem) => {
+  const openEvent = useCallback(
+    (event: EventItem) => {
+      playSound('toggle');
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('event', event.id);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams]
+  );
+  const closeEvent = useCallback(() => {
     playSound('toggle');
-    setActiveEvent(event);
-  };
-  const closeEvent = () => {
-    playSound('toggle');
-    setActiveEvent(null);
-  };
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('event');
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [pathname, router, searchParams]);
 
   useEffect(() => {
     if (debouncedSearch.trim().toLowerCase() === '42') markEggFound(SEARCH_EGG_KEY);
