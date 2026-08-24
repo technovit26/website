@@ -8,7 +8,6 @@ import { emit } from '../hooks/useEventBus';
 export const NAV_LINKS = [
   { href: '/events', label: 'Events' },
   { href: '/team', label: 'Team' },
-  { href: '/merch', label: 'Merch' },
   { href: '/sponsors', label: 'Sponsors' },
   { href: '/gallery', label: 'Gallery' },
   { href: '/about', label: 'About' },
