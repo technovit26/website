@@ -29,10 +29,12 @@ export default function MemberCard({
   member,
   tag,
   size = 'md',
+  aspect = 'aspect-[4/5]',
 }: {
   member: Person;
   tag: string;
   size?: 'md' | 'lg';
+  aspect?: string;
 }) {
   const socials = [
     member.linkedin && { href: member.linkedin, label: 'LinkedIn', icon: <LinkedinLogo size={14} weight="fill" /> },
@@ -58,7 +60,7 @@ export default function MemberCard({
         </span>
       </div>
 
-      <div className={`relative w-full overflow-hidden ${size === 'lg' ? 'aspect-[4/3]' : 'aspect-[4/5]'}`}>
+      <div className={`relative w-full overflow-hidden bg-[#080f09] ${aspect}`}>
         {member.photoUrl ? (
           <img
             src={member.photoUrl}

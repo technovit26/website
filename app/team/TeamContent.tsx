@@ -49,12 +49,16 @@ function AnimatedGrid({
   members,
   prefix,
   size = 'md',
+  aspect,
   gridClassName,
+  itemClassName,
 }: {
   members: Person[];
   prefix: string;
   size?: 'md' | 'lg';
+  aspect: string;
   gridClassName: string;
+  itemClassName?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -73,7 +77,13 @@ function AnimatedGrid({
   return (
     <div ref={ref} className={gridClassName}>
       {members.map((m, i) => (
-        <MemberCard key={m.name} member={m} tag={tagFor(prefix, i)} size={size} />
+        itemClassName ? (
+          <div key={m.name} className={itemClassName}>
+            <MemberCard member={m} tag={tagFor(prefix, i)} size={size} aspect={aspect} />
+          </div>
+        ) : (
+          <MemberCard key={m.name} member={m} tag={tagFor(prefix, i)} size={size} aspect={aspect} />
+        )
       ))}
     </div>
   );
@@ -150,6 +160,7 @@ export default function TeamContent() {
           members={CHIEF_PATRON}
           prefix="CPAT"
           size="lg"
+          aspect="aspect-[21/20]"
           gridClassName="grid grid-cols-1 max-w-xs mx-auto"
         />
       </section>
@@ -160,6 +171,7 @@ export default function TeamContent() {
           members={PATRONS}
           prefix="PAT"
           size="lg"
+          aspect="aspect-[13/15]"
           gridClassName="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-3xl mx-auto"
         />
       </section>
@@ -170,6 +182,7 @@ export default function TeamContent() {
           members={CO_PATRONS}
           prefix="COPAT"
           size="lg"
+          aspect="aspect-[17/18]"
           gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-4xl mx-auto"
         />
       </section>
@@ -180,6 +193,7 @@ export default function TeamContent() {
           members={ADVISORY_COMMITTEE}
           prefix="ADV"
           size="lg"
+          aspect="aspect-[5/6]"
           gridClassName="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto"
         />
       </section>
@@ -190,6 +204,7 @@ export default function TeamContent() {
           members={CONVENORS}
           prefix="CONV"
           size="lg"
+          aspect="aspect-[5/6]"
           gridClassName="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-4xl mx-auto"
         />
       </section>
@@ -199,7 +214,9 @@ export default function TeamContent() {
         <AnimatedGrid
           members={FACULTY_ORGANISERS}
           prefix="FAC"
-          gridClassName="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto"
+          aspect="aspect-[5/6]"
+          gridClassName="flex flex-wrap justify-center gap-4 sm:gap-6 max-w-6xl mx-auto"
+          itemClassName="flex-none basis-[calc(50%-0.5rem)] sm:basis-[calc(33.333%-1rem)] lg:basis-[calc(25%-1.125rem)]"
         />
       </section>
 
@@ -208,7 +225,9 @@ export default function TeamContent() {
         <AnimatedGrid
           members={STUDENT_ORGANISERS}
           prefix="STU"
-          gridClassName="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto"
+          aspect="aspect-[12/13]"
+          gridClassName="flex flex-wrap justify-center gap-4 sm:gap-6 max-w-6xl mx-auto"
+          itemClassName="flex-none basis-[calc(50%-0.5rem)] sm:basis-[calc(33.333%-1rem)] lg:basis-[calc(25%-1.125rem)]"
         />
       </section>
 
