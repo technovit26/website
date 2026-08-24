@@ -52,70 +52,76 @@ export const SECTIONS: Record<string, TeamSection> = {
   },
 };
 
-// Photos to be added via CDN links — photoUrl left undefined for now.
+// Photos are numbered in the order people appear in the source roster doc,
+// skipping Dr. Lavanya V (no photo on file) — image1 is G. Viswanathan,
+// image42 is Karan Kumar, the last entry in that doc.
+const TEAM_PHOTO_BASE = 'https://techno.team.a2ys.dev/team';
+function photo(n: number): string {
+  return `${TEAM_PHOTO_BASE}/image${n}.webp`;
+}
 
 export const CHIEF_PATRON: Person[] = [
-  { name: 'Dr. G. Viswanathan', role: 'Chancellor' },
+  { name: 'Dr. G. Viswanathan', role: 'Chancellor', photoUrl: photo(1) },
 ];
 
 export const PATRONS: Person[] = [
-  { name: 'Dr. Sankar Viswanathan', role: 'Vice-President' },
-  { name: 'Dr. Sekar Viswanathan', role: 'Vice-President' },
-  { name: 'Dr. G.V. Selvam', role: 'Vice-President' },
+  { name: 'Dr. Sankar Viswanathan', role: 'Vice-President', photoUrl: photo(2) },
+  { name: 'Dr. Sekar Viswanathan', role: 'Vice-President', photoUrl: photo(3) },
+  { name: 'Dr. G.V. Selvam', role: 'Vice-President', photoUrl: photo(4) },
 ];
 
 export const CO_PATRONS: Person[] = [
-  { name: 'Dr. Kanchana Bhaaskaran V.S', role: 'Vice-Chancellor' },
-  { name: 'Dr. Thyagarajan T', role: 'Pro-Vice Chancellor, Chennai Campus' },
-  { name: 'Dr. K. Sathiyanarayanan', role: 'Director, Chennai Campus' },
-  { name: 'Dr. P.K. Manoharan', role: 'Additional Registrar, Chennai Campus' },
+  { name: 'Dr. Kanchana Bhaaskaran V.S', role: 'Vice-Chancellor', photoUrl: photo(5) },
+  { name: 'Dr. Thyagarajan T', role: 'Pro-Vice Chancellor, Chennai Campus', photoUrl: photo(6) },
+  { name: 'Dr. K. Sathiyanarayanan', role: 'Director, Chennai Campus', photoUrl: photo(7) },
+  { name: 'Dr. P.K. Manoharan', role: 'Additional Registrar, Chennai Campus', photoUrl: photo(8) },
 ];
 
 export const ADVISORY_COMMITTEE: Person[] = [
-  { name: 'Dr. Sathiya Narayanan S', role: 'Director, SWF, Chennai Campus' },
-  { name: 'Dr. Sankar Ganesh', role: 'Assistant Director, SWF, Chennai Campus' },
+  { name: 'Dr. Sathiya Narayanan S', role: 'Director, SWF, Chennai Campus', photoUrl: photo(9) },
+  { name: 'Dr. Sankar Ganesh', role: 'Assistant Director, SWF, Chennai Campus', photoUrl: photo(10) },
 ];
 
 export const CONVENORS: Person[] = [
-  { name: 'Dr. Jayasudha M', role: 'Convenor, TechnoVIT' },
-  { name: 'Dr. Giridharan A', role: 'Co-Convenor, TechnoVIT' },
-  { name: 'Dr. Bhuvaneswari M', role: 'Co-Convenor, TechnoVIT' },
-  { name: 'Dr. Arjun Shaji', role: 'Co-Convenor, TechnoVIT' },
+  { name: 'Dr. Jayasudha M', role: 'Convenor, TechnoVIT', photoUrl: photo(11) },
+  { name: 'Dr. Giridharan A', role: 'Co-Convenor, TechnoVIT', photoUrl: photo(12) },
+  { name: 'Dr. Bhuvaneswari M', role: 'Co-Convenor, TechnoVIT', photoUrl: photo(13) },
+  { name: 'Dr. Arjun Shaji', role: 'Co-Convenor, TechnoVIT', photoUrl: photo(14) },
 ];
 
 // Dr. Deepika Roselind J kept first per request (Web and Technical Team).
 export const FACULTY_ORGANISERS: Person[] = [
-  { name: 'Dr. Deepika Roselind J', role: 'Web and Technical Team' },
+  { name: 'Dr. Deepika Roselind J', role: 'Web and Technical Team', photoUrl: photo(28) },
   { name: 'Dr. Lavanya V', role: 'Campus Decoration' },
-  { name: 'Dr. S. Devi Yamini', role: 'Design and Printing' },
-  { name: 'Dr. Uma Maheswari S', role: 'Documentation' },
-  { name: 'Dr. Krithiga R', role: 'Events' },
-  { name: 'Dr. Vasugi K', role: 'Finance' },
-  { name: 'Dr. Saurav Gupta', role: 'Guest Care & Accommodation' },
-  { name: 'Dr. Umadevi S', role: 'Press and Media' },
-  { name: 'Dr. Jesica Roshima A', role: 'Purchase' },
-  { name: 'Dr. Ranjeet Kumar', role: 'Publicity and Marketing' },
-  { name: 'Prof. Shanthi Krishna', role: 'Registration & Reception' },
-  { name: 'Dr. Pradeep N', role: 'Stalls and Expo' },
-  { name: 'Dr. Praveen Joe I R', role: 'Sponsorship & MoU' },
-  { name: 'Dr. Radha R', role: 'Stage Arrangements (Inaugural / Valedictory)' },
-  { name: 'Dr. Senthil Pandian N', role: 'Venue Arrangements and Refreshments' },
+  { name: 'Dr. S. Devi Yamini', role: 'Design and Printing', photoUrl: photo(15) },
+  { name: 'Dr. Uma Maheswari S', role: 'Documentation', photoUrl: photo(16) },
+  { name: 'Dr. Krithiga R', role: 'Events', photoUrl: photo(17) },
+  { name: 'Dr. Vasugi K', role: 'Finance', photoUrl: photo(18) },
+  { name: 'Dr. Saurav Gupta', role: 'Guest Care & Accommodation', photoUrl: photo(19) },
+  { name: 'Dr. Umadevi S', role: 'Press and Media', photoUrl: photo(20) },
+  { name: 'Dr. Jesica Roshima A', role: 'Purchase', photoUrl: photo(21) },
+  { name: 'Dr. Ranjeet Kumar', role: 'Publicity and Marketing', photoUrl: photo(22) },
+  { name: 'Prof. Shanthi Krishna', role: 'Registration & Reception', photoUrl: photo(23) },
+  { name: 'Dr. Pradeep N', role: 'Stalls and Expo', photoUrl: photo(24) },
+  { name: 'Dr. Praveen Joe I R', role: 'Sponsorship & MoU', photoUrl: photo(25) },
+  { name: 'Dr. Radha R', role: 'Stage Arrangements (Inaugural / Valedictory)', photoUrl: photo(26) },
+  { name: 'Dr. Senthil Pandian N', role: 'Venue Arrangements and Refreshments', photoUrl: photo(27) },
 ];
 
 // Karan Kumar leads Website Committee — kept first in this list per request.
 export const STUDENT_ORGANISERS: Person[] = [
-  { name: 'Karan Kumar', role: 'Website Committee' },
-  { name: 'Arathi Manukumar', role: 'Campus Decoration' },
-  { name: 'Yoha Yazhini G', role: 'Design and Printing' },
-  { name: 'Samprikta Sarkar', role: 'Documentation' },
-  { name: 'Sivani P Nathan', role: 'Events' },
-  { name: 'Aman Brahma', role: 'Finance' },
-  { name: 'Epparala Sri Medha', role: 'Guest Care & Accommodation' },
-  { name: 'Atharva Anil Shukla', role: 'Press and Media' },
-  { name: 'Shreyavarshini Subramanian', role: 'Purchase' },
-  { name: 'Swathy Sree R', role: 'Publicity and Marketing' },
-  { name: 'Ragoor Shashank Reddy', role: 'Registration & Reception' },
-  { name: 'Kirankumar R', role: 'Stalls and Expo' },
-  { name: 'Sharan K', role: 'Sponsorship & MoU' },
-  { name: 'Vanshika Rathi', role: 'Stage Arrangements (Inaugural / Valedictory)' },
+  { name: 'Karan Kumar', role: 'Website Committee', photoUrl: photo(42) },
+  { name: 'Arathi Manukumar', role: 'Campus Decoration', photoUrl: photo(29) },
+  { name: 'Yoha Yazhini G', role: 'Design and Printing', photoUrl: photo(30) },
+  { name: 'Samprikta Sarkar', role: 'Documentation', photoUrl: photo(31) },
+  { name: 'Sivani P Nathan', role: 'Events', photoUrl: photo(32) },
+  { name: 'Aman Brahma', role: 'Finance', photoUrl: photo(33) },
+  { name: 'Epparala Sri Medha', role: 'Guest Care & Accommodation', photoUrl: photo(34) },
+  { name: 'Atharva Anil Shukla', role: 'Press and Media', photoUrl: photo(35) },
+  { name: 'Shreyavarshini Subramanian', role: 'Purchase', photoUrl: photo(36) },
+  { name: 'Swathy Sree R', role: 'Publicity and Marketing', photoUrl: photo(37) },
+  { name: 'Ragoor Shashank Reddy', role: 'Registration & Reception', photoUrl: photo(38) },
+  { name: 'Kirankumar R', role: 'Stalls and Expo', photoUrl: photo(39) },
+  { name: 'Sharan K', role: 'Sponsorship & MoU', photoUrl: photo(40) },
+  { name: 'Vanshika Rathi', role: 'Stage Arrangements (Inaugural / Valedictory)', photoUrl: photo(41) },
 ];
