@@ -255,7 +255,7 @@ export default function AboutPage() {
         </div>
 
         <div ref={closingRef} className="relative max-w-7xl mx-auto flex flex-col items-center text-center gap-8 sm:gap-10">
-          <Countdown targetDate="2026-09-03T00:00:00" className="text-[#c2e0a5]" />
+          <Countdown targetDate="2026-09-03T09:30:00" className="text-[#c2e0a5]" />
 
           <p className="text-white/55 text-xs sm:text-sm uppercase tracking-[0.3em] font-bold">
             Until TechnoVIT&apos;26 · VIT Chennai

@@ -158,7 +158,7 @@ const Header = () => {
             mt-4 sm:mt-5 md:mt-6
             px-2 sm:px-4"
         >
-          <Countdown targetDate="2026-09-03T00:00:00" />
+          <Countdown targetDate="2026-09-03T09:30:00" />
         </div>
       </div>
 
