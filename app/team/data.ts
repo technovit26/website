@@ -15,14 +15,24 @@ export interface TeamSection {
 }
 
 export const SECTIONS: Record<string, TeamSection> = {
-  leadership: {
-    id: 'leadership',
-    title: 'Administration — Leadership',
-    description: 'VIT Chennai leadership, under whom TechnoVIT runs.',
+  chiefPatron: {
+    id: 'chiefPatron',
+    title: 'Chief Patron',
+    description: 'The name TechnoVIT has run under since day one.',
   },
-  welfare: {
-    id: 'welfare',
-    title: 'Student Welfare',
+  patrons: {
+    id: 'patrons',
+    title: 'Patrons',
+    description: "VIT's Vice-Presidents, backing the fest from the top.",
+  },
+  coPatrons: {
+    id: 'coPatrons',
+    title: 'Co-Patrons',
+    description: 'Campus leadership overseeing TechnoVIT.',
+  },
+  advisory: {
+    id: 'advisory',
+    title: 'Advisory Committee',
     description: 'Overseeing student affairs across the Chennai campus.',
   },
   convenors: {
@@ -44,18 +54,26 @@ export const SECTIONS: Record<string, TeamSection> = {
 
 // Photos to be added via CDN links — photoUrl left undefined for now.
 
-export const LEADERSHIP: Person[] = [
+export const CHIEF_PATRON: Person[] = [
   { name: 'Dr. G. Viswanathan', role: 'Chancellor' },
+];
+
+export const PATRONS: Person[] = [
+  { name: 'Dr. Sankar Viswanathan', role: 'Vice-President' },
+  { name: 'Dr. Sekar Viswanathan', role: 'Vice-President' },
   { name: 'Dr. G.V. Selvam', role: 'Vice-President' },
+];
+
+export const CO_PATRONS: Person[] = [
   { name: 'Dr. Kanchana Bhaaskaran V.S', role: 'Vice-Chancellor' },
   { name: 'Dr. Thyagarajan T', role: 'Pro-Vice Chancellor, Chennai Campus' },
   { name: 'Dr. K. Sathiyanarayanan', role: 'Director, Chennai Campus' },
   { name: 'Dr. P.K. Manoharan', role: 'Additional Registrar, Chennai Campus' },
 ];
 
-export const STUDENT_WELFARE: Person[] = [
+export const ADVISORY_COMMITTEE: Person[] = [
   { name: 'Dr. Sathiya Narayanan S', role: 'Director, SWF, Chennai Campus' },
-  { name: 'Dr. Balamurugan B J', role: 'Assistant Director, SWF, Chennai Campus' },
+  { name: 'Dr. Sankar Ganesh', role: 'Assistant Director, SWF, Chennai Campus' },
 ];
 
 export const CONVENORS: Person[] = [

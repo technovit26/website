@@ -8,12 +8,14 @@ import Marquee from '../components/Marquee';
 import MarqueeCTA from '../components/MarqueeCTA';
 import MemberCard from './MemberCard';
 import {
+  ADVISORY_COMMITTEE,
+  CHIEF_PATRON,
   CONVENORS,
+  CO_PATRONS,
   FACULTY_ORGANISERS,
-  LEADERSHIP,
+  PATRONS,
   SECTIONS,
   STUDENT_ORGANISERS,
-  STUDENT_WELFARE,
   type Person,
   type TeamSection,
 } from './data';
@@ -143,20 +145,40 @@ export default function TeamContent() {
       </section>
 
       <section className="px-5 sm:px-10 md:px-16 lg:px-24 py-14 sm:py-16 md:py-20">
-        <SectionHeading section={SECTIONS.leadership} />
+        <SectionHeading section={SECTIONS.chiefPatron} />
         <AnimatedGrid
-          members={LEADERSHIP}
-          prefix="LEAD"
+          members={CHIEF_PATRON}
+          prefix="CPAT"
           size="lg"
-          gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto"
+          gridClassName="grid grid-cols-1 max-w-xs mx-auto"
         />
       </section>
 
       <section className="px-5 sm:px-10 md:px-16 lg:px-24 py-14 sm:py-16 md:py-20">
-        <SectionHeading section={SECTIONS.welfare} />
+        <SectionHeading section={SECTIONS.patrons} />
         <AnimatedGrid
-          members={STUDENT_WELFARE}
-          prefix="WELF"
+          members={PATRONS}
+          prefix="PAT"
+          size="lg"
+          gridClassName="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-3xl mx-auto"
+        />
+      </section>
+
+      <section className="px-5 sm:px-10 md:px-16 lg:px-24 py-14 sm:py-16 md:py-20">
+        <SectionHeading section={SECTIONS.coPatrons} />
+        <AnimatedGrid
+          members={CO_PATRONS}
+          prefix="COPAT"
+          size="lg"
+          gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-4xl mx-auto"
+        />
+      </section>
+
+      <section className="px-5 sm:px-10 md:px-16 lg:px-24 py-14 sm:py-16 md:py-20">
+        <SectionHeading section={SECTIONS.advisory} />
+        <AnimatedGrid
+          members={ADVISORY_COMMITTEE}
+          prefix="ADV"
           size="lg"
           gridClassName="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto"
         />
