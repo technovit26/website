@@ -61,7 +61,7 @@ function photo(n: number): string {
 }
 
 export const CHIEF_PATRON: Person[] = [
-  { name: 'Dr. G. Viswanathan', role: 'Chancellor', photoUrl: photo(1) },
+  { name: 'Dr. G. Viswanathan', role: 'Founder & Chancellor', photoUrl: photo(1) },
 ];
 
 export const PATRONS: Person[] = [
