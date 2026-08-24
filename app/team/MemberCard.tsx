@@ -66,10 +66,7 @@ export default function MemberCard({
             src={member.photoUrl}
             alt={member.name}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover
-              grayscale contrast-110 brightness-[0.85]
-              group-hover:grayscale-0 group-hover:brightness-100
-              transition-[filter] duration-700 ease-out"
+            className="absolute inset-0 w-full h-full object-cover contrast-110"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-[#080f09]">
