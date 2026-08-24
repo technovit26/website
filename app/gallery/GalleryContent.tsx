@@ -10,6 +10,7 @@ import PhotoRow from '../components/PhotoRow';
 import { useLenis } from '../components/SmoothScrolling';
 import { playSound } from '../components/SoundManager';
 import { markEggFound, GALLERY_EGG_KEY } from '../hooks/useEggsFound';
+import { thumbUrl } from '../lib/thumbnail';
 import { type GalleryImage } from './data';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -59,7 +60,7 @@ function CoreCard({ item, onOpen }: { item: CoreItem; onOpen: (item: CoreItem) =
       onClick={() => onOpen(item)}
       data-cursor="View"
       className={`gallery-item group relative w-full overflow-hidden rounded-lg border border-[#84C87F]/20
-        bg-[#03080a] text-left ${SPAN_CLS[item.span]}`}
+        bg-[#03080a] text-left isolate [content-visibility:auto] ${SPAN_CLS[item.span]}`}
       style={{ boxShadow: '0 20px 50px rgba(0,0,0,0.35)' }}
     >
       <div className="flex items-center justify-between px-3 py-2 bg-[#080f09] border-b border-[#84C87F]/10 relative z-10 select-none">
@@ -75,9 +76,10 @@ function CoreCard({ item, onOpen }: { item: CoreItem; onOpen: (item: CoreItem) =
 
       <div className="relative h-[calc(100%-30px)] overflow-hidden">
         <img
-          src={item.url}
+          src={thumbUrl(item.url, 460)}
           alt={item.label}
           loading="lazy"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover
             grayscale contrast-110 brightness-[0.8]
             group-hover:grayscale-0 group-hover:brightness-100
@@ -108,15 +110,23 @@ function CoreCard({ item, onOpen }: { item: CoreItem; onOpen: (item: CoreItem) =
 
 const AMBIENT_ROW_COUNT = 6;
 const MIN_TILES_PER_ROW = 10;
+// Tiles are served through /api/thumb (resized + cached), but each still-new
+// source photo needs a first-hit resize before it's cached. Capping row width
+// bounds how many DOM nodes and cold thumb requests the wall can grow to as
+// more event photos land in the live feed, regardless of pool size.
+const MAX_TILES_PER_ROW = 14;
 const ROW_SPEEDS = [70, 85, 62, 95, 74, 88];
 
-function identityUrl(url: string) {
-  return url;
+function ambientTileUrl(url: string) {
+  return thumbUrl(url, 340);
 }
 
 function buildAmbientRows(images: GalleryImage[]): { seed: string }[][] {
   if (images.length === 0) return [];
-  const tilesPerRow = Math.max(MIN_TILES_PER_ROW, Math.ceil(images.length / AMBIENT_ROW_COUNT));
+  const tilesPerRow = Math.min(
+    MAX_TILES_PER_ROW,
+    Math.max(MIN_TILES_PER_ROW, Math.ceil(images.length / AMBIENT_ROW_COUNT))
+  );
   return Array.from({ length: AMBIENT_ROW_COUNT }, (_, row) =>
     Array.from({ length: tilesPerRow }, (_, i) => {
       const img = images[(row + i * AMBIENT_ROW_COUNT) % images.length];
@@ -141,7 +151,7 @@ function AmbientWall({ images }: { images: GalleryImage[] }) {
 
       <div className="flex flex-col gap-[3px]">
         {rows.map((row, i) => (
-          <PhotoRow key={i} items={row} reverse={i % 2 === 1} speed={ROW_SPEEDS[i]} imgUrl={identityUrl} />
+          <PhotoRow key={i} items={row} reverse={i % 2 === 1} speed={ROW_SPEEDS[i]} imgUrl={ambientTileUrl} />
         ))}
       </div>
     </div>

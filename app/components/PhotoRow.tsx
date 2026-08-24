@@ -29,11 +29,13 @@ export default function PhotoRow({
         style={{ animation: `photorow-${reverse ? 'rev' : 'fwd'} ${speed}s linear infinite` }}
       >
         {doubled.map((item, i) => (
-          <div key={i} className={`relative shrink-0 overflow-hidden rounded-md bg-[#03080a] ${tileClassName}`}>
+          <div key={i} className={`relative shrink-0 overflow-hidden rounded-md bg-[#03080a] isolate ${tileClassName}`}>
             <img
               src={imgUrl(item.seed)}
               alt=""
               loading="lazy"
+              decoding="async"
+              fetchPriority="low"
               className={`absolute inset-0 w-full h-full object-cover ${imgClassName}`}
             />
           </div>
