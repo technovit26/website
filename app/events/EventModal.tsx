@@ -12,10 +12,10 @@ import {
   Sparkle,
   Ticket,
   UsersThree,
-  X,
 } from '@phosphor-icons/react';
 import { useLenis } from '../components/SmoothScrolling';
 import { formatEventWindow, formatPrice, posterUrl, type EventItem } from './data';
+import RegisterAction from './RegisterAction';
 
 function MetaRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
@@ -167,28 +167,9 @@ export default function EventModal({ event, onClose }: { event: EventItem; onClo
             </div>
           )}
 
-          <a
-            href={event.registrationLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-cursor="Register"
-            className="group flex items-center justify-center gap-3 w-full rounded-full bg-[#84C87F] hover:bg-[#c2e0a5]
-              text-[#064928] font-clash font-bold uppercase tracking-[0.15em] text-sm py-3.5 transition-colors duration-300"
-          >
-            Register Now
-          </a>
+          <RegisterAction event={event} />
         </div>
       </motion.div>
-
-      <button
-        onClick={onClose}
-        aria-label="Close"
-        data-cursor="Close"
-        className="absolute top-5 right-5 sm:top-8 sm:right-8 w-10 h-10 rounded-full border border-[#84C87F]/30
-          bg-[#064928] text-[#84C87F] flex items-center justify-center hover:bg-[#84C87F] hover:text-[#064928] transition-colors"
-      >
-        <X size={16} weight="bold" />
-      </button>
     </motion.div>
   );
 }
