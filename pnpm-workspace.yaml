@@ -1,3 +1,11 @@
+packages:
+  - .
+  - worker
+
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+
+onlyBuiltDependencies:
+  - esbuild
+  - workerd
