@@ -1,8 +1,10 @@
+import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 const SID_COOKIE = 'technovit_sid';
 const USER_COOKIE = 'technovit_user';
+const CRED_COOKIE = 'technovit_cred';
 const MAX_AGE = 60 * 60 * 6;
 
 const cookieOptions = {
@@ -18,6 +20,44 @@ export interface UserState {
   kind?: 'vitian' | 'non-vitian';
   username?: string;
   loggedInAt?: number;
+}
+
+export interface StoredCredentials {
+  kind: 'vitian' | 'non-vitian';
+  username: string;
+  password: string;
+}
+
+function credKey(): Buffer | null {
+  const raw = process.env.TECHNOVIT_CRED_KEY;
+  if (!raw) return null;
+  const key = Buffer.from(raw, 'base64');
+  return key.length === 32 ? key : null;
+}
+
+function encryptPassword(password: string): string | null {
+  const key = credKey();
+  if (!key) return null;
+  const iv = randomBytes(12);
+  const cipher = createCipheriv('aes-256-gcm', key, iv);
+  const ciphertext = Buffer.concat([cipher.update(password, 'utf8'), cipher.final()]);
+  const authTag = cipher.getAuthTag();
+  return [iv, authTag, ciphertext].map((b) => b.toString('base64')).join('.');
+}
+
+function decryptPassword(blob: string): string | null {
+  const key = credKey();
+  if (!key) return null;
+  const parts = blob.split('.');
+  if (parts.length !== 3) return null;
+  try {
+    const [iv, authTag, ciphertext] = parts.map((p) => Buffer.from(p, 'base64'));
+    const decipher = createDecipheriv('aes-256-gcm', key, iv);
+    decipher.setAuthTag(authTag);
+    return Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString('utf8');
+  } catch {
+    return null;
+  }
 }
 
 function parseCookiePairs(cookieHeader: string): Map<string, string> {
@@ -65,9 +105,24 @@ export async function getUserState(): Promise<UserState> {
   }
 }
 
+export async function getStoredCredentials(): Promise<StoredCredentials | null> {
+  const jar = await cookies();
+  const credRaw = jar.get(CRED_COOKIE)?.value;
+  const userRaw = jar.get(USER_COOKIE)?.value;
+  if (!credRaw || !userRaw) return null;
+  try {
+    const { kind, username } = JSON.parse(userRaw) as { kind: 'vitian' | 'non-vitian'; username: string };
+    const password = decryptPassword(credRaw);
+    if (!password) return null;
+    return { kind, username, password };
+  } catch {
+    return null;
+  }
+}
+
 export function applyLoginSession(
   res: NextResponse,
-  opts: { setCookies: string[]; kind: 'vitian' | 'non-vitian'; username: string }
+  opts: { setCookies: string[]; kind: 'vitian' | 'non-vitian'; username: string; password: string }
 ) {
   const combined = combineCookiePairs(opts.setCookies);
   if (combined) res.cookies.set(SID_COOKIE, combined, cookieOptions);
@@ -76,6 +131,8 @@ export function applyLoginSession(
     JSON.stringify({ kind: opts.kind, username: opts.username, loggedInAt: Date.now() }),
     cookieOptions
   );
+  const encrypted = encryptPassword(opts.password);
+  if (encrypted) res.cookies.set(CRED_COOKIE, encrypted, cookieOptions);
 }
 
 export function updateUpstreamCookie(res: NextResponse, setCookies: string[], existing?: string | null) {
@@ -86,4 +143,5 @@ export function updateUpstreamCookie(res: NextResponse, setCookies: string[], ex
 export function clearSession(res: NextResponse) {
   res.cookies.delete(SID_COOKIE);
   res.cookies.delete(USER_COOKIE);
+  res.cookies.delete(CRED_COOKIE);
 }

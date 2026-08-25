@@ -45,6 +45,6 @@ export async function POST(request: NextRequest) {
   await setCachedUpstreamEvents(parseEventCards(upstream.html));
 
   const res = NextResponse.json({ success: true, kind, username });
-  applyLoginSession(res, { setCookies: upstream.setCookies, kind, username });
+  applyLoginSession(res, { setCookies: upstream.setCookies, kind, username, password });
   return res;
 }
