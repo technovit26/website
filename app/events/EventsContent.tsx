@@ -30,7 +30,6 @@ gsap.registerPlugin(ScrollTrigger);
 const CURTAIN_ITEMS = ["TechnoVIT'26"];
 
 const DEFAULT_TYPE = 'All';
-const DEFAULT_PARTICIPATION = 'All';
 const DEFAULT_FOR = 'All';
 
 function FilterChip({
@@ -80,10 +79,6 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
     () => Array.from(new Set(regularEvents.map((e) => e.eventFor))).sort(),
     [regularEvents]
   );
-  const participationTypes = useMemo(
-    () => Array.from(new Set(regularEvents.map((e) => e.participationType))).sort(),
-    [regularEvents]
-  );
   const priceMin = useMemo(
     () => (regularEvents.length ? Math.min(...regularEvents.map((e) => e.pricePerPerson)) : 0),
     [regularEvents]
@@ -95,7 +90,6 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
 
   const [search, setSearch] = useState('');
   const [eventType, setEventType] = useState<string>(DEFAULT_TYPE);
-  const [participation, setParticipation] = useState<string>(DEFAULT_PARTICIPATION);
   const [eventFor, setEventFor] = useState<string>(DEFAULT_FOR);
   const [priceRange, setPriceRange] = useState<[number, number]>(() => [priceMin, priceMax]);
 
@@ -118,7 +112,6 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
   const filtersActive =
     debouncedSearch.trim() !== '' ||
     eventType !== DEFAULT_TYPE ||
-    participation !== DEFAULT_PARTICIPATION ||
     eventFor !== DEFAULT_FOR ||
     priceRange[0] !== priceMin ||
     priceRange[1] !== priceMax;
@@ -126,7 +119,6 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
   const resetFilters = () => {
     setSearch('');
     setEventType(DEFAULT_TYPE);
-    setParticipation(DEFAULT_PARTICIPATION);
     setEventFor(DEFAULT_FOR);
     setPriceRange([priceMin, priceMax]);
   };
@@ -135,7 +127,6 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
     const q = debouncedSearch.trim().toLowerCase();
     return regularEvents.filter((e) => {
       if (eventType !== 'All' && e.eventType !== eventType) return false;
-      if (participation !== 'All' && e.participationType !== participation) return false;
       if (eventFor !== 'All' && e.eventFor !== eventFor) return false;
       if (e.pricePerPerson < priceRange[0] || e.pricePerPerson > priceRange[1]) return false;
       if (!q) return true;
@@ -147,7 +138,7 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
         e.eventType.toLowerCase().includes(q)
       );
     });
-  }, [regularEvents, debouncedSearch, eventType, participation, eventFor, priceRange]);
+  }, [regularEvents, debouncedSearch, eventType, eventFor, priceRange]);
 
   const openEvent = useCallback(
     (event: EventItem) => {
@@ -353,25 +344,12 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
               ))}
             </FilterSection>
 
-            <div className="flex flex-col sm:flex-row gap-6">
-              <div className="flex-1">
-                <FilterSection label="Participation">
-                  <FilterChip active={participation === 'All'} onClick={() => setParticipation('All')}>All</FilterChip>
-                  {participationTypes.map((p) => (
-                    <FilterChip key={p} active={participation === p} onClick={() => setParticipation(p)}>{p}</FilterChip>
-                  ))}
-                </FilterSection>
-              </div>
-
-              <div className="flex-1">
-                <FilterSection label="Open To">
-                  <FilterChip active={eventFor === 'All'} onClick={() => setEventFor('All')}>All</FilterChip>
-                  {eventForOptions.map((f) => (
-                    <FilterChip key={f} active={eventFor === f} onClick={() => setEventFor(f)}>{f}</FilterChip>
-                  ))}
-                </FilterSection>
-              </div>
-            </div>
+            <FilterSection label="Open To">
+              <FilterChip active={eventFor === 'All'} onClick={() => setEventFor('All')}>All</FilterChip>
+              {eventForOptions.map((f) => (
+                <FilterChip key={f} active={eventFor === f} onClick={() => setEventFor(f)}>{f}</FilterChip>
+              ))}
+            </FilterSection>
 
             <PriceRangeSlider min={priceMin} max={priceMax} value={priceRange} onChange={setPriceRange} />
           </div>
