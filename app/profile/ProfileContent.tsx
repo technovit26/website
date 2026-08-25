@@ -61,11 +61,10 @@ export default function ProfileContent() {
 
   useEffect(() => {
     if (!loggedIn) return;
-    let active = true;
-    fetch('/api/technovit/profile')
+    const controller = new AbortController();
+    fetch('/api/technovit/profile', { signal: controller.signal })
       .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
       .then(({ ok, data }) => {
-        if (!active) return;
         if (!ok) {
           setErrorCode(data.error ?? 'unknown');
           setStatus('error');
@@ -76,14 +75,13 @@ export default function ProfileContent() {
         setStatus('ready');
         setPage(0);
       })
-      .catch(() => {
-        if (active) {
-          setErrorCode('unknown');
-          setStatus('error');
-        }
+      .catch((err) => {
+        if (err?.name === 'AbortError') return;
+        setErrorCode('unknown');
+        setStatus('error');
       });
     return () => {
-      active = false;
+      controller.abort();
     };
   }, [loggedIn]);
 

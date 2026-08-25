@@ -17,6 +17,7 @@ export interface UserState {
   loggedIn: boolean;
   kind?: 'vitian' | 'non-vitian';
   username?: string;
+  loggedInAt?: number;
 }
 
 function parseCookiePairs(cookieHeader: string): Map<string, string> {
@@ -57,8 +58,8 @@ export async function getUserState(): Promise<UserState> {
   const raw = jar.get(USER_COOKIE)?.value;
   if (!raw) return { loggedIn: false };
   try {
-    const parsed = JSON.parse(raw) as { kind: 'vitian' | 'non-vitian'; username: string };
-    return { loggedIn: true, kind: parsed.kind, username: parsed.username };
+    const parsed = JSON.parse(raw) as { kind: 'vitian' | 'non-vitian'; username: string; loggedInAt?: number };
+    return { loggedIn: true, kind: parsed.kind, username: parsed.username, loggedInAt: parsed.loggedInAt };
   } catch {
     return { loggedIn: false };
   }
@@ -70,7 +71,11 @@ export function applyLoginSession(
 ) {
   const combined = combineCookiePairs(opts.setCookies);
   if (combined) res.cookies.set(SID_COOKIE, combined, cookieOptions);
-  res.cookies.set(USER_COOKIE, JSON.stringify({ kind: opts.kind, username: opts.username }), cookieOptions);
+  res.cookies.set(
+    USER_COOKIE,
+    JSON.stringify({ kind: opts.kind, username: opts.username, loggedInAt: Date.now() }),
+    cookieOptions
+  );
 }
 
 export function updateUpstreamCookie(res: NextResponse, setCookies: string[], existing?: string | null) {

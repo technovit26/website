@@ -6,7 +6,7 @@ export const runtime = 'nodejs';
 
 export async function GET() {
   const cookie = await getUpstreamCookie();
-  const { username } = await getUserState();
+  const { username, loggedInAt } = await getUserState();
   if (!cookie || !username) {
     return NextResponse.json({ error: 'not_authenticated' }, { status: 401 });
   }
@@ -19,6 +19,9 @@ export async function GET() {
   }
 
   if (!result.ok) {
+    console.log('[technovit profile debug] session_expired', {
+      minutesSinceLogin: loggedInAt ? Math.round((Date.now() - loggedInAt) / 60000) : 'unknown (pre-upgrade cookie)',
+    });
     return NextResponse.json({ error: 'session_expired' }, { status: 401 });
   }
 
