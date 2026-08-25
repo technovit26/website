@@ -52,7 +52,7 @@ function TicketRow({ event, index }: { event: ProfileEvent; index: number }) {
 }
 
 export default function ProfileContent() {
-  const { loggedIn, username } = useAuthState();
+  const { loggedIn, username, checked } = useAuthState();
   const [status, setStatus] = useState<Status>('idle');
   const [events, setEvents] = useState<ProfileEvent[]>([]);
   const [displayName, setDisplayName] = useState<string | null>(null);
@@ -108,7 +108,14 @@ export default function ProfileContent() {
       </div>
       <div className="px-5 sm:px-10 md:px-16 lg:px-24 py-16 sm:py-20 flex flex-col items-center">
         <div className="w-full max-w-4xl">
-          {!loggedIn && (
+          {!checked && (
+            <div className="flex items-center justify-center gap-2 py-16 text-[#84C87F]/50">
+              <CircleNotch size={18} weight="bold" className="animate-spin" />
+              <span className="font-terminal text-sm uppercase tracking-[0.15em]">Checking your session…</span>
+            </div>
+          )}
+
+          {checked && !loggedIn && (
             <div className="rounded-lg border border-[#84C87F]/20 bg-[#03080a] p-8 flex flex-col items-center gap-4 text-center">
               <p className="text-[#84C87F]/70 text-base max-w-sm">
                 Sign in to see the events you&apos;ve registered for.
