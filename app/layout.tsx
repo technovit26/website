@@ -7,6 +7,8 @@ import Footer from "./components/Footer";
 import CustomCursor from "./components/CustomCursor";
 import SmoothScrolling from "./components/SmoothScrolling";
 import TrailerModal from "./components/TrailerModal";
+import LoginDialog from "./components/LoginDialog";
+import TeamDialog from "./components/TeamDialog";
 import ContextMenu from "./components/ContextMenu";
 import SoundManager from "./components/SoundManager";
 import Terminal from "./components/Terminal";
@@ -60,6 +62,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         ) : (
           <SmoothScrolling>
             <TrailerModal />
+            <LoginDialog />
+            <TeamDialog />
             <CustomCursor />
             <ContextMenu />
             <SoundManager />

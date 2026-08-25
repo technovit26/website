@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
+import { motion } from 'motion/react';
 import { emit } from '../hooks/useEventBus';
+import { useAuthState, logout, openLogin } from '../hooks/useAuthState';
 
 export const NAV_LINKS = [
   { href: '/events', label: 'Events' },
@@ -12,6 +14,114 @@ export const NAV_LINKS = [
   { href: '/gallery', label: 'Gallery' },
   { href: '/about', label: 'About' },
 ];
+
+function AuthNavButton({ mobile = false, onAfterClick }: { mobile?: boolean; onAfterClick?: () => void }) {
+  const { loggedIn } = useAuthState();
+  const [busy, setBusy] = useState(false);
+
+  const handleClick = async () => {
+    onAfterClick?.();
+    if (loggedIn) {
+      setBusy(true);
+      await logout();
+      setBusy(false);
+    } else {
+      openLogin();
+    }
+  };
+
+  if (mobile) {
+    return (
+      <button
+        onClick={handleClick}
+        disabled={busy}
+        className="px-6 py-3 text-left text-white font-semibold uppercase tracking-widest text-sm
+          border-b border-white/5 last:border-0
+          hover:bg-white/5 hover:text-[#84C87F] transition-colors duration-150 disabled:opacity-50"
+      >
+        {loggedIn ? 'Logout' : 'Login'}
+      </button>
+    );
+  }
+
+  return (
+    <motion.button
+      onClick={handleClick}
+      whileTap={{ scale: 0.9 }}
+      disabled={busy}
+      data-cursor={loggedIn ? 'Logout' : 'Login'}
+      className="shrink-0 rounded-full bg-[#84C87F] hover:bg-[#c2e0a5] text-[#064928]
+        font-clash font-bold uppercase tracking-[0.1em] text-xs lg:text-sm px-4 lg:px-5 py-2 lg:py-2.5
+        transition-colors duration-200 disabled:opacity-50"
+    >
+      {loggedIn ? 'Logout' : 'Login'}
+    </motion.button>
+  );
+}
+
+function ProfileNavLink({ mobile = false, onAfterClick }: { mobile?: boolean; onAfterClick?: () => void }) {
+  const { loggedIn } = useAuthState();
+  if (!loggedIn) return null;
+
+  if (mobile) {
+    return (
+      <Link
+        href="/profile"
+        onClick={onAfterClick}
+        className="px-6 py-3 text-white font-semibold uppercase tracking-widest text-sm
+          border-b border-white/5 last:border-0
+          hover:bg-white/5 hover:text-[#84C87F] transition-colors duration-150"
+      >
+        Profile
+      </Link>
+    );
+  }
+
+  return <ProfileDesktopLink />;
+}
+
+function ProfileDesktopLink() {
+  const linkRef = useRef<HTMLAnchorElement>(null);
+
+  const handleMouseEnter = () => {
+    const link = linkRef.current;
+    if (!link) return;
+    const bar = link.querySelector<HTMLElement>('.nav-bar');
+    if (!bar) return;
+    gsap.killTweensOf(bar);
+    gsap.fromTo(bar, { scaleX: 0, transformOrigin: 'left center' }, { scaleX: 1, duration: 0.3, ease: 'power2.out' });
+    gsap.to(link, { color: '#84C87F', duration: 0.2, ease: 'power1.out' });
+  };
+
+  const handleMouseLeave = () => {
+    const link = linkRef.current;
+    if (!link) return;
+    const bar = link.querySelector<HTMLElement>('.nav-bar');
+    if (!bar) return;
+    gsap.killTweensOf(bar);
+    gsap.to(bar, { scaleX: 0, transformOrigin: 'right center', duration: 0.25, ease: 'power2.in' });
+    gsap.to(link, { color: '#ffffff', duration: 0.2, ease: 'power1.in' });
+  };
+
+  return (
+    <a
+      href="/profile"
+      ref={linkRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      data-cursor="Profile"
+      className="relative text-white font-semibold uppercase cursor-pointer
+        text-sm tracking-wide lg:text-base lg:tracking-wider"
+      style={{ textDecoration: 'none' }}
+    >
+      Profile
+      <span
+        className="nav-bar absolute left-0 -bottom-1 w-full h-[2px] bg-[#84C87F]"
+        style={{ transform: 'scaleX(0)', transformOrigin: 'left center', display: 'block' }}
+      />
+    </a>
+  );
+}
 
 const Navbar = () => {
   const navRef = useRef<HTMLElement>(null);
@@ -97,7 +207,7 @@ const Navbar = () => {
       <nav
         ref={navRef}
         className="relative z-50 mx-auto mt-3 sm:mt-5 w-[calc(100%-32px)]
-          xl:w-[72%] xl:max-w-[960px]
+          xl:w-[80%] xl:max-w-[1120px]
           flex items-center justify-between bg-[#064928] text-white shadow-xl
           py-3 md:py-4 px-4 xl:px-8 rounded-xl xl:rounded-2xl"
       >
@@ -132,7 +242,7 @@ const Navbar = () => {
           </Link>
         </div>
 
-        <div className="hidden xl:flex items-center gap-4 lg:gap-6">
+        <div className="hidden xl:flex items-center gap-4 lg:gap-5">
           {NAV_LINKS.map((link, i) => (
             <a
               key={link.href}
@@ -141,17 +251,19 @@ const Navbar = () => {
               onMouseEnter={() => handleMouseEnter(i)}
               onMouseLeave={() => handleMouseLeave(i)}
               data-cursor={link.label}
-              className="relative text-white font-semibold uppercase pb-0.5 cursor-pointer
+              className="relative text-white font-semibold uppercase cursor-pointer
                 text-sm tracking-wide lg:text-base lg:tracking-wider"
               style={{ textDecoration: 'none' }}
             >
               {link.label}
               <span
-                className="nav-bar absolute left-0 bottom-0 w-full h-[2px] bg-[#84C87F]"
+                className="nav-bar absolute left-0 -bottom-1 w-full h-[2px] bg-[#84C87F]"
                 style={{ transform: 'scaleX(0)', transformOrigin: 'left center', display: 'block' }}
               />
             </a>
           ))}
+          <ProfileNavLink />
+          <AuthNavButton />
         </div>
 
         <button
@@ -193,6 +305,8 @@ const Navbar = () => {
               {link.label}
             </a>
           ))}
+          <ProfileNavLink mobile onAfterClick={closeMenu} />
+          <AuthNavButton mobile onAfterClick={closeMenu} />
         </div>
       </div>
     </>

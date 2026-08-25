@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion, useSpring } from 'motion/react';
-import { Play } from '@phosphor-icons/react';
+import { Play, UserCircle } from '@phosphor-icons/react';
 import { on, emit } from '../hooks/useEventBus';
 import { useStackOffset } from '../hooks/useBottomStack';
 import { playSound } from './SoundManager';
 import { NAV_LINKS } from './Navbar';
+import { useAuthState, logout, openLogin } from '../hooks/useAuthState';
 
 const EASE: [number, number, number, number] = [0.65, 0, 0.35, 1];
 
@@ -20,7 +21,47 @@ const DIAL_POSITIONS = [
   { dx: 88, dy: -84, rot: -3 },
 ];
 
+type DialItem =
+  | { kind: 'link'; href: string; label: string }
+  | { kind: 'auth' };
+
+const DIAL_ITEMS: DialItem[] = [
+  ...NAV_LINKS.slice(0, 2).map((l): DialItem => ({ kind: 'link', href: l.href, label: l.label })),
+  { kind: 'auth' },
+  ...NAV_LINKS.slice(2).map((l): DialItem => ({ kind: 'link', href: l.href, label: l.label })),
+];
+
+function DialAuthButton({ onClose }: { onClose: () => void }) {
+  const { loggedIn } = useAuthState();
+  const [busy, setBusy] = useState(false);
+
+  const handleClick = async () => {
+    onClose();
+    if (loggedIn) {
+      setBusy(true);
+      await logout();
+      setBusy(false);
+    } else {
+      openLogin();
+    }
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={busy}
+      data-cursor={loggedIn ? 'Logout' : 'Login'}
+      className="block whitespace-nowrap rounded-full border border-[#84C87F]/40 bg-[#064928]
+        px-3.5 py-2 text-xs font-bold uppercase tracking-wide text-[#84C87F] shadow-lg
+        hover:bg-[#84C87F] hover:text-[#064928] transition-colors disabled:opacity-50"
+    >
+      {loggedIn ? 'Logout' : 'Login'}
+    </button>
+  );
+}
+
 export default function BottomNavCluster() {
+  const { loggedIn } = useAuthState();
   const [navCollapsed, setNavCollapsed] = useState(false);
   const [playPillVisible, setPlayPillVisible] = useState(false);
   const [scrollUp, setScrollUp] = useState(true);
@@ -131,6 +172,32 @@ export default function BottomNavCluster() {
             </AnimatePresence>
 
             <AnimatePresence mode="popLayout">
+              {hamburgerPresent && loggedIn && (
+                <motion.div
+                  key="profile"
+                  layout
+                  initial={{ opacity: 0, scale: 0.4 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.4 }}
+                  transition={{
+                    layout: { type: 'spring', stiffness: 300, damping: 26 },
+                    default: { type: 'spring', stiffness: 300, damping: 22 },
+                  }}
+                >
+                  <Link
+                    href="/profile"
+                    aria-label="Profile"
+                    data-cursor="Profile"
+                    className="group w-12 h-12 rounded-full border border-[#84C87F] bg-[#064928] shadow-2xl
+                      flex items-center justify-center hover:bg-[#84C87F] transition-colors"
+                  >
+                    <UserCircle size={20} weight="bold" className="text-[#84C87F] group-hover:text-[#064928]" />
+                  </Link>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence mode="popLayout">
               {hamburgerPresent && (
                 <motion.div
                   key="hamburger"
@@ -167,9 +234,9 @@ export default function BottomNavCluster() {
 
                   <AnimatePresence>
                     {menuOpen &&
-                      NAV_LINKS.map((link, i) => (
+                      DIAL_ITEMS.map((item, i) => (
                         <div
-                          key={link.href}
+                          key={item.kind === 'link' ? item.href : 'auth'}
                           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[300]"
                         >
                           <motion.div
@@ -184,16 +251,20 @@ export default function BottomNavCluster() {
                             exit={{ x: 0, y: 0, opacity: 0, scale: 0.3, rotate: 0 }}
                             transition={{ type: 'spring', stiffness: 260, damping: 20, delay: i * 0.04 }}
                           >
-                            <Link
-                              href={link.href}
-                              onClick={() => setMenuOpen(false)}
-                              data-cursor={link.label}
-                              className="block whitespace-nowrap rounded-full border border-[#84C87F]/40 bg-[#064928]
-                                px-3.5 py-2 text-xs font-bold uppercase tracking-wide text-[#84C87F] shadow-lg
-                                hover:bg-[#84C87F] hover:text-[#064928] transition-colors"
-                            >
-                              {link.label}
-                            </Link>
+                            {item.kind === 'link' ? (
+                              <Link
+                                href={item.href}
+                                onClick={() => setMenuOpen(false)}
+                                data-cursor={item.label}
+                                className="block whitespace-nowrap rounded-full border border-[#84C87F]/40 bg-[#064928]
+                                  px-3.5 py-2 text-xs font-bold uppercase tracking-wide text-[#84C87F] shadow-lg
+                                  hover:bg-[#84C87F] hover:text-[#064928] transition-colors"
+                              >
+                                {item.label}
+                              </Link>
+                            ) : (
+                              <DialAuthButton onClose={() => setMenuOpen(false)} />
+                            )}
                           </motion.div>
                         </div>
                       ))}
