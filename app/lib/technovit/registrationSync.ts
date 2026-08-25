@@ -16,8 +16,19 @@ export interface SyncResult {
   setCookies: string[];
 }
 
+const RETRY_DELAY_MS = 500;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function syncRegistrations(cookie: string, username: string): Promise<SyncResult> {
-  const upstream = await upstreamGet('profile', cookie);
+  let upstream = await upstreamGet('profile', cookie);
+
+  if (isProfileSessionExpired(upstream.html)) {
+    await sleep(RETRY_DELAY_MS);
+    upstream = await upstreamGet('profile', cookie);
+  }
 
   if (isProfileSessionExpired(upstream.html)) {
     return { ok: false, sessionExpired: true, events: [], displayName: null, setCookies: upstream.setCookies };
