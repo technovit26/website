@@ -32,6 +32,29 @@ const CURTAIN_ITEMS = ["TechnoVIT'26"];
 const DEFAULT_TYPE = 'All';
 const DEFAULT_FOR = 'All';
 
+const MATCHED_CACHE_KEY = 'technovit:matched-events-cache:v1';
+const MATCHED_CACHE_TTL_MS = 5 * 60 * 1000;
+
+function readMatchedCache(): string[] | null {
+  try {
+    const raw = localStorage.getItem(MATCHED_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { matchedIds: string[]; cachedAt: number };
+    if (!parsed.matchedIds || Date.now() - parsed.cachedAt > MATCHED_CACHE_TTL_MS) return null;
+    return parsed.matchedIds;
+  } catch {
+    return null;
+  }
+}
+
+function writeMatchedCache(matchedIds: string[]) {
+  try {
+    localStorage.setItem(MATCHED_CACHE_KEY, JSON.stringify({ matchedIds, cachedAt: Date.now() }));
+  } catch {
+    // localStorage unavailable (private mode, quota, etc.) — skip caching silently
+  }
+}
+
 function FilterChip({
   active,
   onClick,
@@ -68,8 +91,39 @@ function FilterSection({ label, children }: { label: string; children: React.Rea
 }
 
 export default function EventsContent({ events }: { events: EventItem[] }) {
-  const flagshipEvents = useMemo(() => events.filter((e) => e.isSpecialEvent), [events]);
-  const regularEvents = useMemo(() => events.filter((e) => !e.isSpecialEvent), [events]);
+  // null = matching data not loaded yet -> don't filter anything out.
+  const [matchedIds, setMatchedIds] = useState<Set<string> | null>(null);
+
+  useEffect(() => {
+    const cached = readMatchedCache();
+    if (cached) {
+      setMatchedIds(new Set(cached));
+      return;
+    }
+    let active = true;
+    fetch('/api/technovit/matched-events')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { ready: boolean; matchedIds: string[] | null } | null) => {
+        if (!active || !data?.ready || !data.matchedIds) return;
+        setMatchedIds(new Set(data.matchedIds));
+        writeMatchedCache(data.matchedIds);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Events with no name-match on the upstream chennaievents portal have no
+  // working registration flow, so keep them out of the listing entirely
+  // rather than showing a card that can't actually register anyone.
+  const visibleEvents = useMemo(
+    () => (matchedIds ? events.filter((e) => matchedIds.has(e.id)) : events),
+    [events, matchedIds]
+  );
+
+  const flagshipEvents = useMemo(() => visibleEvents.filter((e) => e.isSpecialEvent), [visibleEvents]);
+  const regularEvents = useMemo(() => visibleEvents.filter((e) => !e.isSpecialEvent), [visibleEvents]);
 
   const eventTypes = useMemo(
     () => Array.from(new Set(regularEvents.map((e) => e.eventType))).sort(),
