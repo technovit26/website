@@ -234,13 +234,7 @@ export default function EventsContent({ events: initialEvents }: { events: Event
       if (eventFor !== 'All' && e.eventFor !== eventFor) return false;
       if (e.pricePerPerson < priceRange[0] || e.pricePerPerson > priceRange[1]) return false;
       if (!q) return true;
-      return (
-        e.eventName.toLowerCase().includes(q) ||
-        e.clubName.toLowerCase().includes(q) ||
-        e.shortDescription.toLowerCase().includes(q) ||
-        e.eventVenue.toLowerCase().includes(q) ||
-        e.eventType.toLowerCase().includes(q)
-      );
+      return e.eventName.toLowerCase().includes(q);
     });
   }, [regularEvents, debouncedSearch, eventType, eventFor, priceRange]);
 
@@ -424,7 +418,7 @@ export default function EventsContent({ events: initialEvents }: { events: Event
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search events, clubs, venues..."
+                placeholder="Search events..."
                 spellCheck={false}
                 autoComplete="off"
                 className="flex-1 min-w-0 bg-transparent outline-none border-0 p-0 text-[#c2e0a5] placeholder:text-[#84C87F]/30 font-terminal text-sm"
