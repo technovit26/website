@@ -32,6 +32,30 @@ const CURTAIN_ITEMS = ["TechnoVIT'26"];
 const DEFAULT_TYPE = 'All';
 const DEFAULT_FOR = 'All';
 
+const EVENTS_CACHE_KEY = 'technovit:events-cache:v1';
+const EVENTS_CACHE_TTL_MS = 5 * 60 * 1000;
+
+function readEventsCache(): EventItem[] | null {
+  try {
+    const raw = localStorage.getItem(EVENTS_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { events: EventItem[]; cachedAt: number };
+    if (!parsed.events?.length || Date.now() - parsed.cachedAt > EVENTS_CACHE_TTL_MS) return null;
+    return parsed.events;
+  } catch {
+    return null;
+  }
+}
+
+function writeEventsCache(events: EventItem[]) {
+  if (events.length === 0) return;
+  try {
+    localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify({ events, cachedAt: Date.now() }));
+  } catch {
+    // localStorage unavailable (private mode, quota, etc.) — skip caching silently
+  }
+}
+
 const MATCHED_CACHE_KEY = 'technovit:matched-events-cache:v1';
 const MATCHED_CACHE_TTL_MS = 5 * 60 * 1000;
 
@@ -90,9 +114,35 @@ function FilterSection({ label, children }: { label: string; children: React.Rea
   );
 }
 
-export default function EventsContent({ events }: { events: EventItem[] }) {
+export default function EventsContent({ events: initialEvents }: { events: EventItem[] }) {
+  const [events, setEvents] = useState<EventItem[]>(initialEvents);
   // null = matching data not loaded yet -> don't filter anything out.
   const [matchedIds, setMatchedIds] = useState<Set<string> | null>(null);
+
+  useEffect(() => {
+    const cached = readEventsCache();
+    if (cached) {
+      setEvents(cached);
+      return;
+    }
+    if (initialEvents.length > 0) {
+      writeEventsCache(initialEvents);
+      return;
+    }
+    let active = true;
+    fetch('/api/technovit/event-list')
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: EventItem[]) => {
+        if (!active || data.length === 0) return;
+        setEvents(data);
+        writeEventsCache(data);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const cached = readMatchedCache();
