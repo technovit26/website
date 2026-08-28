@@ -5,9 +5,7 @@ export function normalizeEventName(name: string): string {
   return name
     .toLowerCase()
     .normalize('NFKD')
-    .replace(/[^\p{L}\p{N}\s]/gu, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+    .replace(/[^\p{L}\p{N}]/gu, '');
 }
 
 export function matchEvents(cmsEvents: EventItem[], upstreamEvents: UpstreamEventCard[]): Record<string, string> {

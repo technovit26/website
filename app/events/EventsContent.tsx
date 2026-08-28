@@ -46,6 +46,53 @@ function compareEvents(a: EventItem, b: EventItem) {
   return a.eventName.localeCompare(b.eventName);
 }
 
+const EVENTS_CACHE_KEY = 'technovit:events-cache:v1';
+const EVENTS_CACHE_TTL_MS = 5 * 60 * 1000;
+
+function readEventsCache(): EventItem[] | null {
+  try {
+    const raw = localStorage.getItem(EVENTS_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { events: EventItem[]; cachedAt: number };
+    if (!parsed.events?.length || Date.now() - parsed.cachedAt > EVENTS_CACHE_TTL_MS) return null;
+    return parsed.events;
+  } catch {
+    return null;
+  }
+}
+
+function writeEventsCache(events: EventItem[]) {
+  if (events.length === 0) return;
+  try {
+    localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify({ events, cachedAt: Date.now() }));
+  } catch {
+    // localStorage unavailable (private mode, quota, etc.) — skip caching silently
+  }
+}
+
+const MATCHED_CACHE_KEY = 'technovit:matched-events-cache:v1';
+const MATCHED_CACHE_TTL_MS = 5 * 60 * 1000;
+
+function readMatchedCache(): string[] | null {
+  try {
+    const raw = localStorage.getItem(MATCHED_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { matchedIds: string[]; cachedAt: number };
+    if (!parsed.matchedIds || Date.now() - parsed.cachedAt > MATCHED_CACHE_TTL_MS) return null;
+    return parsed.matchedIds;
+  } catch {
+    return null;
+  }
+}
+
+function writeMatchedCache(matchedIds: string[]) {
+  try {
+    localStorage.setItem(MATCHED_CACHE_KEY, JSON.stringify({ matchedIds, cachedAt: Date.now() }));
+  } catch {
+    // localStorage unavailable (private mode, quota, etc.) — skip caching silently
+  }
+}
+
 function FilterChip({
   active,
   onClick,
@@ -81,9 +128,66 @@ function FilterSection({ label, children }: { label: string; children: React.Rea
   );
 }
 
-export default function EventsContent({ events }: { events: EventItem[] }) {
-  const flagshipEvents = useMemo(() => events.filter((e) => e.isSpecialEvent), [events]);
-  const regularEvents = useMemo(() => events.filter((e) => !e.isSpecialEvent), [events]);
+export default function EventsContent({ events: initialEvents }: { events: EventItem[] }) {
+  const [events, setEvents] = useState<EventItem[]>(initialEvents);
+  // null = matching data not loaded yet -> don't filter anything out.
+  const [matchedIds, setMatchedIds] = useState<Set<string> | null>(null);
+
+  useEffect(() => {
+    const cached = readEventsCache();
+    if (cached) {
+      setEvents(cached);
+      return;
+    }
+    if (initialEvents.length > 0) {
+      writeEventsCache(initialEvents);
+      return;
+    }
+    let active = true;
+    fetch('/api/technovit/event-list')
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: EventItem[]) => {
+        if (!active || data.length === 0) return;
+        setEvents(data);
+        writeEventsCache(data);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const cached = readMatchedCache();
+    if (cached) {
+      setMatchedIds(new Set(cached));
+      return;
+    }
+    let active = true;
+    fetch('/api/technovit/matched-events')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { ready: boolean; matchedIds: string[] | null } | null) => {
+        if (!active || !data?.ready || !data.matchedIds) return;
+        setMatchedIds(new Set(data.matchedIds));
+        writeMatchedCache(data.matchedIds);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Events with no name-match on the upstream chennaievents portal have no
+  // working registration flow, so keep them out of the listing entirely
+  // rather than showing a card that can't actually register anyone.
+  const visibleEvents = useMemo(
+    () => (matchedIds ? events.filter((e) => matchedIds.has(e.id)) : events),
+    [events, matchedIds]
+  );
+
+  const flagshipEvents = useMemo(() => visibleEvents.filter((e) => e.isSpecialEvent), [visibleEvents]);
+  const regularEvents = useMemo(() => visibleEvents.filter((e) => !e.isSpecialEvent), [visibleEvents]);
 
   const eventTypes = useMemo(() => {
     const seen = new Map<string, string>();
@@ -146,13 +250,7 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
       if (eventType !== 'All' && e.eventType.toLowerCase() !== typeQuery) return false;
       if (e.pricePerPerson < priceRange[0] || e.pricePerPerson > priceRange[1]) return false;
       if (!q) return true;
-      return (
-        e.eventName.toLowerCase().includes(q) ||
-        e.clubName.toLowerCase().includes(q) ||
-        e.shortDescription.toLowerCase().includes(q) ||
-        e.eventVenue.toLowerCase().includes(q) ||
-        e.eventType.toLowerCase().includes(q)
-      );
+      return e.eventName.toLowerCase().includes(q);
     });
 
     matches.sort(compareEvents);
@@ -367,7 +465,7 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search events, clubs, venues..."
+                placeholder="Search events..."
                 spellCheck={false}
                 autoComplete="off"
                 className="flex-1 min-w-0 bg-transparent outline-none border-0 p-0 text-[#c2e0a5] placeholder:text-[#84C87F]/30 font-terminal text-sm"

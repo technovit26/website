@@ -2,6 +2,10 @@ const WORKER_BASE = 'https://techno.worker.puang.in';
 const EVENTS_ENDPOINT = `${WORKER_BASE}/events`;
 const REVALIDATE_SECONDS = 900;
 
+// R2 bucket's own custom domain — serves assets straight from R2 via
+// Cloudflare's edge, bypassing the Worker (and its invocation cost) entirely.
+const ASSETS_CDN_BASE = 'https://cdn.puang.in';
+
 interface RawEvent {
   id: number | string;
   event_name: string;
@@ -99,7 +103,7 @@ export async function fetchEvents(): Promise<EventItem[]> {
 }
 
 export function posterUrl(posterPath: string): string {
-  return `${WORKER_BASE}/${posterPath}`;
+  return `${ASSETS_CDN_BASE}/${posterPath}`;
 }
 
 export function formatEventDate(iso: string): string {
