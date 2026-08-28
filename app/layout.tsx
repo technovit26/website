@@ -6,17 +6,11 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import CustomCursor from "./components/CustomCursor";
 import SmoothScrolling from "./components/SmoothScrolling";
-import TrailerModal from "./components/TrailerModal";
 import LoginDialog from "./components/LoginDialog";
 import TeamDialog from "./components/TeamDialog";
-import ContextMenu from "./components/ContextMenu";
 import SoundManager from "./components/SoundManager";
-import Terminal from "./components/Terminal";
-import Konami from "./components/Konami";
-import QuestionMark from "./components/QuestionMark";
 import BottomNavCluster from "./components/BottomNavCluster";
-import EggMaster from "./components/EggMaster";
-import ConsoleEgg from "./components/ConsoleEgg";
+import DeferredWidgets from "./components/DeferredWidgets";
 import SiteMaintenance from "./components/SiteMaintenance";
 import { SITE_MAINTENANCE_MODE } from "./maintenance";
 
@@ -61,21 +55,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <SiteMaintenance />
         ) : (
           <SmoothScrolling>
-            <TrailerModal />
             <LoginDialog />
             <TeamDialog />
             <CustomCursor />
-            <ContextMenu />
             <SoundManager />
-            <Terminal />
-            <Konami />
-            <QuestionMark />
             <BottomNavCluster />
-            <EggMaster />
-            <ConsoleEgg />
             <Navbar />
             <div className="flex-1">{children}</div>
             <Footer />
+            <DeferredWidgets />
           </SmoothScrolling>
         )}
       </body>
