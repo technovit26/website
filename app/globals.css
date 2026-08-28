@@ -54,6 +54,11 @@ body::-webkit-scrollbar {
   * {
     cursor: none !important;
   }
+
+  body.native-cursor,
+  body.native-cursor * {
+    cursor: revert !important;
+  }
 }
 
 @keyframes terminal-blink {

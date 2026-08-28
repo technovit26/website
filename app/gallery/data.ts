@@ -1,5 +1,5 @@
 const GALLERY_ENDPOINT = 'https://api.techno.cdn.a2ys.dev/gallery';
-const REVALIDATE_SECONDS = 300;
+const REVALIDATE_SECONDS = 900;
 
 export interface GalleryImage {
   url: string;

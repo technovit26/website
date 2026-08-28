@@ -1,8 +1,12 @@
 import Header from "./components/Header";
 import Marquee from "./components/Marquee";
 import HomepageContent from "./components/HomepageContent";
+import UnderMaintenance from "./components/UnderMaintenance";
+import { HOMEPAGE_MAINTENANCE } from "./maintenance";
 
 export default function Home() {
+  if (HOMEPAGE_MAINTENANCE) return <UnderMaintenance title="technoVIT'26" />;
+
   return (
     <>
       <div className="sticky top-0 z-0">

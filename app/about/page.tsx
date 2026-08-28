@@ -7,9 +7,11 @@ import { AnimatePresence, motion, useMotionValue, useTransform, useInView, anima
 import Marquee from '../components/Marquee';
 import MarqueeCTA from '../components/MarqueeCTA';
 import Countdown from '../components/Countdown';
+import UnderMaintenance from '../components/UnderMaintenance';
 import { playSound } from '../components/SoundManager';
 import { useStackPush } from '../hooks/useBottomStack';
 import { markEggFound, ABOUT_EGG_KEY } from '../hooks/useEggsFound';
+import { ABOUT_MAINTENANCE } from '../maintenance';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -56,7 +58,7 @@ function StatCounter({ value, suffix, label }: { value: number; suffix: string; 
   );
 }
 
-export default function AboutPage() {
+function AboutPageContent() {
   const bigTitleRef     = useRef<HTMLHeadingElement>(null);
   const themeHeadRef    = useRef<HTMLDivElement>(null);
   const themeBodyRef    = useRef<HTMLDivElement>(null);
@@ -303,4 +305,9 @@ export default function AboutPage() {
 
     </main>
   );
+}
+
+export default function AboutPage() {
+  if (ABOUT_MAINTENANCE) return <UnderMaintenance title="About" />;
+  return <AboutPageContent />;
 }

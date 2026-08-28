@@ -1,6 +1,6 @@
 const WORKER_BASE = 'https://techno.worker.puang.in';
 const EVENTS_ENDPOINT = `${WORKER_BASE}/events`;
-const REVALIDATE_SECONDS = 300;
+const REVALIDATE_SECONDS = 900;
 
 interface RawEvent {
   id: number | string;

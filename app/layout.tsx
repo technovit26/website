@@ -56,7 +56,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <link rel="preload" as="image" href="/bg.svg" />
         <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f02c938088bc4e53841f29ebcd62b663"}'></script>
       </head>
-      <body className="flex flex-col min-h-screen">
+      <body className={`flex flex-col min-h-screen ${SITE_MAINTENANCE_MODE ? 'native-cursor' : ''}`}>
         {SITE_MAINTENANCE_MODE ? (
           <SiteMaintenance />
         ) : (
