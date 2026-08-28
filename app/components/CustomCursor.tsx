@@ -13,17 +13,6 @@ let initialized = false;
 const RING_SPRING = { stiffness: 220, damping: 20, mass: 0.6 };
 const HOVER_SELECTOR = 'a, button, [role="button"]';
 
-const TRAIL_SPRINGS = [
-  { stiffness: 260, damping: 22, mass: 0.4 },
-  { stiffness: 230, damping: 22, mass: 0.45 },
-  { stiffness: 200, damping: 23, mass: 0.5 },
-  { stiffness: 170, damping: 23, mass: 0.55 },
-  { stiffness: 140, damping: 24, mass: 0.6 },
-  { stiffness: 110, damping: 24, mass: 0.65 },
-];
-const TRAIL_SIZES = [6, 5, 5, 4, 3, 2];
-const TRAIL_OPACITIES = [0.45, 0.35, 0.28, 0.2, 0.13, 0.07];
-
 export default function CustomCursor() {
   const pathname = usePathname();
   const hidden = useIsTouchDevice();
@@ -34,27 +23,6 @@ export default function CustomCursor() {
   const mouseY = useMotionValue(0);
   const ringX = useSpring(mouseX, RING_SPRING);
   const ringY = useSpring(mouseY, RING_SPRING);
-
-  const t1x = useSpring(mouseX, TRAIL_SPRINGS[0]);
-  const t1y = useSpring(mouseY, TRAIL_SPRINGS[0]);
-  const t2x = useSpring(t1x, TRAIL_SPRINGS[1]);
-  const t2y = useSpring(t1y, TRAIL_SPRINGS[1]);
-  const t3x = useSpring(t2x, TRAIL_SPRINGS[2]);
-  const t3y = useSpring(t2y, TRAIL_SPRINGS[2]);
-  const t4x = useSpring(t3x, TRAIL_SPRINGS[3]);
-  const t4y = useSpring(t3y, TRAIL_SPRINGS[3]);
-  const t5x = useSpring(t4x, TRAIL_SPRINGS[4]);
-  const t5y = useSpring(t4y, TRAIL_SPRINGS[4]);
-  const t6x = useSpring(t5x, TRAIL_SPRINGS[5]);
-  const t6y = useSpring(t5y, TRAIL_SPRINGS[5]);
-  const trail = [
-    [t1x, t1y],
-    [t2x, t2y],
-    [t3x, t3y],
-    [t4x, t4y],
-    [t5x, t5y],
-    [t6x, t6y],
-  ] as const;
 
   useEffect(() => {
     if (hidden) return;
@@ -67,11 +35,6 @@ export default function CustomCursor() {
     mouseX.set(lastX);
     mouseY.set(lastY);
 
-    // elementFromPoint() forces a hit-test (and can force a synchronous layout
-    // flush), so it's throttled to once per animation frame here — running it
-    // on every raw mousemove (which can fire well above 60Hz) competes with
-    // scroll's own rAF work and is what caused hover-heavy sections like the
-    // gallery grid to drop frames whenever the cursor crossed a card mid-scroll.
     let rafId: number | null = null;
     const onMouseMove = (e: MouseEvent) => {
       lastX = e.clientX;
@@ -111,23 +74,6 @@ export default function CustomCursor() {
 
   return (
     <>
-      {trail.map(([x, y], i) => (
-        <motion.div
-          key={i}
-          className="fixed top-0 left-0 rounded-full pointer-events-none z-[999997]"
-          style={{
-            x,
-            y,
-            translate: '-50% -50%',
-            width: TRAIL_SIZES[i],
-            height: TRAIL_SIZES[i],
-            backgroundColor: '#84C87F',
-            opacity: TRAIL_OPACITIES[i],
-            mixBlendMode: 'screen',
-            willChange: 'transform',
-          }}
-        />
-      ))}
       <motion.div
         className="fixed top-0 left-0 pointer-events-none z-[999999]"
         style={{
