@@ -32,6 +32,7 @@ gsap.registerPlugin(ScrollTrigger);
 const CURTAIN_ITEMS = ["TechnoVIT'26"];
 
 const DEFAULT_TYPE = 'All';
+const DEFAULT_DATE = 'All';
 const PAGE_SIZE = 10;
 
 function eventStart(e: EventItem) {
@@ -39,6 +40,21 @@ function eventStart(e: EventItem) {
 }
 function eventEnd(e: EventItem) {
   return new Date(e.endDateTime).getTime();
+}
+
+function toDayKey(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+    d.getDate()
+  ).padStart(2, '0')}`;
+}
+
+function eventStartDayKey(e: EventItem): string {
+  return toDayKey(new Date(e.startDateTime));
+}
+
+function formatDayLabel(key: string) {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 }
 function compareEvents(a: EventItem, b: EventItem) {
   const byStart = eventStart(a) - eventStart(b);
@@ -197,6 +213,11 @@ export default function EventsContent({ events: initialEvents }: { events: Event
     }
     return Array.from(seen.values()).sort((a, b) => a.localeCompare(b));
   }, [regularEvents]);
+  const eventDates = useMemo(() => {
+    const seen = new Set<string>();
+    for (const e of regularEvents) seen.add(eventStartDayKey(e));
+    return Array.from(seen).sort();
+  }, [regularEvents]);
   const priceMin = useMemo(
     () => (regularEvents.length ? Math.min(...regularEvents.map((e) => e.pricePerPerson)) : 0),
     [regularEvents]
@@ -208,6 +229,7 @@ export default function EventsContent({ events: initialEvents }: { events: Event
 
   const [search, setSearch] = useState('');
   const [eventType, setEventType] = useState<string>(DEFAULT_TYPE);
+  const [dateFilter, setDateFilter] = useState<string>(DEFAULT_DATE);
   const [priceRange, setPriceRange] = useState<[number, number]>(() => [priceMin, priceMax]);
 
   const router = useRouter();
@@ -229,12 +251,14 @@ export default function EventsContent({ events: initialEvents }: { events: Event
   const filtersActive =
     debouncedSearch.trim() !== '' ||
     eventType !== DEFAULT_TYPE ||
+    dateFilter !== DEFAULT_DATE ||
     priceRange[0] !== priceMin ||
     priceRange[1] !== priceMax;
 
   const resetFilters = () => {
     setSearch('');
     setEventType(DEFAULT_TYPE);
+    setDateFilter(DEFAULT_DATE);
     setPriceRange([priceMin, priceMax]);
   };
 
@@ -248,6 +272,7 @@ export default function EventsContent({ events: initialEvents }: { events: Event
 
     const matches = regularEvents.filter((e) => {
       if (eventType !== 'All' && e.eventType.toLowerCase() !== typeQuery) return false;
+      if (dateFilter !== DEFAULT_DATE && eventStartDayKey(e) !== dateFilter) return false;
       if (e.pricePerPerson < priceRange[0] || e.pricePerPerson > priceRange[1]) return false;
       if (!q) return true;
       return e.eventName.toLowerCase().includes(q);
@@ -259,12 +284,12 @@ export default function EventsContent({ events: initialEvents }: { events: Event
       upcoming: matches.filter((e) => eventEnd(e) >= now),
       completed: matches.filter((e) => eventEnd(e) < now),
     };
-  }, [regularEvents, debouncedSearch, eventType, priceRange, now]);
+  }, [regularEvents, debouncedSearch, eventType, dateFilter, priceRange, now]);
 
   const completedVisible = isSearching ? [] : completed;
 
   const [page, setPage] = useState(1);
-  const filterKey = `${debouncedSearch}|${eventType}|${priceRange[0]}|${priceRange[1]}`;
+  const filterKey = `${debouncedSearch}|${eventType}|${dateFilter}|${priceRange[0]}|${priceRange[1]}`;
   const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
   if (filterKey !== prevFilterKey) {
     setPrevFilterKey(filterKey);
@@ -488,6 +513,19 @@ export default function EventsContent({ events: initialEvents }: { events: Event
                 <FilterChip key={t} active={eventType === t} onClick={() => setEventType(t)}>{t}</FilterChip>
               ))}
             </FilterSection>
+
+            {eventDates.length > 1 && (
+              <FilterSection label="Date">
+                <FilterChip active={dateFilter === DEFAULT_DATE} onClick={() => setDateFilter(DEFAULT_DATE)}>
+                  All
+                </FilterChip>
+                {eventDates.map((key) => (
+                  <FilterChip key={key} active={dateFilter === key} onClick={() => setDateFilter(key)}>
+                    {formatDayLabel(key)}
+                  </FilterChip>
+                ))}
+              </FilterSection>
+            )}
 
             <PriceRangeSlider min={priceMin} max={priceMax} value={priceRange} onChange={setPriceRange} />
           </div>
