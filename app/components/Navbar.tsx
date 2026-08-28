@@ -9,6 +9,7 @@ import { useAuthState, logout, openLogin } from '../hooks/useAuthState';
 
 export const NAV_LINKS = [
   { href: '/events', label: 'Events' },
+  { href: '/speakers', label: 'Speakers' },
   { href: '/team', label: 'Team' },
   { href: '/sponsors', label: 'Sponsors' },
   { href: '/gallery', label: 'Gallery' },
@@ -236,7 +237,7 @@ const Navbar = () => {
             onClick={closeMenu}
             data-cursor="Homepage"
             className="font-clash font-bold whitespace-nowrap text-white hover:text-[#84C87F] transition-colors duration-200
-              text-base tracking-wider sm:text-lg sm:tracking-widest md:text-xl lg:text-2xl"
+              text-base sm:text-lg md:text-xl lg:text-2xl tracking-wide"
           >
             technoVIT
           </Link>
