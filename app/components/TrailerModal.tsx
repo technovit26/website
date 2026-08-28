@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence, MotionConfig, Variants } from 'motion/react';
 import { ArrowClockwise, Pause, Play, SpeakerSimpleHigh, SpeakerSimpleX } from '@phosphor-icons/react';
 import { useLenis } from './SmoothScrolling';
@@ -78,7 +77,6 @@ export default function TrailerModal() {
   const [controlsVisible, setControlsVisible] = useState(true);
   const [activeSrc, setActiveSrc] = useState<string | undefined>(undefined);
   const isTouchDevice = useIsTouchDevice();
-  const pathname = usePathname();
   const videoRef = useRef<HTMLVideoElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const seekBarRef = useRef<HTMLDivElement>(null);
@@ -94,20 +92,7 @@ export default function TrailerModal() {
   }, [showPill, scrollUp]);
 
   useEffect(() => {
-    // Runs once, when this (route-persistent) component first mounts — i.e. on the
-    // initial hard load of the app. `pathname` here is whatever URL that load landed
-    // on, so this only auto-opens when the user's entry point was the homepage itself,
-    // never when they land elsewhere and later navigate to "/" client-side.
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored === 'minimized' || stored === 'closed') {
-        queueMicrotask(() => setShowPill(true));
-      } else if (!stored && pathname === '/') {
-        queueMicrotask(() => setPhase('open'));
-      }
-    } catch {
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    queueMicrotask(() => setShowPill(true));
   }, []);
 
   useEffect(() => {
