@@ -9,10 +9,13 @@ the prompt:
 
 | Piece | Tokens |
 | --- | --- |
-| System prompt | ~400 |
-| Every event, one line each with its short description | ~13,800 |
-| **Prefix sent on every request** | **~14,200** |
+| System prompt, including the organising team roster | ~990 |
+| Every event, one line each with its short description | ~14,000 |
+| **Prefix sent on every request** | **~15,000** |
 | Full write-up, only when a question names an event | +120–330 |
+
+The team roster in the prompt is rendered from `app/team/data.ts` — the same
+data the `/team` page renders — so editing the roster updates both at once.
 
 This is what makes "find me two cybersec events" work. The data has no topic
 column — `event_type` is the *format* (Hackathon, Workshop, Competition, Game),
@@ -47,6 +50,34 @@ retries on the next key. Each serverless isolate starts at a random offset,
 otherwise every cold start would hammer the first key.
 
 Adding capacity means adding keys to the environment. No code change.
+
+### Writing the keys
+
+Any of these work, and all sources are merged and deduped:
+
+```bash
+# one key
+GEMINI_API_KEY=AIzaKey1
+
+# many, on one line — best for a hosting dashboard, it is one entry to paste
+GEMINI_API_KEYS=AIzaKey1,AIzaKey2,AIzaKey3
+
+# many, one per line — easier to read and to comment out a dead key
+GEMINI_API_KEY_1=AIzaKey1
+GEMINI_API_KEY_2=AIzaKey2
+
+# many in one variable, one per line — the quotes are required
+GEMINI_API_KEYS="AIzaKey1
+AIzaKey2"
+```
+
+Separators are commas, spaces or newlines. A trailing comma is ignored. The
+suffix must be digits: `GEMINI_API_KEY_2` is picked up, `GEMINI_API_KEY_A` and
+`GEMINI_API_KEY2` are not.
+
+To check which case you are in, `POST /api/chat` with any message:
+`not_configured` means no key was found (wrong variable name), `ai_unavailable`
+means keys were found but Gemini rejected them (wrong or expired key).
 
 ## Files
 
