@@ -11,6 +11,7 @@ import {
   ArrowRight,
   CaretLeft,
   CaretRight,
+  CircleNotch,
   ClockCounterClockwise,
   Funnel,
   MagnifyingGlass,
@@ -27,7 +28,7 @@ import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import EventCard from './EventCard';
 import EventModal from './EventModal';
 import PriceRangeSlider from './PriceRangeSlider';
-import { type EventItem } from './data';
+import { type EventItem, type EventListItem } from './data';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -38,10 +39,10 @@ const DEFAULT_DATE = 'All';
 const PAGE_SIZE = 10;
 const COMPLETED_PAGE_SIZE = 6;
 
-function eventStart(e: EventItem) {
+function eventStart(e: EventListItem) {
   return new Date(e.startDateTime).getTime();
 }
-function eventEnd(e: EventItem) {
+function eventEnd(e: EventListItem) {
   return new Date(e.endDateTime).getTime();
 }
 
@@ -51,7 +52,7 @@ function toDayKey(d: Date) {
   ).padStart(2, '0')}`;
 }
 
-function eventStartDayKey(e: EventItem): string {
+function eventStartDayKey(e: EventListItem): string {
   return toDayKey(new Date(e.startDateTime));
 }
 
@@ -59,7 +60,7 @@ function formatDayLabel(key: string) {
   const [y, m, d] = key.split('-').map(Number);
   return new Date(y, m - 1, d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 }
-function compareEvents(a: EventItem, b: EventItem) {
+function compareEvents(a: EventListItem, b: EventListItem) {
   const byStart = eventStart(a) - eventStart(b);
   if (byStart) return byStart;
   return a.eventName.localeCompare(b.eventName);
@@ -68,11 +69,11 @@ function compareEvents(a: EventItem, b: EventItem) {
 const EVENTS_CACHE_KEY = 'technovit:events-cache:v1';
 const EVENTS_CACHE_TTL_MS = 5 * 60 * 1000;
 
-function readEventsCache(): EventItem[] | null {
+function readEventsCache(): EventListItem[] | null {
   try {
     const raw = localStorage.getItem(EVENTS_CACHE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as { events: EventItem[]; cachedAt: number };
+    const parsed = JSON.parse(raw) as { events: EventListItem[]; cachedAt: number };
     if (!parsed.events?.length || Date.now() - parsed.cachedAt > EVENTS_CACHE_TTL_MS) return null;
     return parsed.events;
   } catch {
@@ -80,7 +81,7 @@ function readEventsCache(): EventItem[] | null {
   }
 }
 
-function writeEventsCache(events: EventItem[]) {
+function writeEventsCache(events: EventListItem[]) {
   if (events.length === 0) return;
   try {
     localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify({ events, cachedAt: Date.now() }));
@@ -186,10 +187,11 @@ function Pager({
   );
 }
 
-export default function EventsContent({ events: initialEvents }: { events: EventItem[] }) {
-  const [events, setEvents] = useState<EventItem[]>(initialEvents);
+export default function EventsContent({ events: initialEvents }: { events: EventListItem[] }) {
+  const [events, setEvents] = useState<EventListItem[]>(initialEvents);
   // null = matching data not loaded yet -> don't filter anything out.
   const [matchedIds, setMatchedIds] = useState<Set<string> | null>(null);
+  const [fullById, setFullById] = useState<Map<string, EventItem> | null>(null);
 
   useEffect(() => {
     const cached = readEventsCache();
@@ -204,7 +206,7 @@ export default function EventsContent({ events: initialEvents }: { events: Event
     let active = true;
     fetch('/api/technovit/event-list')
       .then((res) => (res.ok ? res.json() : []))
-      .then((data: EventItem[]) => {
+      .then((data: EventListItem[]) => {
         if (!active || data.length === 0) return;
         setEvents(data);
         writeEventsCache(data);
@@ -279,9 +281,36 @@ export default function EventsContent({ events: initialEvents }: { events: Event
   const searchParams = useSearchParams();
   const deepLinkedEventId = searchParams.get('event');
   const activeEvent = useMemo(
-    () => (deepLinkedEventId ? events.find((e) => e.id === deepLinkedEventId) ?? null : null),
-    [deepLinkedEventId, events]
+    () => (deepLinkedEventId && fullById ? fullById.get(deepLinkedEventId) ?? null : null),
+    [deepLinkedEventId, fullById]
   );
+  const modalPending = Boolean(deepLinkedEventId) && !activeEvent;
+
+  useEffect(() => {
+    if (fullById) return;
+    let active = true;
+    const load = () => {
+      fetch('/api/technovit/event-list')
+        .then((res) => (res.ok ? res.json() : []))
+        .then((data: EventItem[]) => {
+          if (active && data.length > 0) setFullById(new Map(data.map((e) => [e.id, e])));
+        })
+        .catch(() => {});
+    };
+    if (deepLinkedEventId) {
+      load();
+      return () => {
+        active = false;
+      };
+    }
+    const ric = typeof window !== 'undefined' ? window.requestIdleCallback : undefined;
+    const handle = ric ? ric(load, { timeout: 2500 }) : window.setTimeout(load, 800);
+    return () => {
+      active = false;
+      if (ric && window.cancelIdleCallback) window.cancelIdleCallback(handle as number);
+      else window.clearTimeout(handle as number);
+    };
+  }, [deepLinkedEventId, fullById]);
 
   const debouncedSearch = useDebouncedValue(search, 250);
 
@@ -362,7 +391,7 @@ export default function EventsContent({ events: initialEvents }: { events: Event
   };
 
   const openEvent = useCallback(
-    (event: EventItem) => {
+    (event: EventListItem) => {
       playSound('toggle');
       const params = new URLSearchParams(searchParams.toString());
       params.set('event', event.id);
@@ -710,6 +739,19 @@ export default function EventsContent({ events: initialEvents }: { events: Event
 
       <AnimatePresence>
         {activeEvent && <EventModal event={activeEvent} onClose={closeEvent} />}
+        {modalPending && (
+          <motion.div
+            key="modal-pending"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[600] bg-black/85 backdrop-blur-md flex items-center justify-center"
+            onClick={closeEvent}
+          >
+            <CircleNotch size={28} weight="bold" className="animate-spin text-[#84C87F]" />
+          </motion.div>
+        )}
       </AnimatePresence>
     </main>
   );

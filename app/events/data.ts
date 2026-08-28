@@ -52,6 +52,31 @@ export interface EventItem {
   facultyCoordEmail: string;
 }
 
+export type EventListItem = Omit<
+  EventItem,
+  'longDescription' | 'facultyCoordEmpId' | 'facultyCoordName' | 'facultyCoordMobile' | 'facultyCoordEmail'
+>;
+
+function toListItem(e: EventItem): EventListItem {
+  return {
+    id: e.id,
+    eventName: e.eventName,
+    clubName: e.clubName,
+    eventType: e.eventType,
+    eventFor: e.eventFor,
+    posterPath: e.posterPath,
+    startDateTime: e.startDateTime,
+    endDateTime: e.endDateTime,
+    pricePerPerson: e.pricePerPerson,
+    participationType: e.participationType,
+    eventVenue: e.eventVenue,
+    shortDescription: e.shortDescription,
+    isSpecialEvent: e.isSpecialEvent,
+    registrationLink: e.registrationLink,
+    teamSize: e.teamSize,
+  };
+}
+
 function toIso(dateTime: string): string {
   return dateTime.includes('T') ? dateTime : dateTime.replace(' ', 'T');
 }
@@ -100,6 +125,10 @@ export async function fetchEvents(): Promise<EventItem[]> {
   } catch {
     return [];
   }
+}
+
+export async function fetchEventsList(): Promise<EventListItem[]> {
+  return (await fetchEvents()).map(toListItem);
 }
 
 export function posterUrl(posterPath: string): string {
