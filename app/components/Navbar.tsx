@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { List } from '@phosphor-icons/react';
 import gsap from 'gsap';
 import { motion } from 'motion/react';
 import { emit } from '../hooks/useEventBus';
@@ -151,13 +152,13 @@ function TerminalMenu({
         onClick={onClose}
         aria-label="Close menu"
         data-cursor="Close"
-        className="-mr-1 self-end px-1 py-2 text-lg tracking-[0.35em] text-[#84C87F]
+        className="-mr-1 shrink-0 self-end px-1 py-2 text-lg tracking-[0.35em] text-[#84C87F]
           transition-colors hover:text-[#c2e0a5]"
       >
         [&thinsp;X&thinsp;]
       </button>
 
-      <nav className="mt-9 flex min-h-0 flex-1 flex-col overflow-y-auto">
+      <nav className="terminal-scroll -mx-7 mt-9 flex min-h-0 flex-1 flex-col overflow-y-auto px-7 pb-4">
         {routes.map((r, i) => {
           const active = pathname === r.href;
           return (
@@ -189,7 +190,13 @@ function TerminalMenu({
             </Link>
           );
         })}
+      </nav>
 
+      <div className="shrink-0 pt-6">
+        <p className="text-sm text-[#84C87F]/80">
+          <span className="text-[#84C87F]">$</span>{' '}
+          <span className="terminal-cursor text-[#84C87F]">▋</span>
+        </p>
         <button
           type="button"
           onClick={() => {
@@ -197,7 +204,7 @@ function TerminalMenu({
             onClose();
           }}
           data-cursor={loggedIn ? 'Logout' : 'Login'}
-          className="group mt-4 border-t-2 border-[#84C87F]/15 pt-4 text-left"
+          className="group mt-4 block w-full border-t-2 border-[#84C87F]/15 pt-4 text-left"
         >
           <span
             className="block font-clash text-[1.7rem] font-bold lowercase leading-none text-[#c2e0a5]
@@ -209,12 +216,7 @@ function TerminalMenu({
             ./auth&nbsp;{loggedIn ? 'logout' : 'login'}
           </span>
         </button>
-      </nav>
-
-      <p className="shrink-0 pt-8 text-sm text-[#84C87F]/80">
-        <span className="text-[#84C87F]">$</span>{' '}
-        <span className="terminal-cursor text-[#84C87F]">▋</span>
-      </p>
+      </div>
     </div>
   );
 }
@@ -367,12 +369,11 @@ const Navbar = () => {
 
         <button
           onClick={toggleMenu}
-          className="xl:hidden -mr-1 px-2.5 py-1 font-terminal text-2xl font-semibold leading-none text-[#84C87F]
-            transition-colors hover:text-[#c2e0a5]"
+          className="xl:hidden -mr-1 p-1.5 text-[#84C87F] transition-colors hover:text-[#c2e0a5]"
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
         >
-          $
+          <List size={28} />
         </button>
       </nav>
 
