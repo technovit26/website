@@ -158,7 +158,10 @@ function TerminalMenu({
         [&thinsp;X&thinsp;]
       </button>
 
-      <nav className="terminal-scroll -mx-7 mt-9 flex min-h-0 flex-1 flex-col overflow-y-auto px-7 pb-4">
+      <nav
+        data-lenis-prevent
+        className="terminal-scroll -mx-7 mt-9 flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-7 pb-4"
+      >
         {routes.map((r, i) => {
           const active = pathname === r.href;
           return (
