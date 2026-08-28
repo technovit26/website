@@ -136,6 +136,18 @@ body::-webkit-scrollbar {
   cursor: pointer;
 }
 
+@keyframes hero-cloud-drift {
+  from { transform: translateX(-55vw); }
+  to { transform: translateX(132vw); }
+}
+@keyframes hero-cloud-bob {
+  0%, 100% { margin-top: 0; }
+  50% { margin-top: 1.4%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-cloud { animation: none !important; }
+}
+
 .home-hero-text {
   min-height: calc(60svh - 100vw * 0.474652 + 40px);
 }

@@ -9,6 +9,61 @@ import { markEggFound, HOME_EGG_KEY } from '../hooks/useEggsFound';
 
 const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!%&';
 const FINAL_TEXT = "technoVIT'26";
+
+const HERO_CLOUDS = [
+  { top: 5, w: 13, dur: 230, delay: -20 },
+  { top: 10, w: 18, dur: 200, delay: -160 },
+  { top: 15, w: 15, dur: 215, delay: -110 },
+  { top: 12, w: 21, dur: 188, delay: -55 },
+  { top: 22, w: 16, dur: 208, delay: -140 },
+  { top: 26, w: 23, dur: 176, delay: -45 },
+  { top: 7, w: 16, dur: 222, delay: -95 },
+  { top: 18, w: 19, dur: 195, delay: -30 },
+  { top: 24, w: 14, dur: 212, delay: -175 },
+];
+const HERO_CLOUD_DEPTHS = [0.5, 0.6, 0.52, 0.68, 0.58, 0.74, 0.55, 0.66, 0.5];
+
+function HeroClouds() {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 z-0 select-none"
+      style={{
+        WebkitMaskImage: 'linear-gradient(to bottom, #000 0%, #000 38%, transparent 62%)',
+        maskImage: 'linear-gradient(to bottom, #000 0%, #000 38%, transparent 62%)',
+      }}
+    >
+      {HERO_CLOUDS.map((c, i) => (
+        <div
+          key={i}
+          className="hero-cloud absolute left-0"
+          style={{
+            top: `${c.top}%`,
+            width: `${c.w}%`,
+            aspectRatio: '220 / 90',
+            animation: `hero-cloud-drift ${c.dur}s linear ${c.delay}s infinite, hero-cloud-bob ${
+              9 + (i % 5) * 2
+            }s ease-in-out ${-i * 1.6}s infinite`,
+          }}
+        >
+          <svg
+            viewBox="0 0 220 90"
+            className="h-full w-full"
+            style={{ opacity: Math.min(0.15, 0.1 * HERO_CLOUD_DEPTHS[i]), filter: 'blur(0.8px)' }}
+            aria-hidden
+          >
+            <g fill="#08414a">
+              <ellipse cx="70" cy="60" rx="70" ry="28" />
+              <ellipse cx="120" cy="52" rx="55" ry="34" />
+              <ellipse cx="160" cy="62" rx="52" ry="26" />
+              <ellipse cx="100" cy="44" rx="34" ry="26" />
+            </g>
+          </svg>
+        </div>
+      ))}
+    </div>
+  );
+}
 const REPLAY_TRIGGER_COUNT = 5;
 const FLASH_VISIBLE_MS = 2400;
 
@@ -106,7 +161,8 @@ const Header = () => {
 
   return (
     <section className="home-hero-text relative flex flex-col overflow-hidden bg-[#c2e0a5]">
-      <div className="flex-1 flex flex-col items-center justify-center
+      <HeroClouds />
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center
         px-4 sm:px-6
         pt-6 sm:pt-10 md:pt-20 lg:pt-20">
 
