@@ -111,10 +111,10 @@ function CoreCard({ item, onOpen }: { item: CoreItem; onOpen: (item: CoreItem) =
 
 const AMBIENT_ROW_COUNT = 4;
 const MIN_TILES_PER_ROW = 10;
-// Tiles are served through /api/thumb (resized + cached), but each still-new
-// source photo needs a first-hit resize before it's cached. Capping row width
-// bounds how many DOM nodes and cold thumb requests the wall can grow to as
-// more event photos land in the live feed, regardless of pool size.
+// Tiles are served through Cloudflare Image Resizing (resized + edge-cached), but
+// each still-new source photo needs a first-hit resize before it's cached.
+// Capping row width bounds how many DOM nodes and cold thumb requests the wall
+// can grow to as more event photos land in the live feed, regardless of pool size.
 const MAX_TILES_PER_ROW = 10;
 const ROW_SPEEDS = [70, 88, 62, 95];
 
