@@ -9,6 +9,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   ArrowCounterClockwise,
   ArrowRight,
+  CaretLeft,
+  CaretRight,
   Funnel,
   MagnifyingGlass,
   SmileySad,
@@ -30,7 +32,19 @@ gsap.registerPlugin(ScrollTrigger);
 const CURTAIN_ITEMS = ["TechnoVIT'26"];
 
 const DEFAULT_TYPE = 'All';
-const DEFAULT_FOR = 'All';
+const PAGE_SIZE = 10;
+
+function eventStart(e: EventItem) {
+  return new Date(e.startDateTime).getTime();
+}
+function eventEnd(e: EventItem) {
+  return new Date(e.endDateTime).getTime();
+}
+function compareEvents(a: EventItem, b: EventItem) {
+  const byStart = eventStart(a) - eventStart(b);
+  if (byStart) return byStart;
+  return a.eventName.localeCompare(b.eventName);
+}
 
 function FilterChip({
   active,
@@ -71,14 +85,14 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
   const flagshipEvents = useMemo(() => events.filter((e) => e.isSpecialEvent), [events]);
   const regularEvents = useMemo(() => events.filter((e) => !e.isSpecialEvent), [events]);
 
-  const eventTypes = useMemo(
-    () => Array.from(new Set(regularEvents.map((e) => e.eventType))).sort(),
-    [regularEvents]
-  );
-  const eventForOptions = useMemo(
-    () => Array.from(new Set(regularEvents.map((e) => e.eventFor))).sort(),
-    [regularEvents]
-  );
+  const eventTypes = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const e of regularEvents) {
+      const key = e.eventType.toLowerCase();
+      if (key && !seen.has(key)) seen.set(key, e.eventType);
+    }
+    return Array.from(seen.values()).sort((a, b) => a.localeCompare(b));
+  }, [regularEvents]);
   const priceMin = useMemo(
     () => (regularEvents.length ? Math.min(...regularEvents.map((e) => e.pricePerPerson)) : 0),
     [regularEvents]
@@ -90,7 +104,6 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
 
   const [search, setSearch] = useState('');
   const [eventType, setEventType] = useState<string>(DEFAULT_TYPE);
-  const [eventFor, setEventFor] = useState<string>(DEFAULT_FOR);
   const [priceRange, setPriceRange] = useState<[number, number]>(() => [priceMin, priceMax]);
 
   const router = useRouter();
@@ -112,22 +125,25 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
   const filtersActive =
     debouncedSearch.trim() !== '' ||
     eventType !== DEFAULT_TYPE ||
-    eventFor !== DEFAULT_FOR ||
     priceRange[0] !== priceMin ||
     priceRange[1] !== priceMax;
 
   const resetFilters = () => {
     setSearch('');
     setEventType(DEFAULT_TYPE);
-    setEventFor(DEFAULT_FOR);
     setPriceRange([priceMin, priceMax]);
   };
 
-  const filtered = useMemo(() => {
+  const isSearching = debouncedSearch.trim() !== '';
+
+  const [now] = useState(() => Date.now());
+
+  const { upcoming, completed } = useMemo(() => {
     const q = debouncedSearch.trim().toLowerCase();
-    return regularEvents.filter((e) => {
-      if (eventType !== 'All' && e.eventType !== eventType) return false;
-      if (eventFor !== 'All' && e.eventFor !== eventFor) return false;
+    const typeQuery = eventType.toLowerCase();
+
+    const matches = regularEvents.filter((e) => {
+      if (eventType !== 'All' && e.eventType.toLowerCase() !== typeQuery) return false;
       if (e.pricePerPerson < priceRange[0] || e.pricePerPerson > priceRange[1]) return false;
       if (!q) return true;
       return (
@@ -138,7 +154,33 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
         e.eventType.toLowerCase().includes(q)
       );
     });
-  }, [regularEvents, debouncedSearch, eventType, eventFor, priceRange]);
+
+    matches.sort(compareEvents);
+
+    return {
+      upcoming: matches.filter((e) => eventEnd(e) >= now),
+      completed: matches.filter((e) => eventEnd(e) < now),
+    };
+  }, [regularEvents, debouncedSearch, eventType, priceRange, now]);
+
+  const completedVisible = isSearching ? [] : completed;
+
+  const [page, setPage] = useState(1);
+  const filterKey = `${debouncedSearch}|${eventType}|${priceRange[0]}|${priceRange[1]}`;
+  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
+  if (filterKey !== prevFilterKey) {
+    setPrevFilterKey(filterKey);
+    setPage(1);
+  }
+  const totalPages = Math.max(1, Math.ceil(upcoming.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedUpcoming = upcoming.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const goToPage = (next: number) => {
+    setPage(Math.min(Math.max(1, next), totalPages));
+    resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const openEvent = useCallback(
     (event: EventItem) => {
@@ -270,7 +312,12 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
           </div>
 
           <div className="px-5 sm:px-10 md:px-16 lg:px-24">
-            <HScrollRow ariaLabel="Flagship events" edgeFadeClassName="from-[#064928]">
+            <HScrollRow
+              ariaLabel="Flagship events"
+              edgeFadeClassName="from-[#064928]"
+              wheelScroll={false}
+              dragScroll
+            >
               {flagshipEvents.map((event) => (
                 <EventCard key={event.id} event={event} onOpen={openEvent} />
               ))}
@@ -344,44 +391,75 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
               ))}
             </FilterSection>
 
-            <FilterSection label="Open To">
-              <FilterChip active={eventFor === 'All'} onClick={() => setEventFor('All')}>All</FilterChip>
-              {eventForOptions.map((f) => (
-                <FilterChip key={f} active={eventFor === f} onClick={() => setEventFor(f)}>{f}</FilterChip>
-              ))}
-            </FilterSection>
-
             <PriceRangeSlider min={priceMin} max={priceMax} value={priceRange} onChange={setPriceRange} />
           </div>
         </div>
       </section>
 
-      <section className="px-5 sm:px-10 md:px-16 lg:px-24 pb-24 sm:pb-32">
+      <section ref={resultsRef} className="px-5 sm:px-10 md:px-16 lg:px-24 pb-24 sm:pb-32 scroll-mt-8">
         <div className="flex items-center gap-3 mb-6 sm:mb-8">
           <div className="h-px flex-1 bg-[#84C87F]/15" />
           <span className="font-terminal font-bold uppercase tracking-[0.3em] text-[#84C87F]/50 text-[10px] sm:text-xs whitespace-nowrap">
-            $ query --matches {filtered.length}
+            $ query --matches {upcoming.length}
           </span>
           <div className="h-px flex-1 bg-[#84C87F]/15" />
         </div>
 
-        {filtered.length > 0 ? (
-          <motion.div layout className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
-            <AnimatePresence mode="popLayout">
-              {filtered.map((event) => (
-                <motion.div
-                  key={event.id}
-                  layout
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        {upcoming.length > 0 ? (
+          <>
+            <motion.div layout className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+              <AnimatePresence mode="popLayout">
+                {pagedUpcoming.map((event) => (
+                  <motion.div
+                    key={event.id}
+                    layout
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <EventCard event={event} onOpen={openEvent} className="w-full h-[220px] sm:h-[260px]" />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+
+            {totalPages > 1 && (
+              <div className="mt-10 flex items-center justify-center gap-2 font-terminal">
+                <button
+                  type="button"
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  data-cursor="Left"
+                  className="flex items-center gap-1.5 rounded-full border border-[#84C87F]/25 px-4 py-2 text-[11px]
+                    font-semibold uppercase tracking-wide text-[#84C87F]/70 transition-colors
+                    hover:border-[#84C87F]/50 hover:text-[#84C87F] disabled:opacity-30 disabled:pointer-events-none"
                 >
-                  <EventCard event={event} onOpen={openEvent} className="w-full h-[220px] sm:h-[260px]" />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+                  <CaretLeft size={12} weight="bold" />
+                  Prev
+                </button>
+                <span className="px-3 text-[11px] uppercase tracking-wide text-[#84C87F]/50">
+                  {currentPage} / {totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  data-cursor="Right"
+                  className="flex items-center gap-1.5 rounded-full border border-[#84C87F]/25 px-4 py-2 text-[11px]
+                    font-semibold uppercase tracking-wide text-[#84C87F]/70 transition-colors
+                    hover:border-[#84C87F]/50 hover:text-[#84C87F] disabled:opacity-30 disabled:pointer-events-none"
+                >
+                  Next
+                  <CaretRight size={12} weight="bold" />
+                </button>
+              </div>
+            )}
+          </>
+        ) : completedVisible.length > 0 ? (
+          <p className="font-terminal text-sm text-[#84C87F]/50 text-center py-12">
+            Nothing upcoming for that combination — completed events are listed below.
+          </p>
         ) : (
           <div className="flex flex-col items-center gap-4 py-20 text-center">
             <SmileySad size={32} weight="bold" className="text-[#84C87F]/40" />
@@ -398,6 +476,29 @@ export default function EventsContent({ events }: { events: EventItem[] }) {
               <ArrowCounterClockwise size={14} weight="bold" />
               Clear filters
             </button>
+          </div>
+        )}
+
+        {completedVisible.length > 0 && (
+          <div className="mt-20 sm:mt-28">
+            <div className="flex items-center gap-3 mb-6 sm:mb-8">
+              <div className="h-px flex-1 bg-[#84C87F]/15" />
+              <span className="font-terminal font-bold uppercase tracking-[0.3em] text-[#84C87F]/40 text-[10px] sm:text-xs whitespace-nowrap">
+                Events Completed
+              </span>
+              <div className="h-px flex-1 bg-[#84C87F]/15" />
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 opacity-55">
+              {completedVisible.map((event) => (
+                <div key={event.id} className="[content-visibility:auto] [contain-intrinsic-size:auto_260px]">
+                  <EventCard
+                    event={event}
+                    onOpen={openEvent}
+                    className="w-full h-[220px] sm:h-[260px]"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </section>

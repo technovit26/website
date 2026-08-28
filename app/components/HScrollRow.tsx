@@ -7,10 +7,14 @@ export default function HScrollRow({
   children,
   edgeFadeClassName = 'from-[#03080a]',
   ariaLabel,
+  wheelScroll = true,
+  dragScroll = false,
 }: {
   children: ReactNode;
   edgeFadeClassName?: string;
   ariaLabel?: string;
+  wheelScroll?: boolean;
+  dragScroll?: boolean;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -38,7 +42,7 @@ export default function HScrollRow({
 
   useEffect(() => {
     const el = scrollRef.current;
-    if (!el) return;
+    if (!el || !wheelScroll) return;
 
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
@@ -48,7 +52,52 @@ export default function HScrollRow({
 
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
-  }, []);
+  }, [wheelScroll]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || !dragScroll) return;
+
+    let dragging = false;
+    let moved = false;
+    let startX = 0;
+    let startScroll = 0;
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.button !== 0) return;
+      dragging = true;
+      moved = false;
+      startX = e.clientX;
+      startScroll = el.scrollLeft;
+    };
+    const onPointerMove = (e: PointerEvent) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > 3) moved = true;
+      el.scrollTo({ left: startScroll - dx, behavior: 'instant' as ScrollBehavior });
+    };
+    const onPointerUp = () => {
+      dragging = false;
+    };
+    const onClickCapture = (e: MouseEvent) => {
+      if (!moved) return;
+      e.preventDefault();
+      e.stopPropagation();
+      moved = false;
+    };
+
+    el.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+    el.addEventListener('click', onClickCapture, true);
+
+    return () => {
+      el.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      el.removeEventListener('click', onClickCapture, true);
+    };
+  }, [dragScroll]);
 
   const scrollByAmount = (dir: 1 | -1) => {
     scrollRef.current?.scrollBy({ left: dir * 220, behavior: 'smooth' });
@@ -60,7 +109,9 @@ export default function HScrollRow({
         ref={scrollRef}
         role="group"
         aria-label={ariaLabel}
-        className="terminal-scroll flex items-center gap-2 overflow-x-auto overscroll-contain pb-1 pr-1 scroll-smooth"
+        className={`terminal-scroll flex items-center gap-2 overflow-x-auto overscroll-contain pb-1 pr-1 scroll-smooth ${
+          dragScroll ? 'cursor-grab active:cursor-grabbing select-none' : ''
+        }`}
       >
         {children}
       </div>

@@ -1,4 +1,4 @@
-import { CalendarBlank, MapPin, Sparkle, UsersThree } from '@phosphor-icons/react';
+import { CalendarBlank, MapPin, Sparkle } from '@phosphor-icons/react';
 import { formatEventWindow, formatPrice, posterUrl, type EventItem } from './data';
 
 export default function EventCard({
@@ -56,11 +56,7 @@ export default function EventCard({
             <MapPin size={13} weight="bold" className="shrink-0" />
             <span className="truncate">{event.eventVenue}</span>
           </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-[#84C87F]/60 text-xs">
-              <UsersThree size={13} weight="bold" className="shrink-0" />
-              <span>{event.participationType}{event.participationType === 'Team' ? ` · up to ${event.teamSize}` : ''}</span>
-            </div>
+          <div className="flex items-center justify-end">
             <span className="font-clash font-bold text-[#84C87F] text-sm">{formatPrice(event.pricePerPerson)}</span>
           </div>
         </div>

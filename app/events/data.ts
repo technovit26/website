@@ -52,14 +52,23 @@ function toIso(dateTime: string): string {
   return dateTime.includes('T') ? dateTime : dateTime.replace(' ', 'T');
 }
 
+function normalizeEventType(value: string): string {
+  return (value || '').replace(/\s+/g, ' ').trim();
+}
+
+function normalizeEventFor(value: string): string {
+  const v = (value || '').replace(/\s+/g, ' ').trim();
+  return /^both$/i.test(v) ? 'VITian/Non-VITian' : v;
+}
+
 function normalizeEvent(raw: RawEvent): EventItem {
   const teamSize = Math.max(1, Math.round(parseFloat(String(raw.team_size))) || 1);
   return {
     id: String(raw.id),
     eventName: raw.event_name,
     clubName: raw.club_name,
-    eventType: raw.event_type,
-    eventFor: raw.event_for,
+    eventType: normalizeEventType(raw.event_type),
+    eventFor: normalizeEventFor(raw.event_for),
     posterPath: raw.poster_path,
     startDateTime: toIso(raw.start_date_time),
     endDateTime: toIso(raw.end_date_time),
