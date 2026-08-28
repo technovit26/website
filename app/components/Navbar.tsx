@@ -2,10 +2,12 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import gsap from 'gsap';
 import { motion } from 'motion/react';
 import { emit } from '../hooks/useEventBus';
 import { useAuthState, logout, openLogin } from '../hooks/useAuthState';
+import { useLenis } from './SmoothScrolling';
 
 export const NAV_LINKS = [
   { href: '/events', label: 'Events' },
@@ -124,42 +126,138 @@ function ProfileDesktopLink() {
   );
 }
 
+function TerminalMenu({
+  pathname,
+  loggedIn,
+  onAuth,
+  onClose,
+}: {
+  pathname: string;
+  loggedIn: boolean;
+  onAuth: () => void;
+  onClose: () => void;
+}) {
+  const routes = NAV_LINKS.map((l) => ({ href: l.href, label: l.label }));
+  if (loggedIn) routes.push({ href: '/profile', label: 'Profile' });
+
+  return (
+    <div
+      className="relative flex h-full flex-col px-7 font-terminal text-[#c2e0a5]
+        pt-[calc(env(safe-area-inset-top,0px)+1.25rem)]
+        pb-[calc(env(safe-area-inset-bottom,0px)+1.75rem)]"
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Close menu"
+        data-cursor="Close"
+        className="-mr-1 self-end px-1 py-2 text-lg tracking-[0.35em] text-[#84C87F]
+          transition-colors hover:text-[#c2e0a5]"
+      >
+        [&thinsp;X&thinsp;]
+      </button>
+
+      <nav className="mt-9 flex min-h-0 flex-1 flex-col overflow-y-auto">
+        {routes.map((r, i) => {
+          const active = pathname === r.href;
+          return (
+            <Link
+              key={r.href}
+              href={r.href}
+              onClick={onClose}
+              data-cursor={r.label}
+              className="group relative py-3.5"
+            >
+              <span
+                aria-hidden
+                className={`absolute -left-7 top-0 h-full w-[3px] bg-[#84C87F] transition-opacity duration-200 ${
+                  active ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
+              <span
+                className={`block font-clash text-[2.1rem] font-bold lowercase leading-[1.04] tracking-tight
+                  transition-transform duration-200 group-hover:translate-x-1.5 sm:text-[2.6rem] ${
+                    active ? 'text-[#84C87F]' : 'text-[#c2e0a5]'
+                  }`}
+              >
+                {r.label}
+              </span>
+              <span className="mt-1 block text-[11px] tracking-wide text-[#84C87F]/35">
+                {String(i + 1).padStart(2, '0')} &nbsp; cd&nbsp;~{r.href}
+                {active && <span className="terminal-cursor ml-1 text-[#84C87F]">_</span>}
+              </span>
+            </Link>
+          );
+        })}
+
+        <button
+          type="button"
+          onClick={() => {
+            onAuth();
+            onClose();
+          }}
+          data-cursor={loggedIn ? 'Logout' : 'Login'}
+          className="group mt-4 border-t-2 border-[#84C87F]/15 pt-4 text-left"
+        >
+          <span
+            className="block font-clash text-[1.7rem] font-bold lowercase leading-none text-[#c2e0a5]
+              transition-transform duration-200 group-hover:translate-x-1.5"
+          >
+            {loggedIn ? 'logout' : 'login'}
+          </span>
+          <span className="mt-1 block text-[11px] tracking-wide text-[#84C87F]/35">
+            ./auth&nbsp;{loggedIn ? 'logout' : 'login'}
+          </span>
+        </button>
+      </nav>
+
+      <p className="shrink-0 pt-8 text-sm text-[#84C87F]/80">
+        <span className="text-[#84C87F]">$</span>{' '}
+        <span className="terminal-cursor text-[#84C87F]">▋</span>
+      </p>
+    </div>
+  );
+}
+
 const Navbar = () => {
   const navRef = useRef<HTMLElement>(null);
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
 
-  const lineTopRef = useRef<HTMLSpanElement>(null);
-  const lineMidRef = useRef<HTMLSpanElement>(null);
-  const lineBotRef = useRef<HTMLSpanElement>(null);
   const menuPanelRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const lenis = useLenis();
+  const { loggedIn } = useAuthState();
 
   const openMenu = () => {
     setMenuOpen(true);
 
-    gsap.to(lineTopRef.current, { rotate: 45, y: 8, duration: 0.3, ease: 'power2.inOut' });
-    gsap.to(lineMidRef.current, { scaleX: 0, opacity: 0, duration: 0.15 });
-    gsap.to(lineBotRef.current, { rotate: -45, y: -8, duration: 0.3, ease: 'power2.inOut' });
-
     gsap.fromTo(
       menuPanelRef.current,
-      { opacity: 0, y: -12 },
-      { opacity: 1, y: 0, duration: 0.35, ease: 'power3.out', pointerEvents: 'auto' }
+      { opacity: 0 },
+      { opacity: 1, duration: 0.28, ease: 'power2.out', pointerEvents: 'auto' }
     );
   };
 
   const closeMenu = () => {
-    gsap.to(lineTopRef.current, { rotate: 0, y: 0, duration: 0.3, ease: 'power2.inOut' });
-    gsap.to(lineMidRef.current, { scaleX: 1, opacity: 1, duration: 0.2, delay: 0.08 });
-    gsap.to(lineBotRef.current, { rotate: 0, y: 0, duration: 0.3, ease: 'power2.inOut' });
-
     gsap.set(menuPanelRef.current, { pointerEvents: 'none' });
 
     gsap.to(menuPanelRef.current, {
-      opacity: 0, y: -12, duration: 0.25, ease: 'power2.in',
+      opacity: 0, duration: 0.22, ease: 'power2.in',
       onComplete: () => setMenuOpen(false),
     });
   };
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    lenis?.stop();
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      lenis?.start();
+    };
+  }, [menuOpen, lenis]);
 
   useEffect(() => {
     const nav = navRef.current;
@@ -269,13 +367,12 @@ const Navbar = () => {
 
         <button
           onClick={toggleMenu}
-          className="xl:hidden flex flex-col justify-center items-center gap-1.5 p-1.5 w-8 h-8"
+          className="xl:hidden -mr-1 px-2.5 py-1 font-terminal text-2xl font-semibold leading-none text-[#84C87F]
+            transition-colors hover:text-[#c2e0a5]"
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
         >
-          <span ref={lineTopRef} className="block w-5 h-0.5 bg-[#84C87F] origin-center" />
-          <span ref={lineMidRef} className="block w-5 h-0.5 bg-[#84C87F] origin-center" />
-          <span ref={lineBotRef} className="block w-5 h-0.5 bg-[#84C87F] origin-center" />
+          $
         </button>
       </nav>
 
@@ -283,32 +380,20 @@ const Navbar = () => {
         ref={menuPanelRef}
         style={{
           position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          zIndex: 49,
+          inset: 0,
+          zIndex: 310,
           opacity: 0,
           pointerEvents: 'none',
-          paddingTop: '4.5rem',
         }}
-        className="xl:hidden bg-[#064928] border-t border-white/10 shadow-xl"
+        className="xl:hidden bg-[#064928]"
       >
-        <div className="flex flex-col py-4">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={closeMenu}
-              className="px-6 py-3 text-white font-semibold uppercase tracking-widest text-sm
-                border-b border-white/5 last:border-0
-                hover:bg-white/5 hover:text-[#84C87F] transition-colors duration-150"
-            >
-              {link.label}
-            </a>
-          ))}
-          <ProfileNavLink mobile onAfterClick={closeMenu} />
-          <AuthNavButton mobile onAfterClick={closeMenu} />
-        </div>
+        <div aria-hidden className="terminal-scanlines opacity-[0.12]" />
+        <TerminalMenu
+          pathname={pathname}
+          loggedIn={loggedIn}
+          onAuth={() => (loggedIn ? logout() : openLogin())}
+          onClose={closeMenu}
+        />
       </div>
     </>
   );
