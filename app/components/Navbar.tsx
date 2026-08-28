@@ -310,10 +310,10 @@ const Navbar = () => {
     <>
       <nav
         ref={navRef}
-        className="relative z-50 mx-auto mt-3 sm:mt-5 w-[calc(100%-32px)]
-          xl:w-[80%] xl:max-w-[1120px]
+        className="relative z-50 mx-auto mt-3 sm:mt-5 w-[calc(100%-24px)]
+          xl:w-[88%] xl:max-w-[1320px]
           flex items-center justify-between bg-[#064928] text-white shadow-xl
-          py-3 md:py-4 px-4 xl:px-8 rounded-xl xl:rounded-2xl"
+          py-3 md:py-5 px-4 xl:px-8 rounded-xl xl:rounded-2xl"
       >
         <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
           <a
