@@ -19,8 +19,12 @@ export default function SmoothScrolling({ children }: { children: React.ReactNod
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
+    const prefersReducedMotion =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    if (prefersReducedMotion) return;
+
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 0.9,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
@@ -33,15 +37,13 @@ export default function SmoothScrolling({ children }: { children: React.ReactNod
     lenisRef.current = lenis;
 
     lenis.on('scroll', ScrollTrigger.update);
-
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-
-    requestAnimationFrame(raf);
+    const onTick = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(onTick);
+    gsap.ticker.lagSmoothing(0);
 
     return () => {
+      gsap.ticker.remove(onTick);
+      gsap.ticker.lagSmoothing(500, 33);
       lenis.destroy();
       lenisRef.current = null;
     };
@@ -49,16 +51,19 @@ export default function SmoothScrolling({ children }: { children: React.ReactNod
 
 
   useEffect(() => {
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(0, { immediate: true });
-      lenisRef.current.resize();
-
-
-      setTimeout(() => {
-        ScrollTrigger.refresh();
-        lenisRef.current?.resize();
-      }, 100);
+    const lenis = lenisRef.current;
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true });
+      lenis.resize();
+    } else {
+      window.scrollTo(0, 0);
     }
+
+    const id = setTimeout(() => {
+      ScrollTrigger.refresh();
+      lenisRef.current?.resize();
+    }, 100);
+    return () => clearTimeout(id);
   }, [pathname]);
 
   return <LenisContext.Provider value={lenisRef}>{children}</LenisContext.Provider>;
