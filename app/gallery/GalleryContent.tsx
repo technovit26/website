@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, useInView } from 'motion/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { X, ArrowLeft, ArrowRight, Aperture } from '@phosphor-icons/react';
@@ -108,14 +108,14 @@ function CoreCard({ item, onOpen }: { item: CoreItem; onOpen: (item: CoreItem) =
   );
 }
 
-const AMBIENT_ROW_COUNT = 6;
+const AMBIENT_ROW_COUNT = 4;
 const MIN_TILES_PER_ROW = 10;
 // Tiles are served through /api/thumb (resized + cached), but each still-new
 // source photo needs a first-hit resize before it's cached. Capping row width
 // bounds how many DOM nodes and cold thumb requests the wall can grow to as
 // more event photos land in the live feed, regardless of pool size.
-const MAX_TILES_PER_ROW = 14;
-const ROW_SPEEDS = [70, 85, 62, 95, 74, 88];
+const MAX_TILES_PER_ROW = 10;
+const ROW_SPEEDS = [70, 88, 62, 95];
 
 function ambientTileUrl(url: string) {
   return thumbUrl(url, 340);
@@ -137,10 +137,14 @@ function buildAmbientRows(images: GalleryImage[]): { seed: string }[][] {
 
 function AmbientWall({ images }: { images: GalleryImage[] }) {
   const rows = useMemo(() => buildAmbientRows(images), [images]);
+  const hostRef = useRef<HTMLDivElement>(null);
+  const near = useInView(hostRef, { once: true, margin: '800px 0px' });
+  const onScreen = useInView(hostRef, { margin: '150px 0px' });
+
   if (rows.length === 0) return null;
 
   return (
-    <div>
+    <div ref={hostRef}>
       <div className="flex items-center gap-3 mb-5 sm:mb-6">
         <div className="h-px flex-1 bg-[#84C87F]/15" />
         <span className="font-bold uppercase tracking-[0.3em] text-[#84C87F]/50 text-[10px] sm:text-xs whitespace-nowrap">
@@ -149,10 +153,21 @@ function AmbientWall({ images }: { images: GalleryImage[] }) {
         <div className="h-px flex-1 bg-[#84C87F]/15" />
       </div>
 
-      <div className="flex flex-col gap-[3px]">
-        {rows.map((row, i) => (
-          <PhotoRow key={i} items={row} reverse={i % 2 === 1} speed={ROW_SPEEDS[i]} imgUrl={ambientTileUrl} />
-        ))}
+      <div
+        className="flex flex-col gap-[3px] transition-opacity duration-500"
+        style={{ minHeight: near ? undefined : 360, opacity: near ? 1 : 0 }}
+      >
+        {near &&
+          rows.map((row, i) => (
+            <PhotoRow
+              key={i}
+              items={row}
+              reverse={i % 2 === 1}
+              speed={ROW_SPEEDS[i]}
+              imgUrl={ambientTileUrl}
+              paused={!onScreen}
+            />
+          ))}
       </div>
     </div>
   );
@@ -233,7 +248,7 @@ function Lightbox({
 
         <div className="relative inline-block align-bottom leading-none bg-black">
           <img
-            src={item.url}
+            src={thumbUrl(item.url, 920)}
             alt={item.label}
             className="block w-auto h-auto max-w-[92vw] max-h-[calc(88dvh-70px)] object-contain"
           />
@@ -339,8 +354,8 @@ export default function GalleryContent({
       if (gridRef.current) {
         const cards = gridRef.current.querySelectorAll('.gallery-item');
         gsap.fromTo(cards,
-          { y: 40, opacity: 0, filter: 'blur(6px)' },
-          { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.7, stagger: 0.06, ease: 'power3.out',
+          { y: 40, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.7, stagger: 0.06, ease: 'power3.out',
             scrollTrigger: { trigger: gridRef.current, start: 'top 88%' } });
       }
 

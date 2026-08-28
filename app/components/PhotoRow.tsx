@@ -8,6 +8,7 @@ export default function PhotoRow({
   items,
   reverse = false,
   speed = 80,
+  paused = false,
   tileClassName = 'w-[170px] h-[120px] sm:w-[230px] sm:h-[165px]',
   imgUrl,
   imgClassName = 'grayscale brightness-75 contrast-110',
@@ -16,6 +17,7 @@ export default function PhotoRow({
   items: PhotoRowItem[];
   reverse?: boolean;
   speed?: number;
+  paused?: boolean;
   tileClassName?: string;
   imgUrl: (seed: string) => string;
   imgClassName?: string;
@@ -26,7 +28,10 @@ export default function PhotoRow({
     <div className="relative w-full overflow-hidden" aria-hidden>
       <div
         className={`flex items-center ${gapClassName} whitespace-nowrap will-change-transform`}
-        style={{ animation: `photorow-${reverse ? 'rev' : 'fwd'} ${speed}s linear infinite` }}
+        style={{
+          animation: `photorow-${reverse ? 'rev' : 'fwd'} ${speed}s linear infinite`,
+          animationPlayState: paused ? 'paused' : 'running',
+        }}
       >
         {doubled.map((item, i) => (
           <div key={i} className={`relative shrink-0 overflow-hidden rounded-md bg-[#03080a] isolate ${tileClassName}`}>
