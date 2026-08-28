@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import ContourBackdrop from './ContourBackdrop';
 
 export default function SiteMaintenance() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -30,6 +31,7 @@ export default function SiteMaintenance() {
       className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden
         bg-[#064928] px-6 sm:px-10 text-center"
     >
+      <ContourBackdrop />
       <span
         aria-hidden
         className="pointer-events-none absolute -right-[2vw] -bottom-[6vw] select-none font-clash font-bold

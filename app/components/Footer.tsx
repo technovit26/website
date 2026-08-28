@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ContourBackdrop from "./ContourBackdrop";
 
 const NAV_LINKS = [
   { href: "/events", label: "Events" },
@@ -60,7 +61,9 @@ const SOCIAL_LINKS = [
 
 const Footer = () => {
   return (
-    <footer className="bg-[#064928] text-white">
+    <footer className="relative bg-[#064928] text-white">
+      <ContourBackdrop />
+      <div className="relative">
 
       <div className="border-b border-white/10 px-6 sm:px-10 md:px-16 py-10 md:py-14">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-start md:justify-between gap-10 md:gap-6">
@@ -146,6 +149,7 @@ const Footer = () => {
             © {new Date().getFullYear()} TechnoVIT. All rights reserved.
           </p>
         </div>
+      </div>
       </div>
 
     </footer>

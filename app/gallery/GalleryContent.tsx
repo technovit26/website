@@ -6,6 +6,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { X, ArrowLeft, ArrowRight, Aperture } from '@phosphor-icons/react';
 import Marquee from '../components/Marquee';
+import ContourBackdrop from '../components/ContourBackdrop';
 import PhotoRow from '../components/PhotoRow';
 import { useLenis } from '../components/SmoothScrolling';
 import { playSound } from '../components/SoundManager';
@@ -374,6 +375,8 @@ export default function GalleryContent({
 
   return (
     <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
+      <ContourBackdrop />
+      <div className="relative">
 
       <section
         className="sticky top-0 z-0 min-h-[100dvh] flex items-center justify-center select-none
@@ -434,6 +437,7 @@ export default function GalleryContent({
       <section ref={wallRef} className="px-5 sm:px-10 md:px-16 lg:px-24 pb-20 sm:pb-28">
         <AmbientWall images={ambientImages} />
       </section>
+      </div>
 
       <AnimatePresence>
         {active && (

@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AnimatePresence, motion, useMotionValue, useTransform, useInView, animate } from 'motion/react';
 import Marquee from '../components/Marquee';
 import MarqueeCTA from '../components/MarqueeCTA';
+import ContourBackdrop from '../components/ContourBackdrop';
 import Countdown from '../components/Countdown';
 import UnderMaintenance from '../components/UnderMaintenance';
 import { playSound } from '../components/SoundManager';
@@ -157,6 +158,8 @@ function AboutPageContent() {
 
   return (
     <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
+      <ContourBackdrop />
+      <div className="relative">
 
 
       <section
@@ -185,7 +188,7 @@ function AboutPageContent() {
 
 
       <section
-        className="relative bg-[#064928] px-5 sm:px-10 md:px-16 lg:px-24 py-16 sm:py-20 md:py-28"
+        className="relative px-5 sm:px-10 md:px-16 lg:px-24 py-16 sm:py-20 md:py-28"
       >
         <div className="max-w-5xl mx-auto w-full">
 
@@ -228,7 +231,7 @@ function AboutPageContent() {
       </section>
 
 
-      <section className="relative bg-[#064928] px-5 sm:px-10 md:px-16 lg:px-24 py-16 sm:py-20 md:py-28">
+      <section className="relative px-5 sm:px-10 md:px-16 lg:px-24 py-16 sm:py-20 md:py-28">
         <div ref={statsRef} className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 xl:grid-cols-4">
             {STATS.map((s, i) => (
@@ -246,7 +249,7 @@ function AboutPageContent() {
       </section>
 
 
-      <section className="relative overflow-hidden bg-[#064928]
+      <section className="relative overflow-hidden
         px-5 sm:px-10 md:px-16 lg:px-24 py-20 sm:py-24 md:py-32">
 
 
@@ -268,6 +271,7 @@ function AboutPageContent() {
           <MarqueeCTA href="/events" label="Explore Events" dataCursor="Explore" />
         </div>
       </section>
+      </div>
 
       <AnimatePresence>
         {egg && (

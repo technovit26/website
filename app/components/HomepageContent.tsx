@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { animate, useInView } from 'motion/react';
 import { ArrowRight } from '@phosphor-icons/react';
+import ContourBackdrop from './ContourBackdrop';
 
 const STATS = [
   { value: 25000, suffix: '+', label: 'Participants' },
@@ -48,6 +49,8 @@ function StatBlock({ value, suffix = '', label }: { value: number; suffix?: stri
 export default function HomepageContent() {
   return (
     <div className="relative z-20 bg-[#064928] text-[#c2e0a5]">
+      <ContourBackdrop />
+      <div className="relative">
       <section className="px-6 sm:px-10 md:px-16 lg:px-24 xl:px-32 py-20 sm:py-28 md:py-36">
         <p
           className="font-clash font-bold leading-[0.88] text-[#c2e0a5]"
@@ -105,6 +108,7 @@ export default function HomepageContent() {
           />
         </Link>
       </section>
+      </div>
     </div>
   );
 }

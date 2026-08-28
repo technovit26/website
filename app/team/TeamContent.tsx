@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { UsersThree } from "@phosphor-icons/react";
 import Marquee from "../components/Marquee";
 import MarqueeCTA from "../components/MarqueeCTA";
+import ContourBackdrop from "../components/ContourBackdrop";
 import MemberCard from "./MemberCard";
 import {
   ADVISORY_COMMITTEE,
@@ -162,6 +163,8 @@ export default function TeamContent() {
 
   return (
     <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
+      <ContourBackdrop />
+      <div className="relative">
       <section
         className="sticky top-0 z-0 min-h-[100dvh] flex items-center justify-center select-none
           bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 overflow-hidden"
@@ -281,7 +284,7 @@ export default function TeamContent() {
       </section>
 
       <section
-        className="relative overflow-hidden bg-[#064928]
+        className="relative overflow-hidden
         px-5 sm:px-10 md:px-16 lg:px-24 py-20 sm:py-24 md:py-32"
       >
         <div
@@ -313,6 +316,7 @@ export default function TeamContent() {
           />
         </div>
       </section>
+      </div>
     </main>
   );
 }

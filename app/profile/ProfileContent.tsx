@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CircleNotch, SignIn, WarningCircle } from '@phosphor-icons/react';
 import { useAuthState, openLogin } from '../hooks/useAuthState';
 import PayNowButton from '../components/PayNowButton';
+import ContourBackdrop from '../components/ContourBackdrop';
 import type { RegisteredEvent } from '../lib/technovit/parse';
 
 type ProfileEvent = RegisteredEvent & { amount: number | null };
@@ -94,6 +95,8 @@ export default function ProfileContent() {
 
   return (
     <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
+      <ContourBackdrop />
+      <div className="relative">
       <div className="bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 pt-16 sm:pt-20 pb-16 sm:pb-20 flex justify-center">
         <div className="w-full max-w-4xl">
           <span className="font-terminal text-sm uppercase tracking-[0.3em] text-[#04331c]/50">
@@ -204,6 +207,7 @@ export default function ProfileContent() {
             </>
           )}
         </div>
+      </div>
       </div>
     </main>
   );

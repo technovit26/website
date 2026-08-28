@@ -18,6 +18,7 @@ import {
   X,
 } from '@phosphor-icons/react';
 import Marquee from '../components/Marquee';
+import ContourBackdrop from '../components/ContourBackdrop';
 import HScrollRow from '../components/HScrollRow';
 import { playSound } from '../components/SoundManager';
 import { markEggFound, SEARCH_EGG_KEY, SLIDER_EGG_KEY } from '../hooks/useEggsFound';
@@ -390,6 +391,8 @@ export default function EventsContent({ events: initialEvents }: { events: Event
 
   return (
     <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
+      <ContourBackdrop />
+      <div className="relative">
       <section
         className="sticky top-0 z-0 min-h-[100dvh] flex items-center justify-center select-none
           bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 overflow-hidden"
@@ -663,6 +666,7 @@ export default function EventsContent({ events: initialEvents }: { events: Event
           />
         </Link>
       </section>
+      </div>
 
       <AnimatePresence>
         {activeEvent && <EventModal event={activeEvent} onClose={closeEvent} />}
