@@ -11,6 +11,7 @@ import {
   ArrowRight,
   CaretLeft,
   CaretRight,
+  ClockCounterClockwise,
   Funnel,
   MagnifyingGlass,
   SmileySad,
@@ -35,6 +36,7 @@ const CURTAIN_ITEMS = ["TechnoVIT'26"];
 const DEFAULT_TYPE = 'All';
 const DEFAULT_DATE = 'All';
 const PAGE_SIZE = 10;
+const COMPLETED_PAGE_SIZE = 6;
 
 function eventStart(e: EventItem) {
   return new Date(e.startDateTime).getTime();
@@ -141,6 +143,45 @@ function FilterSection({ label, children }: { label: string; children: React.Rea
     <div className="flex flex-col gap-2.5">
       <span className="font-terminal text-[9px] uppercase tracking-[0.25em] text-[#84C87F]/40">{label}</span>
       <HScrollRow ariaLabel={label}>{children}</HScrollRow>
+    </div>
+  );
+}
+
+const PAGER_BTN_CLASS =
+  'flex items-center gap-1.5 rounded-full border border-[#84C87F]/25 px-4 py-2 text-[11px] font-semibold ' +
+  'uppercase tracking-wide text-[#84C87F]/70 transition-colors hover:border-[#84C87F]/50 hover:text-[#84C87F] ' +
+  'disabled:opacity-30 disabled:pointer-events-none';
+
+function Pager({
+  current,
+  total,
+  onPrev,
+  onNext,
+}: {
+  current: number;
+  total: number;
+  onPrev: () => void;
+  onNext: () => void;
+}) {
+  return (
+    <div className="mt-10 flex items-center justify-center gap-2 font-terminal">
+      <button type="button" onClick={onPrev} disabled={current === 1} data-cursor="Left" className={PAGER_BTN_CLASS}>
+        <CaretLeft size={12} weight="bold" />
+        Prev
+      </button>
+      <span className="px-3 text-[11px] uppercase tracking-wide text-[#84C87F]/50">
+        {current} / {total}
+      </span>
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={current === total}
+        data-cursor="Right"
+        className={PAGER_BTN_CLASS}
+      >
+        Next
+        <CaretRight size={12} weight="bold" />
+      </button>
     </div>
   );
 }
@@ -290,20 +331,34 @@ export default function EventsContent({ events: initialEvents }: { events: Event
   const completedVisible = isSearching ? [] : completed;
 
   const [page, setPage] = useState(1);
+  const [completedPage, setCompletedPage] = useState(1);
   const filterKey = `${debouncedSearch}|${eventType}|${dateFilter}|${priceRange[0]}|${priceRange[1]}`;
   const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
   if (filterKey !== prevFilterKey) {
     setPrevFilterKey(filterKey);
     setPage(1);
+    setCompletedPage(1);
   }
   const totalPages = Math.max(1, Math.ceil(upcoming.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pagedUpcoming = upcoming.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
+  const completedTotalPages = Math.max(1, Math.ceil(completedVisible.length / COMPLETED_PAGE_SIZE));
+  const completedCurrentPage = Math.min(completedPage, completedTotalPages);
+  const pagedCompleted = completedVisible.slice(
+    (completedCurrentPage - 1) * COMPLETED_PAGE_SIZE,
+    completedCurrentPage * COMPLETED_PAGE_SIZE
+  );
+
   const resultsRef = useRef<HTMLDivElement>(null);
+  const completedRef = useRef<HTMLDivElement>(null);
   const goToPage = (next: number) => {
     setPage(Math.min(Math.max(1, next), totalPages));
     resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  const goToCompletedPage = (next: number) => {
+    setCompletedPage(Math.min(Math.max(1, next), completedTotalPages));
+    completedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const openEvent = useCallback(
@@ -537,8 +592,8 @@ export default function EventsContent({ events: initialEvents }: { events: Event
 
       <section ref={resultsRef} className="px-5 sm:px-10 md:px-16 lg:px-24 pb-24 sm:pb-32 scroll-mt-8">
         <div className="flex items-center gap-3 mb-6 sm:mb-8">
-          <div className="h-px flex-1 bg-[#84C87F]/15" />
-          <span className="font-terminal font-bold uppercase tracking-[0.3em] text-[#84C87F]/50 text-[10px] sm:text-xs whitespace-nowrap">
+          <MagnifyingGlass size={16} weight="bold" className="text-[#84C87F] shrink-0" />
+          <span className="font-terminal font-bold uppercase tracking-[0.3em] text-[#84C87F]/70 text-[10px] sm:text-xs whitespace-nowrap">
             $ query --matches {upcoming.length}
           </span>
           <div className="h-px flex-1 bg-[#84C87F]/15" />
@@ -564,35 +619,12 @@ export default function EventsContent({ events: initialEvents }: { events: Event
             </motion.div>
 
             {totalPages > 1 && (
-              <div className="mt-10 flex items-center justify-center gap-2 font-terminal">
-                <button
-                  type="button"
-                  onClick={() => goToPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  data-cursor="Left"
-                  className="flex items-center gap-1.5 rounded-full border border-[#84C87F]/25 px-4 py-2 text-[11px]
-                    font-semibold uppercase tracking-wide text-[#84C87F]/70 transition-colors
-                    hover:border-[#84C87F]/50 hover:text-[#84C87F] disabled:opacity-30 disabled:pointer-events-none"
-                >
-                  <CaretLeft size={12} weight="bold" />
-                  Prev
-                </button>
-                <span className="px-3 text-[11px] uppercase tracking-wide text-[#84C87F]/50">
-                  {currentPage} / {totalPages}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => goToPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  data-cursor="Right"
-                  className="flex items-center gap-1.5 rounded-full border border-[#84C87F]/25 px-4 py-2 text-[11px]
-                    font-semibold uppercase tracking-wide text-[#84C87F]/70 transition-colors
-                    hover:border-[#84C87F]/50 hover:text-[#84C87F] disabled:opacity-30 disabled:pointer-events-none"
-                >
-                  Next
-                  <CaretRight size={12} weight="bold" />
-                </button>
-              </div>
+              <Pager
+                current={currentPage}
+                total={totalPages}
+                onPrev={() => goToPage(currentPage - 1)}
+                onNext={() => goToPage(currentPage + 1)}
+              />
             )}
           </>
         ) : completedVisible.length > 0 ? (
@@ -619,16 +651,16 @@ export default function EventsContent({ events: initialEvents }: { events: Event
         )}
 
         {completedVisible.length > 0 && (
-          <div className="mt-20 sm:mt-28">
+          <div ref={completedRef} className="mt-20 sm:mt-28 scroll-mt-8">
             <div className="flex items-center gap-3 mb-6 sm:mb-8">
-              <div className="h-px flex-1 bg-[#84C87F]/15" />
-              <span className="font-terminal font-bold uppercase tracking-[0.3em] text-[#84C87F]/40 text-[10px] sm:text-xs whitespace-nowrap">
+              <ClockCounterClockwise size={16} weight="bold" className="text-[#84C87F] shrink-0" />
+              <span className="font-terminal font-bold uppercase tracking-[0.3em] text-[#84C87F]/70 text-[10px] sm:text-xs whitespace-nowrap">
                 Events Completed
               </span>
               <div className="h-px flex-1 bg-[#84C87F]/15" />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 opacity-55">
-              {completedVisible.map((event) => (
+              {pagedCompleted.map((event) => (
                 <div key={event.id} className="[content-visibility:auto] [contain-intrinsic-size:auto_260px]">
                   <EventCard
                     event={event}
@@ -638,6 +670,14 @@ export default function EventsContent({ events: initialEvents }: { events: Event
                 </div>
               ))}
             </div>
+            {completedTotalPages > 1 && (
+              <Pager
+                current={completedCurrentPage}
+                total={completedTotalPages}
+                onPrev={() => goToCompletedPage(completedCurrentPage - 1)}
+                onNext={() => goToCompletedPage(completedCurrentPage + 1)}
+              />
+            )}
           </div>
         )}
       </section>
