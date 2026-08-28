@@ -1,4 +1,4 @@
-export const SITE_MAINTENANCE_MODE = true;
+export const SITE_MAINTENANCE_MODE = false;
 
 export const HOMEPAGE_MAINTENANCE = false;
 export const EVENTS_MAINTENANCE = false;
