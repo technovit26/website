@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "selfcheck:chat": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/chat-selfcheck.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
