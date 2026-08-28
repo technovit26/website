@@ -13,6 +13,7 @@ import { getStoredCredentials } from './session';
 
 export interface SyncedRegistration extends RegisteredEvent {
   amount: number | null;
+  endsAt: string | null;
 }
 
 export interface SyncResult {
@@ -73,11 +74,15 @@ export async function syncRegistrations(cookie: string, username: string): Promi
   const displayName = parseDisplayName(upstream.html);
 
   const cmsEvents = await fetchEvents();
-  const priceByName = new Map(cmsEvents.map((e) => [normalizeEventName(e.eventName), e.pricePerPerson]));
-  const events: SyncedRegistration[] = registeredEvents.map((event) => ({
-    ...event,
-    amount: priceByName.get(normalizeEventName(event.title)) ?? null,
-  }));
+  const cmsByName = new Map(cmsEvents.map((e) => [normalizeEventName(e.eventName), e]));
+  const events: SyncedRegistration[] = registeredEvents.map((event) => {
+    const cms = cmsByName.get(normalizeEventName(event.title));
+    return {
+      ...event,
+      amount: cms?.pricePerPerson ?? null,
+      endsAt: cms?.endDateTime ?? null,
+    };
+  });
 
   await d1Put(`/registrations/${encodeURIComponent(username)}`, { events, displayName });
 

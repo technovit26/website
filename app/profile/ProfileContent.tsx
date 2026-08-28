@@ -8,7 +8,7 @@ import PayNowButton from '../components/PayNowButton';
 import ContourBackdrop from '../components/ContourBackdrop';
 import type { RegisteredEvent } from '../lib/technovit/parse';
 
-type ProfileEvent = RegisteredEvent & { amount: number | null };
+type ProfileEvent = RegisteredEvent & { amount: number | null; endsAt: string | null };
 type Status = 'idle' | 'ready' | 'error';
 
 const PAGE_SIZE = 5;
@@ -40,12 +40,7 @@ function TicketRow({ event, index }: { event: ProfileEvent; index: number }) {
         {event.paid ? (
           <span className="font-terminal text-sm uppercase tracking-[0.15em] text-[#84C87F]">Paid</span>
         ) : (
-          <>
-            <span className="font-terminal text-xs uppercase tracking-[0.15em] text-[#ff8a80]/85">
-              Not yet paid
-            </span>
-            <PayNowButton compact href={event.payUrl} amount={event.amount} />
-          </>
+          <PayNowButton compact href={event.payUrl} amount={event.amount} />
         )}
       </div>
     </div>
@@ -59,6 +54,7 @@ export default function ProfileContent() {
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [page, setPage] = useState(0);
+  const [now] = useState(() => Date.now());
 
   useEffect(() => {
     if (!loggedIn) return;
@@ -87,10 +83,14 @@ export default function ProfileContent() {
   }, [loggedIn]);
 
   const greetingName = displayName ?? username;
-  const pageCount = Math.max(1, Math.ceil(events.length / PAGE_SIZE));
+  const visibleEvents = useMemo(
+    () => events.filter((e) => !e.endsAt || new Date(e.endsAt).getTime() >= now),
+    [events, now]
+  );
+  const pageCount = Math.max(1, Math.ceil(visibleEvents.length / PAGE_SIZE));
   const pagedEvents = useMemo(
-    () => events.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE),
-    [events, page]
+    () => visibleEvents.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE),
+    [visibleEvents, page]
   );
 
   return (
@@ -157,7 +157,7 @@ export default function ProfileContent() {
             </div>
           )}
 
-          {loggedIn && status === 'ready' && events.length === 0 && (
+          {loggedIn && status === 'ready' && visibleEvents.length === 0 && (
             <div className="rounded-lg border border-[#84C87F]/20 bg-[#03080a] p-8 text-center">
               <p className="text-[#84C87F]/60 text-base mb-4">No tickets yet — nothing registered.</p>
               <Link
@@ -169,11 +169,15 @@ export default function ProfileContent() {
             </div>
           )}
 
-          {loggedIn && status === 'ready' && events.length > 0 && (
+          {loggedIn && status === 'ready' && visibleEvents.length > 0 && (
             <>
               <div className="flex flex-col gap-5">
                 {pagedEvents.map((event, i) => (
-                  <TicketRow key={event.orderId ?? page * PAGE_SIZE + i} event={event} index={page * PAGE_SIZE + i} />
+                  <TicketRow
+                    key={event.orderId ?? page * PAGE_SIZE + i}
+                    event={event}
+                    index={page * PAGE_SIZE + i}
+                  />
                 ))}
               </div>
 
