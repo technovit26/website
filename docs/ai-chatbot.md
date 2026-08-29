@@ -42,7 +42,7 @@ nothing that varies per request may go above the catalog.
 | --- | --- | --- |
 | `GEMINI_API_KEYS` | yes | One or more keys, separated by commas or whitespace |
 | `GEMINI_API_KEY`, `GEMINI_API_KEY_2`, … | optional | Also picked up; all sources are merged and deduped |
-| `GEMINI_MODEL` | no | Defaults to `gemini-2.0-flash-lite` |
+| `GEMINI_MODEL` | no | Defaults to `gemini-3.5-flash`. Flash-Lite is cheaper but fails date and price filters — see Notes |
 
 Free-tier quota is per key, so requests are spread round-robin across every key
 found. A key that returns 429 or 403 is benched for 60 seconds and the request
@@ -90,6 +90,18 @@ means keys were found but Gemini rejected them (wrong or expired key).
 | `scripts/chat-selfcheck.ts` | `pnpm selfcheck:chat` |
 
 ## Notes
+
+- **Do not drop to `gemini-3.5-flash-lite` to save quota.** Asked "what's free on
+  31 Aug?", when the true answer is "nothing", Flash-Lite invented a free event
+  dated 28 Aug on every attempt. `gemini-3.5-flash` answered correctly every
+  time. Filtering 140 lines by date and price is past what the lite model does
+  reliably, and a wrong date sends a student to the wrong building.
+- Never put a verbatim refusal sentence in the system prompt. An earlier version
+  did, and the model reached for it on legitimate questions — "find me two
+  cybersec events" got refused. Describing when to decline, without scripting
+  the words, took false refusals to zero.
+- Bold is the only markup the prompt allows, and the panel renders exactly that
+  much. Anything wider needs a real Markdown renderer.
 
 - The response is a plain UTF-8 text stream, not JSON. Read it with
   `response.body.getReader()` and append chunks as they arrive.

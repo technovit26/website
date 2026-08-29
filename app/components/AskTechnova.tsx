@@ -27,6 +27,21 @@ const FAILURES: Record<string, string> = {
 };
 const GENERIC_FAILURE = "That didn't go through. Try again, or check the events page.";
 
+// Bold is the only markup the model is allowed, so this is the whole renderer.
+// Splitting on the delimiter means a half-arrived "**Capture the Fl" simply
+// renders bold as it streams, instead of flashing raw asterisks.
+function renderBold(text: string) {
+  return text.split('**').map((part, i) =>
+    i % 2 ? (
+      <strong key={i} className="font-semibold text-white">
+        {part}
+      </strong>
+    ) : (
+      part
+    )
+  );
+}
+
 export default function AskTechnova() {
   const reduceMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
@@ -232,7 +247,7 @@ export default function AskTechnova() {
                   </motion.p>
                 ) : (
                   <p key={i} className="max-w-[92%] text-sm text-white/85 leading-relaxed whitespace-pre-wrap">
-                    {turn.text}
+                    {renderBold(turn.text)}
                     {streaming && i === turns.length - 1 && (
                       <span className="terminal-cursor ml-0.5 text-[#84C87F]">▊</span>
                     )}

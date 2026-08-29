@@ -7,7 +7,7 @@ import { SYSTEM_PROMPT } from '@/app/lib/chat/systemPrompt';
 
 export const maxDuration = 30;
 
-const MODEL = process.env.GEMINI_MODEL ?? 'gemini-2.0-flash-lite';
+const MODEL = process.env.GEMINI_MODEL ?? 'gemini-3.5-flash';
 const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:streamGenerateContent?alt=sse`;
 
 const ChatSchema = z.object({
@@ -155,7 +155,17 @@ export async function POST(request: NextRequest) {
       ...history.map((turn) => ({ role: turn.role, parts: [{ text: turn.text }] })),
       { role: 'user', parts: [{ text: userTurn }] },
     ],
-    generationConfig: { temperature: 0.3, maxOutputTokens: 600 },
+    generationConfig: {
+      temperature: 0.3,
+      // Gemini 3 thinks before answering and those tokens come out of this
+      // budget. At 600 the thinking ate 576 and the answer was cut off
+      // mid-sentence, so leave real headroom even though replies are short.
+      maxOutputTokens: 2000,
+      // Picking events out of a list this model can already see is recall, not
+      // reasoning. Thinking added ~1000 tokens and 12s per reply and changed no
+      // answer we tested — costly on a per-minute token quota.
+      thinkingConfig: { thinkingBudget: 0 },
+    },
   });
 
   if (!res?.ok || !res.body) {
