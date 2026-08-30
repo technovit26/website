@@ -16,6 +16,7 @@ export function useKonamiCode(onSuccess: () => void) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (!e.key) return;
       const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
       progress.current = [...progress.current, key].slice(-SEQUENCE.length);
       if (progress.current.length === SEQUENCE.length && progress.current.every((k, i) => k === SEQUENCE[i])) {
