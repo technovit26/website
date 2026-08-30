@@ -11,12 +11,12 @@ import { useAuthState, logout, openLogin } from '../hooks/useAuthState';
 import { useLenis } from './SmoothScrolling';
 
 export const NAV_LINKS = [
+  { href: '/about', label: 'About' },
   { href: '/events', label: 'Events' },
-  { href: '/speakers', label: 'Speakers' },
-  { href: '/team', label: 'Team' },
+  { href: '/speakers', label: 'Guests' },
   { href: '/sponsors', label: 'Sponsors' },
   { href: '/gallery', label: 'Gallery' },
-  { href: '/about', label: 'About' },
+  { href: '/team', label: 'Team' },
 ];
 
 function AuthNavButton({ mobile = false, onAfterClick }: { mobile?: boolean; onAfterClick?: () => void }) {
