@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, CircleNotch, SignIn, WarningCircle } from '@phos
 import { useAuthState, openLogin } from '../hooks/useAuthState';
 import PayNowButton from '../components/PayNowButton';
 import ContourBackdrop from '../components/ContourBackdrop';
+import CurtainIntro from '../components/CurtainIntro';
 import type { RegisteredEvent } from '../lib/technovit/parse';
 
 type ProfileEvent = RegisteredEvent & { amount: number | null; endsAt: string | null };
@@ -95,6 +96,7 @@ export default function ProfileContent() {
 
   return (
     <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
+      <CurtainIntro title="PROFILE" />
       <ContourBackdrop />
       <div className="relative">
       <div className="bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 pt-16 sm:pt-20 pb-16 sm:pb-20 flex justify-center">
