@@ -3,19 +3,19 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Handshake } from '@phosphor-icons/react';
+import { Handshake, Megaphone } from '@phosphor-icons/react';
 import ContourBackdrop from '../components/ContourBackdrop';
 import CurtainIntro from '../components/CurtainIntro';
 import SponsorCard from './SponsorCard';
-import { SPONSORS } from './data';
+import { SPONSORS, PARTNERS, type Sponsor } from './data';
 
 gsap.registerPlugin(ScrollTrigger);
 
-function tagFor(i: number): string {
-  return `SPON_${String(i).padStart(3, '0')}.dat`;
+function tagFor(prefix: string, i: number): string {
+  return `${prefix}_${String(i).padStart(3, '0')}.dat`;
 }
 
-function AnimatedGrid() {
+function AnimatedGrid({ items, tagPrefix }: { items: Sponsor[]; tagPrefix: string }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,8 +44,8 @@ function AnimatedGrid() {
       ref={ref}
       className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-5xl mx-auto"
     >
-      {SPONSORS.map((s, i) => (
-        <SponsorCard key={s.name} sponsor={s} tag={tagFor(i)} />
+      {items.map((s, i) => (
+        <SponsorCard key={s.name} sponsor={s} tag={tagFor(tagPrefix, i)} />
       ))}
     </div>
   );
@@ -54,6 +54,7 @@ function AnimatedGrid() {
 export default function SponsorsContent() {
   const bigTitleRef = useRef<HTMLHeadingElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
+  const partnersIntroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -74,6 +75,21 @@ export default function SponsorsContent() {
             duration: 0.75,
             ease: 'power3.out',
             scrollTrigger: { trigger: introRef.current, start: 'top 85%' },
+          },
+        );
+      }
+
+      if (partnersIntroRef.current) {
+        gsap.fromTo(
+          partnersIntroRef.current,
+          { y: 30, opacity: 0, filter: 'blur(6px)' },
+          {
+            y: 0,
+            opacity: 1,
+            filter: 'blur(0px)',
+            duration: 0.75,
+            ease: 'power3.out',
+            scrollTrigger: { trigger: partnersIntroRef.current, start: 'top 85%' },
           },
         );
       }
@@ -115,7 +131,26 @@ export default function SponsorsContent() {
         </section>
 
         <section className="px-5 sm:px-10 md:px-16 lg:px-24 py-14 sm:py-16 md:py-20">
-          <AnimatedGrid />
+          <AnimatedGrid items={SPONSORS} tagPrefix="SPON" />
+        </section>
+
+        <section className="px-5 sm:px-10 md:px-16 lg:px-24 py-14 sm:py-16 md:py-20">
+          <div
+            ref={partnersIntroRef}
+            className="max-w-3xl mx-auto text-center flex flex-col items-center gap-4"
+          >
+            <Megaphone size={22} weight="bold" className="text-[#84C87F]/70" />
+            <p className="font-clash font-bold text-[#c2e0a5] text-2xl sm:text-3xl md:text-4xl leading-tight">
+              Our partners.
+            </p>
+            <p className="text-[#c2e0a5]/70 text-sm sm:text-base leading-relaxed max-w-xl">
+              The teams amplifying TechnoVIT&apos;26.
+            </p>
+          </div>
+        </section>
+
+        <section className="px-5 sm:px-10 md:px-16 lg:px-24 py-14 sm:py-16 md:py-20">
+          <AnimatedGrid items={PARTNERS} tagPrefix="PTNR" />
         </section>
       </div>
     </main>
