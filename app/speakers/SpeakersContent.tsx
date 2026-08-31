@@ -21,20 +21,20 @@ function tagFor(prefix: string, i: number): string {
 function CeremonyHeading({ ceremony }: { ceremony: Ceremony }) {
   return (
     <div className="flex flex-col items-center gap-3 mb-10 md:mb-12">
-      <div className="flex items-center gap-3 w-full max-w-md">
+      <div className="flex items-center gap-3 w-full max-w-2xl">
         <div className="h-px flex-1 bg-[#84C87F]/15" />
-        <span className="font-bold uppercase tracking-[0.3em] text-[#84C87F]/50 text-[10px] sm:text-xs whitespace-nowrap">
+        <span className="font-bold uppercase tracking-[0.15em] sm:tracking-[0.25em] text-[#84C87F] text-lg sm:text-3xl text-center">
           {ceremony.title}
         </span>
         <div className="h-px flex-1 bg-[#84C87F]/15" />
       </div>
-      <div className="flex items-center gap-4 sm:gap-6 text-[#c2e0a5]/60 text-xs sm:text-sm">
+      <div className="flex items-center gap-4 sm:gap-6 text-[#c2e0a5] font-bold text-lg sm:text-2xl">
         <span className="flex items-center gap-1.5">
-          <CalendarBlank size={14} weight="bold" className="text-[#84C87F]/70" />
+          <CalendarBlank size={22} weight="bold" className="text-[#84C87F]" />
           {ceremony.date}
         </span>
         <span className="flex items-center gap-1.5">
-          <Clock size={14} weight="bold" className="text-[#84C87F]/70" />
+          <Clock size={22} weight="bold" className="text-[#84C87F]" />
           {ceremony.time}
         </span>
       </div>
