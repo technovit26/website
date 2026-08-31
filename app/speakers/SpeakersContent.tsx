@@ -4,15 +4,13 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Microphone, CalendarBlank, Clock } from '@phosphor-icons/react';
-import Marquee from '../components/Marquee';
 import MarqueeCTA from '../components/MarqueeCTA';
 import ContourBackdrop from '../components/ContourBackdrop';
+import CurtainIntro from '../components/CurtainIntro';
 import SpeakerCard from './SpeakerCard';
 import { CEREMONIES, type Ceremony } from './data';
 
 gsap.registerPlugin(ScrollTrigger);
-
-const CURTAIN_ITEMS = ["TechnoVIT'26"];
 
 function tagFor(prefix: string, i: number): string {
   return `${prefix}_${String(i).padStart(3, '0')}.dat`;
@@ -125,27 +123,20 @@ export default function SpeakersContent() {
 
   return (
     <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
+      <CurtainIntro title="GUEST SPEAKERS" />
       <ContourBackdrop />
       <div className="relative">
         <section
-          className="sticky top-0 z-0 min-h-[100dvh] flex items-center justify-center select-none
-            bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 overflow-hidden"
+          className="flex items-center justify-center select-none
+            bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 pt-28 sm:pt-32 md:pt-36 pb-12 sm:pb-16 overflow-hidden"
         >
           <h1
             ref={bigTitleRef}
-            className="font-clash font-bold text-[#04331c] opacity-[0.22] leading-none
-              text-[13vw] sm:text-[16vw] tracking-tight uppercase text-center"
+            className="font-clash font-bold text-[#04331c] leading-none
+              text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight uppercase text-center"
           >
             GUEST SPEAKERS
           </h1>
-        </section>
-
-        <section
-          className="relative z-10 min-h-[100dvh] flex flex-col justify-center gap-6 sm:gap-8
-            bg-[#84C87F] text-[#04331c] py-16 overflow-hidden"
-        >
-          <Marquee items={CURTAIN_ITEMS} size="lg" />
-          <Marquee reverse size="lg" />
         </section>
 
         <section className="px-5 sm:px-10 md:px-16 lg:px-24 py-14 sm:py-16 md:py-20">
