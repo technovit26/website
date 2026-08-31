@@ -4,14 +4,12 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Handshake } from '@phosphor-icons/react';
-import Marquee from '../components/Marquee';
 import ContourBackdrop from '../components/ContourBackdrop';
+import CurtainIntro from '../components/CurtainIntro';
 import SponsorCard from './SponsorCard';
 import { SPONSORS } from './data';
 
 gsap.registerPlugin(ScrollTrigger);
-
-const CURTAIN_ITEMS = ["TechnoVIT'26"];
 
 function tagFor(i: number): string {
   return `SPON_${String(i).padStart(3, '0')}.dat`;
@@ -85,27 +83,20 @@ export default function SponsorsContent() {
 
   return (
     <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
+      <CurtainIntro title="SPONSORS" />
       <ContourBackdrop />
       <div className="relative">
         <section
-          className="sticky top-0 z-0 min-h-[100dvh] flex items-center justify-center select-none
-            bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 overflow-hidden"
+          className="flex items-center justify-center select-none
+            bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 pt-28 sm:pt-32 md:pt-36 pb-12 sm:pb-16 overflow-hidden"
         >
           <h1
             ref={bigTitleRef}
-            className="font-clash font-bold text-[#04331c] opacity-[0.22] leading-none
-              text-[15vw] sm:text-[17vw] tracking-tight uppercase text-center"
+            className="font-clash font-bold text-[#04331c] leading-none
+              text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tight uppercase text-center"
           >
             SPONSORS
           </h1>
-        </section>
-
-        <section
-          className="relative z-10 min-h-[100dvh] flex flex-col justify-center gap-6 sm:gap-8
-            bg-[#84C87F] text-[#04331c] py-16 overflow-hidden"
-        >
-          <Marquee items={CURTAIN_ITEMS} size="lg" />
-          <Marquee reverse size="lg" />
         </section>
 
         <section className="px-5 sm:px-10 md:px-16 lg:px-24 py-14 sm:py-16 md:py-20">
