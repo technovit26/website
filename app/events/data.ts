@@ -82,7 +82,14 @@ function toIso(dateTime: string): string {
 }
 
 function normalizeEventType(value: string): string {
-  return (value || '').replace(/\s+/g, ' ').trim();
+  // Upstream sends 'Workshop', 'workshop' and 'Competition ' as distinct
+  // values; fold case too or they show up as separate filters and as separate
+  // categories to the chatbot.
+  return (value || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+    .replace(/(^|\s)\p{Ll}/gu, (match) => match.toUpperCase());
 }
 
 function normalizeEventFor(value: string): string {
@@ -94,7 +101,7 @@ function normalizeEvent(raw: RawEvent): EventItem {
   const teamSize = Math.max(1, Math.round(parseFloat(String(raw.team_size))) || 1);
   return {
     id: String(raw.id),
-    eventName: raw.event_name,
+    eventName: raw.event_name.trim(),
     clubName: raw.club_name,
     eventType: normalizeEventType(raw.event_type),
     eventFor: normalizeEventFor(raw.event_for),

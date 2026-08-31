@@ -50,12 +50,20 @@ export function useStackOffset(anchor: string) {
 
 type HeightPayload = { anchor: string; height: number };
 
+// The bus has no replay, and the widgets that read these heights are lazy —
+// they mount long after the anchors broadcast. Keep the last value so a late
+// subscriber starts from the truth instead of zero.
+const lastHeights = new Map<string, number>();
+
 export function useBroadcastHeight<T extends HTMLElement>(anchor: string) {
   const ref = useRef<T>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const report = () => emit<HeightPayload>('rect:height', { anchor, height: el.offsetHeight });
+    const report = () => {
+      lastHeights.set(anchor, el.offsetHeight);
+      emit<HeightPayload>('rect:height', { anchor, height: el.offsetHeight });
+    };
     report();
     const observer = new ResizeObserver(report);
     observer.observe(el);
@@ -65,7 +73,7 @@ export function useBroadcastHeight<T extends HTMLElement>(anchor: string) {
 }
 
 export function useElementHeight(anchor: string) {
-  const [height, setHeight] = useState(0);
+  const [height, setHeight] = useState(() => lastHeights.get(anchor) ?? 0);
   useEffect(
     () =>
       on<HeightPayload>('rect:height', (p) => {

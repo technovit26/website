@@ -8,6 +8,7 @@
     "postbuild": "node scripts/prewarm-thumbs.mjs",
     "start": "next start",
     "lint": "eslint",
+    "selfcheck:chat": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/chat-selfcheck.ts",
     "prewarm-thumbs": "node scripts/prewarm-thumbs.mjs"
   },
   "dependencies": {

@@ -20,6 +20,8 @@ export default function QuestionMark() {
   const [scrollUp, setScrollUp] = useState(true);
   const soundIconOffset = useStackOffset('sound-icon');
   const soundIconHeight = useElementHeight('sound-icon-self');
+  // Sits above the chat button, which sits above the sound icon.
+  const chatIconHeight = useElementHeight('chat-icon-self');
 
   useEffect(() => {
     try {
@@ -98,7 +100,15 @@ export default function QuestionMark() {
             aria-label="What is this site?"
             data-cursor="?"
             initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: -(soundIconHeight + STACK_GAP + soundIconOffset) }}
+            animate={{
+              opacity: 1,
+              y: -(
+                soundIconHeight +
+                STACK_GAP +
+                soundIconOffset +
+                (chatIconHeight ? chatIconHeight + STACK_GAP : 0)
+              ),
+            }}
             exit={{ opacity: 0, y: 24 }}
             transition={
               everClicked

@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 const TrailerModal = dynamic(() => import('./TrailerModal'), { ssr: false });
 const ContextMenu = dynamic(() => import('./ContextMenu'), { ssr: false });
 const Terminal = dynamic(() => import('./Terminal'), { ssr: false });
+const AskTechnova = dynamic(() => import('./AskTechnova'), { ssr: false });
 const Konami = dynamic(() => import('./Konami'), { ssr: false });
 const QuestionMark = dynamic(() => import('./QuestionMark'), { ssr: false });
 const EggMaster = dynamic(() => import('./EggMaster'), { ssr: false });
@@ -36,6 +37,7 @@ export default function DeferredWidgets() {
       <TrailerModal />
       <ContextMenu />
       <Terminal />
+      <AskTechnova />
       <Konami />
       <QuestionMark />
       <EggMaster />

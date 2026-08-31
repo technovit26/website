@@ -53,7 +53,7 @@ export const SECTIONS: Record<string, TeamSection> = {
 };
 
 // Photos are numbered in the order people appear in the source roster doc,
-// skipping Dr. Lavanya V (no photo on file) — image1 is G. Viswanathan,
+// skipping Dr. S. Devi Yamini, who is not in it (her photo is local) — image1 is G. Viswanathan,
 // image42 is Karan Kumar, the last entry in that doc.
 const TEAM_PHOTO_BASE = "https://techno.team.a2ys.dev/team";
 function photo(n: number): string {
@@ -144,6 +144,7 @@ export const FACULTY_ORGANISERS: Person[] = [
   {
     name: "Dr. S. Devi Yamini",
     role: "Design and Printing",
+    photoUrl: "https://techno.team.a2ys.dev/team/IMG-20260831-WA0009.jpg",
   },
   { name: "Dr. Uma Maheswari S", role: "Documentation", photoUrl: photo(16) },
   { name: "Dr. Krithiga R", role: "Events", photoUrl: photo(17) },
@@ -212,7 +213,7 @@ export const STUDENT_ORGANISERS: Person[] = [
   { name: "Sharan K", role: "Sponsorship & MoU", photoUrl: photo(40) },
   {
     name: "Vanshika Rathi",
-    role: "Stage Arrangements (Inaugural / Valedictory)",
+    role: "Venue Arrangements & Refreshments",
     photoUrl: photo(41),
   },
 ];

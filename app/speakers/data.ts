@@ -27,12 +27,14 @@ export const CEREMONIES: Ceremony[] = [
         role: 'Chief Guest',
         designation: 'Deputy Consul General',
         organization: 'Consul General of the Russian Federation in Chennai',
+        photoUrl: '/alexander-formin.webp',
       },
       {
         name: 'Mr. Arulselvam Harikrishnan',
         role: 'Guest of Honour',
         designation: 'Vice President – Operations & Logistics',
         organization: 'Daimler India Commercial Vehicles',
+        photoUrl: '/arun-selvam.webp',
       },
     ],
   },
@@ -53,6 +55,7 @@ export const CEREMONIES: Ceremony[] = [
         role: 'Guest of Honour',
         designation: 'Data Scientist',
         organization: 'Google',
+        photoUrl: '/charan.webp',
         extra: [
           'VIT-Chennai Alumnus',
           'B.Tech. Electronics & Communication Engineering (ECE)',
