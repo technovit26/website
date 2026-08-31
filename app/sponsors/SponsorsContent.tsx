@@ -44,7 +44,7 @@ function AnimatedGrid() {
   return (
     <div
       ref={ref}
-      className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-3xl mx-auto"
+      className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-5xl mx-auto"
     >
       {SPONSORS.map((s, i) => (
         <SponsorCard key={s.name} sponsor={s} tag={tagFor(i)} />
@@ -118,8 +118,7 @@ export default function SponsorsContent() {
               Powered by our sponsors.
             </p>
             <p className="text-[#c2e0a5]/70 text-sm sm:text-base leading-relaxed max-w-xl">
-              The organisations backing TechnoVIT&apos;26 —
-              <span className="text-[#84C87F] font-semibold"> logos to be added shortly.</span>
+              The organisations backing TechnoVIT&apos;26.
             </p>
           </div>
         </section>
