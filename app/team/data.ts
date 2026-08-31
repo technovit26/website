@@ -144,7 +144,7 @@ export const FACULTY_ORGANISERS: Person[] = [
   {
     name: "Dr. S. Devi Yamini",
     role: "Design and Printing",
-    photoUrl: "/devi-yamini.webp",
+    photoUrl: "https://techno.team.a2ys.dev/team/IMG-20260831-WA0009.jpg",
   },
   { name: "Dr. Uma Maheswari S", role: "Documentation", photoUrl: photo(16) },
   { name: "Dr. Krithiga R", role: "Events", photoUrl: photo(17) },
