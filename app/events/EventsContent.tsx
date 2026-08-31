@@ -478,7 +478,7 @@ export default function EventsContent({ events: initialEvents }: { events: Event
       <div className="relative">
       <section
         className="flex items-center justify-center select-none
-          bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 pt-28 sm:pt-32 md:pt-36 pb-12 sm:pb-16 overflow-hidden"
+          bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 pt-28 sm:pt-32 md:pt-36 pb-24 sm:pb-28 md:pb-32 overflow-hidden"
       >
         <h1
           ref={heroRef}
