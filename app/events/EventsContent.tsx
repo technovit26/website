@@ -13,7 +13,6 @@ import {
   CaretRight,
   CircleNotch,
   ClockCounterClockwise,
-  Funnel,
   MagnifyingGlass,
   SmileySad,
   Sparkle,
@@ -28,7 +27,7 @@ import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import EventCard from './EventCard';
 import EventModal from './EventModal';
 import PriceRangeSlider from './PriceRangeSlider';
-import { type EventItem, type EventListItem } from './data';
+import { formatPrice, type EventItem, type EventListItem } from './data';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -533,32 +532,34 @@ export default function EventsContent({ events: initialEvents }: { events: Event
           className="rounded-lg border border-[#84C87F]/20 bg-[#03080a] overflow-hidden"
           style={{ boxShadow: '0 20px 50px rgba(0,0,0,0.35)' }}
         >
-          <div className="flex items-center justify-between px-4 py-2.5 bg-[#080f09] border-b border-[#84C87F]/10 select-none">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5">
-                <span className="w-[8px] h-[8px] rounded-full bg-[#FF5F56]/70" />
-                <span className="w-[8px] h-[8px] rounded-full bg-[#FFBD2E]/70" />
-                <span className="w-[8px] h-[8px] rounded-full bg-[#27C93F]/70" />
-              </div>
-              <span className="font-terminal text-[9px] uppercase tracking-[0.2em] text-[#84C87F]/50 ml-1 hidden sm:inline-flex items-center gap-1.5">
-                <Funnel size={11} weight="bold" /> filters.sh
-              </span>
-            </div>
-            <AnimatePresence>
-              {filtersActive && (
-                <motion.button
-                  initial={{ opacity: 0, x: 6 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 6 }}
-                  onClick={resetFilters}
-                  data-cursor="Reset"
-                  className="flex items-center gap-1.5 font-terminal text-[10px] uppercase tracking-[0.15em] text-[#84C87F]/60 hover:text-[#84C87F] transition-colors"
-                >
-                  <ArrowCounterClockwise size={12} weight="bold" />
-                  Reset
-                </motion.button>
-              )}
-            </AnimatePresence>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2.5 bg-[#080f09] border-b border-[#84C87F]/10 font-terminal text-[10px] uppercase tracking-[0.18em] select-none">
+            <span className="text-[#84C87F]/45">
+              TYPE ▸ {eventType === DEFAULT_TYPE ? 'all' : eventType.toLowerCase()}
+            </span>
+            <span className="text-[#84C87F]/45">
+              DATE ▸ {dateFilter === DEFAULT_DATE ? 'all' : formatDayLabel(dateFilter)}
+            </span>
+            <span className="text-[#84C87F]/45">
+              FEE ▸ {formatPrice(priceRange[0])}–{formatPrice(priceRange[1])}
+            </span>
+            <span className="text-[#c2e0a5]">= {upcoming.length} in range</span>
+            <span className="ml-auto">
+              <AnimatePresence>
+                {filtersActive && (
+                  <motion.button
+                    initial={{ opacity: 0, x: 6 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 6 }}
+                    onClick={resetFilters}
+                    data-cursor="Reset"
+                    className="flex items-center gap-1.5 normal-case tracking-[0.15em] text-[#84C87F]/60 hover:text-[#84C87F] transition-colors"
+                  >
+                    <ArrowCounterClockwise size={12} weight="bold" />
+                    Reset
+                  </motion.button>
+                )}
+              </AnimatePresence>
+            </span>
           </div>
 
           <div className="flex flex-col gap-6 p-4 sm:p-6">
