@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { ChatCircleDots, PaperPlaneRight, X } from '@phosphor-icons/react';
 import { on } from '../hooks/useEventBus';
-import { useStackOffset, useElementHeight, useBroadcastHeight, STACK_GAP } from '../hooks/useBottomStack';
+import { useStackOffset, useElementHeight, STACK_GAP } from '../hooks/useBottomStack';
 import { playSound } from './SoundManager';
 
 type Turn = { role: 'user' | 'model'; text: string };
@@ -52,7 +52,6 @@ export default function AskTechnova() {
 
   const soundIconOffset = useStackOffset('sound-icon');
   const soundIconHeight = useElementHeight('sound-icon-self');
-  const buttonRef = useBroadcastHeight<HTMLButtonElement>('chat-icon-self');
 
   const inputRef = useRef<HTMLInputElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
@@ -146,7 +145,6 @@ export default function AskTechnova() {
         {buttonVisible && (
           <motion.button
             key="ask-technova-button"
-            ref={buttonRef}
             onClick={() => {
               playSound('ask');
               setOpen(true);

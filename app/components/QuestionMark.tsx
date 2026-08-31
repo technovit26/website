@@ -11,6 +11,8 @@ import { playSound } from './SoundManager';
 const CLICKED_KEY = 'technovit_question_clicked';
 const DISMISSED_KEY = 'technovit_question_dismissed';
 
+const CHAT_BUTTON_HEIGHT_PX = 40;
+
 export default function QuestionMark() {
   const lenis = useLenis();
   const isTouchDevice = useIsTouchDevice();
@@ -20,8 +22,6 @@ export default function QuestionMark() {
   const [scrollUp, setScrollUp] = useState(true);
   const soundIconOffset = useStackOffset('sound-icon');
   const soundIconHeight = useElementHeight('sound-icon-self');
-  // Sits above the chat button, which sits above the sound icon.
-  const chatIconHeight = useElementHeight('chat-icon-self');
 
   useEffect(() => {
     try {
@@ -102,12 +102,7 @@ export default function QuestionMark() {
             initial={{ opacity: 0, y: 24 }}
             animate={{
               opacity: 1,
-              y: -(
-                soundIconHeight +
-                STACK_GAP +
-                soundIconOffset +
-                (chatIconHeight ? chatIconHeight + STACK_GAP : 0)
-              ),
+              y: -(soundIconHeight + STACK_GAP + soundIconOffset + CHAT_BUTTON_HEIGHT_PX + STACK_GAP),
             }}
             exit={{ opacity: 0, y: 24 }}
             transition={
