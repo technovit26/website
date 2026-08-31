@@ -4,9 +4,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AnimatePresence, motion, useMotionValue, useTransform, useInView, animate } from 'motion/react';
-import Marquee from '../components/Marquee';
 import MarqueeCTA from '../components/MarqueeCTA';
 import ContourBackdrop from '../components/ContourBackdrop';
+import CurtainIntro from '../components/CurtainIntro';
 import Countdown from '../components/Countdown';
 import UnderMaintenance from '../components/UnderMaintenance';
 import { playSound } from '../components/SoundManager';
@@ -23,8 +23,6 @@ const EGG_MESSAGES = ["You found it. There's more hiding around here.", 'Still h
 const HINT_MAX_POKES = 3;
 const HINT_VISIBLE_MS = 3200;
 const HINT_MESSAGES = ["That text isn't just decoration.", 'Go on, click it.', 'Still there. Still clickable.'];
-
-const COVER_MARQUEE_ITEMS = ["TechnoVIT'26"];
 
 const STATS = [
   { value: 25000, suffix: '+', label: 'Participants' },
@@ -158,32 +156,24 @@ function AboutPageContent() {
 
   return (
     <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
+      <CurtainIntro title="ABOUT" />
       <ContourBackdrop />
       <div className="relative">
 
 
       <section
-        className="sticky top-0 z-0 min-h-[100dvh] flex items-center justify-center select-none
-          bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 overflow-hidden"
+        className="flex items-center justify-center select-none
+          bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 pt-28 sm:pt-32 md:pt-36 pb-12 sm:pb-16 overflow-hidden"
       >
         <h1
           ref={bigTitleRef}
           onClick={triggerEgg}
           data-cursor="26"
-          className="font-clash font-bold text-[#04331c] opacity-[0.22] hover:opacity-[0.32] leading-none
-            text-[28vw] tracking-tight uppercase cursor-pointer transition-opacity duration-300"
+          className="font-clash font-bold text-[#04331c] leading-none
+            text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tight uppercase cursor-pointer"
         >
           ABOUT
         </h1>
-      </section>
-
-
-      <section
-        className="relative z-10 min-h-[100dvh] flex flex-col justify-center gap-6 sm:gap-8
-          bg-[#84C87F] text-[#04331c] py-16 overflow-hidden"
-      >
-        <Marquee items={COVER_MARQUEE_ITEMS} size="lg" />
-        <Marquee reverse size="lg" />
       </section>
 
 
