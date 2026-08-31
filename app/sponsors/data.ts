@@ -7,4 +7,5 @@ export interface Sponsor {
 export const SPONSORS: Sponsor[] = [
   { name: 'Temenos' },
   { name: 'Indian Bank' },
+  { name: 'Skechers' },
 ];
