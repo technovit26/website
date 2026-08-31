@@ -79,10 +79,7 @@ function CoreCard({ item, onOpen }: { item: CoreItem; onOpen: (item: CoreItem) =
           alt={item.label}
           loading="lazy"
           decoding="async"
-          className="absolute inset-0 w-full h-full object-cover
-            grayscale contrast-110 brightness-[0.8]
-            group-hover:grayscale-0 group-hover:brightness-100
-            transition-[filter] duration-700 ease-out"
+          className="absolute inset-0 w-full h-full object-cover"
         />
 
         <div

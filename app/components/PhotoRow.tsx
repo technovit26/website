@@ -11,7 +11,7 @@ export default function PhotoRow({
   paused = false,
   tileClassName = 'w-[170px] h-[120px] sm:w-[230px] sm:h-[165px]',
   imgUrl,
-  imgClassName = 'grayscale brightness-75 contrast-110',
+  imgClassName = '',
   gapClassName = 'gap-1.5',
 }: {
   items: PhotoRowItem[];
