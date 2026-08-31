@@ -99,6 +99,9 @@ export default function RegisterAction({ event }: { event: EventItem }) {
   const registrationData = useRegistrationData(loggedIn);
   const [registerStatus, setRegisterStatus] = useState<RegisterStatus>('idle');
   const [message, setMessage] = useState<string | null>(null);
+  const [now] = useState(() => Date.now());
+
+  const isCompleted = new Date(event.endDateTime).getTime() < now;
 
   const upstreamEventId = registrationData?.matched[event.id] ?? null;
   const registeredInfo = registrationData?.registered[event.id] ?? null;
@@ -136,6 +139,18 @@ export default function RegisterAction({ event }: { event: EventItem }) {
       setMessage(pickMessage('upstream_unreachable'));
     }
   };
+
+  if (isCompleted) {
+    return (
+      <div
+        className="flex items-center justify-center gap-2.5 w-full rounded-full border border-[#84C87F]/20
+          text-[#84C87F]/50 font-clash font-bold uppercase tracking-[0.15em] text-sm py-3.5"
+      >
+        <CheckCircle size={18} weight="bold" />
+        Event Completed
+      </div>
+    );
+  }
 
   if (!loggedIn) {
     return (

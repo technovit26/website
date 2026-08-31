@@ -11,6 +11,8 @@ import {
   ArrowRight,
   CaretLeft,
   CaretRight,
+  CircleNotch,
+  ClockCounterClockwise,
   Funnel,
   MagnifyingGlass,
   SmileySad,
@@ -26,7 +28,7 @@ import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import EventCard from './EventCard';
 import EventModal from './EventModal';
 import PriceRangeSlider from './PriceRangeSlider';
-import { type EventItem } from './data';
+import { type EventItem, type EventListItem } from './data';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -35,11 +37,12 @@ const CURTAIN_ITEMS = ["TechnoVIT'26"];
 const DEFAULT_TYPE = 'All';
 const DEFAULT_DATE = 'All';
 const PAGE_SIZE = 10;
+const COMPLETED_PAGE_SIZE = 6;
 
-function eventStart(e: EventItem) {
+function eventStart(e: EventListItem) {
   return new Date(e.startDateTime).getTime();
 }
-function eventEnd(e: EventItem) {
+function eventEnd(e: EventListItem) {
   return new Date(e.endDateTime).getTime();
 }
 
@@ -49,7 +52,7 @@ function toDayKey(d: Date) {
   ).padStart(2, '0')}`;
 }
 
-function eventStartDayKey(e: EventItem): string {
+function eventStartDayKey(e: EventListItem): string {
   return toDayKey(new Date(e.startDateTime));
 }
 
@@ -57,7 +60,7 @@ function formatDayLabel(key: string) {
   const [y, m, d] = key.split('-').map(Number);
   return new Date(y, m - 1, d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 }
-function compareEvents(a: EventItem, b: EventItem) {
+function compareEvents(a: EventListItem, b: EventListItem) {
   const byStart = eventStart(a) - eventStart(b);
   if (byStart) return byStart;
   return a.eventName.localeCompare(b.eventName);
@@ -66,11 +69,11 @@ function compareEvents(a: EventItem, b: EventItem) {
 const EVENTS_CACHE_KEY = 'technovit:events-cache:v1';
 const EVENTS_CACHE_TTL_MS = 5 * 60 * 1000;
 
-function readEventsCache(): EventItem[] | null {
+function readEventsCache(): EventListItem[] | null {
   try {
     const raw = localStorage.getItem(EVENTS_CACHE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as { events: EventItem[]; cachedAt: number };
+    const parsed = JSON.parse(raw) as { events: EventListItem[]; cachedAt: number };
     if (!parsed.events?.length || Date.now() - parsed.cachedAt > EVENTS_CACHE_TTL_MS) return null;
     return parsed.events;
   } catch {
@@ -78,7 +81,7 @@ function readEventsCache(): EventItem[] | null {
   }
 }
 
-function writeEventsCache(events: EventItem[]) {
+function writeEventsCache(events: EventListItem[]) {
   if (events.length === 0) return;
   try {
     localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify({ events, cachedAt: Date.now() }));
@@ -145,10 +148,50 @@ function FilterSection({ label, children }: { label: string; children: React.Rea
   );
 }
 
-export default function EventsContent({ events: initialEvents }: { events: EventItem[] }) {
-  const [events, setEvents] = useState<EventItem[]>(initialEvents);
+const PAGER_BTN_CLASS =
+  'flex items-center gap-1.5 rounded-full border border-[#84C87F]/25 px-4 py-2 text-[11px] font-semibold ' +
+  'uppercase tracking-wide text-[#84C87F]/70 transition-colors hover:border-[#84C87F]/50 hover:text-[#84C87F] ' +
+  'disabled:opacity-30 disabled:pointer-events-none';
+
+function Pager({
+  current,
+  total,
+  onPrev,
+  onNext,
+}: {
+  current: number;
+  total: number;
+  onPrev: () => void;
+  onNext: () => void;
+}) {
+  return (
+    <div className="mt-10 flex items-center justify-center gap-2 font-terminal">
+      <button type="button" onClick={onPrev} disabled={current === 1} data-cursor="Left" className={PAGER_BTN_CLASS}>
+        <CaretLeft size={12} weight="bold" />
+        Prev
+      </button>
+      <span className="px-3 text-[11px] uppercase tracking-wide text-[#84C87F]/50">
+        {current} / {total}
+      </span>
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={current === total}
+        data-cursor="Right"
+        className={PAGER_BTN_CLASS}
+      >
+        Next
+        <CaretRight size={12} weight="bold" />
+      </button>
+    </div>
+  );
+}
+
+export default function EventsContent({ events: initialEvents }: { events: EventListItem[] }) {
+  const [events, setEvents] = useState<EventListItem[]>(initialEvents);
   // null = matching data not loaded yet -> don't filter anything out.
   const [matchedIds, setMatchedIds] = useState<Set<string> | null>(null);
+  const [fullById, setFullById] = useState<Map<string, EventItem> | null>(null);
 
   useEffect(() => {
     const cached = readEventsCache();
@@ -163,7 +206,7 @@ export default function EventsContent({ events: initialEvents }: { events: Event
     let active = true;
     fetch('/api/technovit/event-list')
       .then((res) => (res.ok ? res.json() : []))
-      .then((data: EventItem[]) => {
+      .then((data: EventListItem[]) => {
         if (!active || data.length === 0) return;
         setEvents(data);
         writeEventsCache(data);
@@ -238,9 +281,36 @@ export default function EventsContent({ events: initialEvents }: { events: Event
   const searchParams = useSearchParams();
   const deepLinkedEventId = searchParams.get('event');
   const activeEvent = useMemo(
-    () => (deepLinkedEventId ? events.find((e) => e.id === deepLinkedEventId) ?? null : null),
-    [deepLinkedEventId, events]
+    () => (deepLinkedEventId && fullById ? fullById.get(deepLinkedEventId) ?? null : null),
+    [deepLinkedEventId, fullById]
   );
+  const modalPending = Boolean(deepLinkedEventId) && !activeEvent;
+
+  useEffect(() => {
+    if (fullById) return;
+    let active = true;
+    const load = () => {
+      fetch('/api/technovit/event-list')
+        .then((res) => (res.ok ? res.json() : []))
+        .then((data: EventItem[]) => {
+          if (active && data.length > 0) setFullById(new Map(data.map((e) => [e.id, e])));
+        })
+        .catch(() => {});
+    };
+    if (deepLinkedEventId) {
+      load();
+      return () => {
+        active = false;
+      };
+    }
+    const ric = typeof window !== 'undefined' ? window.requestIdleCallback : undefined;
+    const handle = ric ? ric(load, { timeout: 2500 }) : window.setTimeout(load, 800);
+    return () => {
+      active = false;
+      if (ric && window.cancelIdleCallback) window.cancelIdleCallback(handle as number);
+      else window.clearTimeout(handle as number);
+    };
+  }, [deepLinkedEventId, fullById]);
 
   const debouncedSearch = useDebouncedValue(search, 250);
 
@@ -290,24 +360,38 @@ export default function EventsContent({ events: initialEvents }: { events: Event
   const completedVisible = isSearching ? [] : completed;
 
   const [page, setPage] = useState(1);
+  const [completedPage, setCompletedPage] = useState(1);
   const filterKey = `${debouncedSearch}|${eventType}|${dateFilter}|${priceRange[0]}|${priceRange[1]}`;
   const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
   if (filterKey !== prevFilterKey) {
     setPrevFilterKey(filterKey);
     setPage(1);
+    setCompletedPage(1);
   }
   const totalPages = Math.max(1, Math.ceil(upcoming.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pagedUpcoming = upcoming.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
+  const completedTotalPages = Math.max(1, Math.ceil(completedVisible.length / COMPLETED_PAGE_SIZE));
+  const completedCurrentPage = Math.min(completedPage, completedTotalPages);
+  const pagedCompleted = completedVisible.slice(
+    (completedCurrentPage - 1) * COMPLETED_PAGE_SIZE,
+    completedCurrentPage * COMPLETED_PAGE_SIZE
+  );
+
   const resultsRef = useRef<HTMLDivElement>(null);
+  const completedRef = useRef<HTMLDivElement>(null);
   const goToPage = (next: number) => {
     setPage(Math.min(Math.max(1, next), totalPages));
     resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+  const goToCompletedPage = (next: number) => {
+    setCompletedPage(Math.min(Math.max(1, next), completedTotalPages));
+    completedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const openEvent = useCallback(
-    (event: EventItem) => {
+    (event: EventListItem) => {
       playSound('toggle');
       const params = new URLSearchParams(searchParams.toString());
       params.set('event', event.id);
@@ -537,8 +621,8 @@ export default function EventsContent({ events: initialEvents }: { events: Event
 
       <section ref={resultsRef} className="px-5 sm:px-10 md:px-16 lg:px-24 pb-24 sm:pb-32 scroll-mt-8">
         <div className="flex items-center gap-3 mb-6 sm:mb-8">
-          <div className="h-px flex-1 bg-[#84C87F]/15" />
-          <span className="font-terminal font-bold uppercase tracking-[0.3em] text-[#84C87F]/50 text-[10px] sm:text-xs whitespace-nowrap">
+          <MagnifyingGlass size={16} weight="bold" className="text-[#84C87F] shrink-0" />
+          <span className="font-terminal font-bold uppercase tracking-[0.3em] text-[#84C87F]/70 text-[10px] sm:text-xs whitespace-nowrap">
             $ query --matches {upcoming.length}
           </span>
           <div className="h-px flex-1 bg-[#84C87F]/15" />
@@ -564,35 +648,12 @@ export default function EventsContent({ events: initialEvents }: { events: Event
             </motion.div>
 
             {totalPages > 1 && (
-              <div className="mt-10 flex items-center justify-center gap-2 font-terminal">
-                <button
-                  type="button"
-                  onClick={() => goToPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  data-cursor="Left"
-                  className="flex items-center gap-1.5 rounded-full border border-[#84C87F]/25 px-4 py-2 text-[11px]
-                    font-semibold uppercase tracking-wide text-[#84C87F]/70 transition-colors
-                    hover:border-[#84C87F]/50 hover:text-[#84C87F] disabled:opacity-30 disabled:pointer-events-none"
-                >
-                  <CaretLeft size={12} weight="bold" />
-                  Prev
-                </button>
-                <span className="px-3 text-[11px] uppercase tracking-wide text-[#84C87F]/50">
-                  {currentPage} / {totalPages}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => goToPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  data-cursor="Right"
-                  className="flex items-center gap-1.5 rounded-full border border-[#84C87F]/25 px-4 py-2 text-[11px]
-                    font-semibold uppercase tracking-wide text-[#84C87F]/70 transition-colors
-                    hover:border-[#84C87F]/50 hover:text-[#84C87F] disabled:opacity-30 disabled:pointer-events-none"
-                >
-                  Next
-                  <CaretRight size={12} weight="bold" />
-                </button>
-              </div>
+              <Pager
+                current={currentPage}
+                total={totalPages}
+                onPrev={() => goToPage(currentPage - 1)}
+                onNext={() => goToPage(currentPage + 1)}
+              />
             )}
           </>
         ) : completedVisible.length > 0 ? (
@@ -619,16 +680,16 @@ export default function EventsContent({ events: initialEvents }: { events: Event
         )}
 
         {completedVisible.length > 0 && (
-          <div className="mt-20 sm:mt-28">
+          <div ref={completedRef} className="mt-20 sm:mt-28 scroll-mt-8">
             <div className="flex items-center gap-3 mb-6 sm:mb-8">
-              <div className="h-px flex-1 bg-[#84C87F]/15" />
-              <span className="font-terminal font-bold uppercase tracking-[0.3em] text-[#84C87F]/40 text-[10px] sm:text-xs whitespace-nowrap">
+              <ClockCounterClockwise size={16} weight="bold" className="text-[#84C87F] shrink-0" />
+              <span className="font-terminal font-bold uppercase tracking-[0.3em] text-[#84C87F]/70 text-[10px] sm:text-xs whitespace-nowrap">
                 Events Completed
               </span>
               <div className="h-px flex-1 bg-[#84C87F]/15" />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 opacity-55">
-              {completedVisible.map((event) => (
+              {pagedCompleted.map((event) => (
                 <div key={event.id} className="[content-visibility:auto] [contain-intrinsic-size:auto_260px]">
                   <EventCard
                     event={event}
@@ -638,6 +699,14 @@ export default function EventsContent({ events: initialEvents }: { events: Event
                 </div>
               ))}
             </div>
+            {completedTotalPages > 1 && (
+              <Pager
+                current={completedCurrentPage}
+                total={completedTotalPages}
+                onPrev={() => goToCompletedPage(completedCurrentPage - 1)}
+                onNext={() => goToCompletedPage(completedCurrentPage + 1)}
+              />
+            )}
           </div>
         )}
       </section>
@@ -670,6 +739,19 @@ export default function EventsContent({ events: initialEvents }: { events: Event
 
       <AnimatePresence>
         {activeEvent && <EventModal event={activeEvent} onClose={closeEvent} />}
+        {modalPending && (
+          <motion.div
+            key="modal-pending"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[600] bg-black/85 backdrop-blur-md flex items-center justify-center"
+            onClick={closeEvent}
+          >
+            <CircleNotch size={28} weight="bold" className="animate-spin text-[#84C87F]" />
+          </motion.div>
+        )}
       </AnimatePresence>
     </main>
   );

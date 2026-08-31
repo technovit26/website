@@ -5,9 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node scripts/prewarm-thumbs.mjs",
     "start": "next start",
     "lint": "eslint",
-    "selfcheck:chat": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/chat-selfcheck.ts"
+    "selfcheck:chat": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/chat-selfcheck.ts",
+    "prewarm-thumbs": "node scripts/prewarm-thumbs.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
@@ -18,7 +20,6 @@
     "next": "16.3.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "sharp": "^0.35.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {

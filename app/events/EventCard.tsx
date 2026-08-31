@@ -1,13 +1,13 @@
 import { CalendarBlank, MapPin, Sparkle } from '@phosphor-icons/react';
-import { formatEventWindow, formatPrice, posterUrl, type EventItem } from './data';
+import { formatEventWindow, formatPrice, posterUrl, type EventListItem } from './data';
 
 export default function EventCard({
   event,
   onOpen,
   className = 'w-[420px] sm:w-[540px] h-[260px] sm:h-[320px] shrink-0',
 }: {
-  event: EventItem;
-  onOpen: (event: EventItem) => void;
+  event: EventListItem;
+  onOpen: (event: EventListItem) => void;
   className?: string;
 }) {
   return (
