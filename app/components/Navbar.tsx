@@ -13,7 +13,7 @@ import { useLenis } from './SmoothScrolling';
 export const NAV_LINKS = [
   { href: '/about', label: 'About' },
   { href: '/events', label: 'Events' },
-  { href: '/speakers', label: 'Guests' },
+  { href: '/speakers', label: 'Guest Speakers' },
   { href: '/sponsors', label: 'Sponsors' },
   { href: '/gallery', label: 'Gallery' },
   { href: '/team', label: 'Team' },
