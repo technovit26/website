@@ -5,7 +5,7 @@ export interface Sponsor {
 }
 
 export const SPONSORS: Sponsor[] = [
-  { name: 'Temenos' },
-  { name: 'Indian Bank' },
-  { name: 'Skechers' },
+  { name: 'Temenos', logoUrl: '/temenos.webp' },
+  { name: 'Stitch', logoUrl: '/stitch.webp' },
+  { name: 'Indian Bank', logoUrl: '/indian-bank.webp' },
 ];
