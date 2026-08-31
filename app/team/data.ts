@@ -212,7 +212,7 @@ export const STUDENT_ORGANISERS: Person[] = [
   { name: "Sharan K", role: "Sponsorship & MoU", photoUrl: photo(40) },
   {
     name: "Vanshika Rathi",
-    role: "Stage Arrangements (Inaugural / Valedictory)",
+    role: "Venue Arrangements & Refreshments",
     photoUrl: photo(41),
   },
 ];
