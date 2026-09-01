@@ -77,7 +77,7 @@ function AnimatedGrid({ ceremony }: { ceremony: Ceremony }) {
   return (
     <div
       ref={ref}
-      className="flex flex-wrap justify-center gap-6 max-w-6xl mx-auto [&>*]:w-full sm:[&>*]:w-[300px] md:[&>*]:w-[260px] lg:[&>*]:w-[240px] xl:[&>*]:w-[220px]"
+      className="flex flex-wrap justify-center gap-6 max-w-7xl mx-auto [&>*]:w-full sm:[&>*]:w-[380px] md:[&>*]:w-[340px] lg:[&>*]:w-[320px] xl:[&>*]:w-[300px]"
     >
       {ceremony.speakers.map((s, i) => (
         <SpeakerCard key={s.name} speaker={s} tag={tagFor(ceremony.id.toUpperCase(), i)} />
@@ -208,7 +208,7 @@ function EventSpeakerSection() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-2.5 max-w-7xl mx-auto">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-2.5 max-w-7xl mx-auto [&>*]:w-full sm:[&>*]:w-[calc(50%-5px)] md:[&>*]:w-[calc(33.333%-7px)] lg:[&>*]:w-[calc(25%-8px)] xl:[&>*]:w-[calc(20%-8px)]">
             {day.sessions.flatMap((session) =>
               session.speakers.map((speaker) => (
                 <EventSpeakerCard
