@@ -43,7 +43,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${clashDisplay.variable} ${cabinetGrotesk.variable} ${ibmPlexMono.variable} antialiased`}>
+    <html lang="en" suppressHydrationWarning className={`${clashDisplay.variable} ${cabinetGrotesk.variable} ${ibmPlexMono.variable} antialiased`}>
       <head>
         <link rel="preconnect" href="https://technovit.cdn.a2ys.dev" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://technovit.cdn.a2ys.dev" />
@@ -55,7 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           }}
         />
       </head>
-      <body className={`flex flex-col min-h-screen ${SITE_MAINTENANCE_MODE ? 'native-cursor' : ''}`}>
+      <body suppressHydrationWarning className={`flex flex-col min-h-screen ${SITE_MAINTENANCE_MODE ? 'native-cursor' : ''}`}>
         {SITE_MAINTENANCE_MODE ? (
           <SiteMaintenance />
         ) : (
