@@ -284,6 +284,12 @@ const Navbar = () => {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  useEffect(() => {
+    const color = pathname === '/' ? '#c2e0a5' : '#064928';
+    document.body.style.backgroundColor = color;
+    document.documentElement.style.backgroundColor = color;
+  }, [pathname]);
+
   const toggleMenu = () => menuOpen ? closeMenu() : openMenu();
 
   const handleMouseEnter = (index: number) => {

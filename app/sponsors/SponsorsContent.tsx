@@ -5,7 +5,6 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Handshake, Megaphone } from '@phosphor-icons/react';
 import ContourBackdrop from '../components/ContourBackdrop';
-import CurtainIntro from '../components/CurtainIntro';
 import SponsorCard from './SponsorCard';
 import { SPONSORS, PARTNERS, type Sponsor } from './data';
 
@@ -52,18 +51,11 @@ function AnimatedGrid({ items, tagPrefix }: { items: Sponsor[]; tagPrefix: strin
 }
 
 export default function SponsorsContent() {
-  const bigTitleRef = useRef<HTMLHeadingElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
   const partnersIntroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        bigTitleRef.current,
-        { y: 60, opacity: 0, filter: 'blur(12px)' },
-        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.0, ease: 'power3.out' },
-      );
-
       if (introRef.current) {
         gsap.fromTo(
           introRef.current,
@@ -99,23 +91,9 @@ export default function SponsorsContent() {
 
   return (
     <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
-      <CurtainIntro title="SPONSORS" />
       <ContourBackdrop />
       <div className="relative">
-        <section
-          className="flex items-center justify-center select-none
-            bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 pt-28 sm:pt-32 md:pt-36 pb-24 sm:pb-28 md:pb-32 overflow-hidden"
-        >
-          <h1
-            ref={bigTitleRef}
-            className="font-clash font-bold text-[#04331c] leading-none
-              text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tight uppercase text-center"
-          >
-            SPONSORS
-          </h1>
-        </section>
-
-        <section className="px-5 sm:px-10 md:px-16 lg:px-24 py-14 sm:py-16 md:py-20">
+        <section className="px-5 sm:px-10 md:px-16 lg:px-24 pt-32 sm:pt-40 md:pt-48 pb-14 sm:pb-16 md:pb-20">
           <div
             ref={introRef}
             className="max-w-3xl mx-auto text-center flex flex-col items-center gap-4"

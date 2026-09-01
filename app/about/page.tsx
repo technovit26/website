@@ -6,7 +6,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AnimatePresence, motion, useMotionValue, useTransform, useInView, animate } from 'motion/react';
 import MarqueeCTA from '../components/MarqueeCTA';
 import ContourBackdrop from '../components/ContourBackdrop';
-import CurtainIntro from '../components/CurtainIntro';
 import Countdown from '../components/Countdown';
 import UnderMaintenance from '../components/UnderMaintenance';
 import { playSound } from '../components/SoundManager';
@@ -58,7 +57,6 @@ function StatCounter({ value, suffix, label }: { value: number; suffix: string; 
 }
 
 function AboutPageContent() {
-  const bigTitleRef     = useRef<HTMLHeadingElement>(null);
   const themeHeadRef    = useRef<HTMLDivElement>(null);
   const themeBodyRef    = useRef<HTMLDivElement>(null);
   const statsRef        = useRef<HTMLDivElement>(null);
@@ -111,19 +109,12 @@ function AboutPageContent() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-
-      gsap.fromTo(bigTitleRef.current,
-        { y: 60, opacity: 0, filter: 'blur(12px)' },
-        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.0, ease: 'power3.out' });
-
-
       if (themeHeadRef.current) {
         gsap.fromTo(themeHeadRef.current,
           { y: 50, opacity: 0, filter: 'blur(8px)' },
           { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.85, ease: 'power3.out',
             scrollTrigger: { trigger: themeHeadRef.current, start: 'top 85%' } });
       }
-
 
       if (themeBodyRef.current) {
         const paras = themeBodyRef.current.querySelectorAll('.para');
@@ -133,7 +124,6 @@ function AboutPageContent() {
             scrollTrigger: { trigger: themeBodyRef.current, start: 'top 82%' } });
       }
 
-
       if (statsRef.current) {
         gsap.fromTo(statsRef.current,
           { opacity: 0, y: 28 },
@@ -141,14 +131,12 @@ function AboutPageContent() {
             scrollTrigger: { trigger: statsRef.current, start: 'top 88%' } });
       }
 
-
       if (closingRef.current) {
         gsap.fromTo(closingRef.current,
           { opacity: 0, y: 40 },
           { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
             scrollTrigger: { trigger: closingRef.current, start: 'top 88%' } });
       }
-
     });
 
     return () => ctx.revert();
@@ -156,35 +144,18 @@ function AboutPageContent() {
 
   return (
     <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
-      <CurtainIntro title="ABOUT" />
       <ContourBackdrop />
       <div className="relative">
-
-
       <section
-        className="flex items-center justify-center select-none
-          bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 pt-28 sm:pt-32 md:pt-36 pb-24 sm:pb-28 md:pb-32 overflow-hidden"
-      >
-        <h1
-          ref={bigTitleRef}
-          onClick={triggerEgg}
-          data-cursor="26"
-          className="font-clash font-bold text-[#04331c] leading-none
-            text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tight uppercase cursor-pointer"
-        >
-          ABOUT
-        </h1>
-      </section>
-
-
-      <section
-        className="relative px-5 sm:px-10 md:px-16 lg:px-24 py-16 sm:py-20 md:py-28"
+        className="relative px-5 sm:px-10 md:px-16 lg:px-24 pt-32 sm:pt-40 md:pt-48 pb-16 sm:pb-20 md:pb-28"
       >
         <div className="max-w-5xl mx-auto w-full">
-
-
           <div ref={themeHeadRef} className="mb-10 md:mb-14">
-            <span className="font-bold uppercase tracking-[0.3em] text-[#84C87F] text-[10px] sm:text-xs block mb-4">
+            <span
+              onClick={triggerEgg}
+              data-cursor="26"
+              className="font-bold uppercase tracking-[0.3em] text-[#84C87F] text-[10px] sm:text-xs block mb-4 cursor-pointer"
+            >
               TechnoVIT&apos;26 Theme
             </span>
 

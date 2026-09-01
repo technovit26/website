@@ -6,7 +6,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { UsersThree } from "@phosphor-icons/react";
 import MarqueeCTA from "../components/MarqueeCTA";
 import ContourBackdrop from "../components/ContourBackdrop";
-import CurtainIntro from "../components/CurtainIntro";
 import MemberCard from "./MemberCard";
 import {
   ADVISORY_COMMITTEE,
@@ -32,7 +31,7 @@ function SectionHeading({ section }: { section: TeamSection }) {
     <div className="flex flex-col gap-3 mb-10 md:mb-12">
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-[#84C87F]/15" />
-        <span className="font-bold uppercase tracking-[0.3em] text-[#84C87F]/50 text-[10px] sm:text-xs whitespace-nowrap">
+        <span className="font-bold uppercase tracking-[0.15em] sm:tracking-[0.25em] text-[#84C87F] text-lg sm:text-3xl text-center">
           {section.title}
         </span>
         <div className="h-px flex-1 bg-[#84C87F]/15" />
@@ -109,24 +108,11 @@ function AnimatedGrid({
 }
 
 export default function TeamContent() {
-  const bigTitleRef = useRef<HTMLHeadingElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
   const closingRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        bigTitleRef.current,
-        { y: 60, opacity: 0, filter: "blur(12px)" },
-        {
-          y: 0,
-          opacity: 1,
-          filter: "blur(0px)",
-          duration: 1.0,
-          ease: "power3.out",
-        },
-      );
-
       if (introRef.current) {
         gsap.fromTo(
           introRef.current,
@@ -161,23 +147,9 @@ export default function TeamContent() {
 
   return (
     <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
-      <CurtainIntro title="TEAM" />
       <ContourBackdrop />
       <div className="relative">
-      <section
-        className="flex items-center justify-center select-none
-          bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 pt-28 sm:pt-32 md:pt-36 pb-24 sm:pb-28 md:pb-32 overflow-hidden"
-      >
-        <h1
-          ref={bigTitleRef}
-          className="font-clash font-bold text-[#04331c] leading-none
-            text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tight uppercase"
-        >
-          TEAM
-        </h1>
-      </section>
-
-      <section className="px-5 sm:px-10 md:px-16 lg:px-24 py-14 sm:py-16 md:py-20">
+      <section className="px-5 sm:px-10 md:px-16 lg:px-24 pt-32 sm:pt-40 md:pt-48 pb-14 sm:pb-16 md:pb-20">
         <div
           ref={introRef}
           className="max-w-3xl mx-auto text-center flex flex-col items-center gap-4"
