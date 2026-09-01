@@ -62,7 +62,9 @@ export default function SpeakerCard({ speaker, tag }: { speaker: Speaker; tag: s
       </div>
 
       <div className="flex flex-col gap-1.5 px-4 py-3.5">
-        <h3 className="font-clash font-bold text-[#c2e0a5] text-xl leading-tight">{speaker.name}</h3>
+        <h3 className="font-clash font-bold text-[#c2e0a5] text-xl leading-tight">
+          {speaker.honorific ? `${speaker.honorific}. ${speaker.name}` : speaker.name}
+        </h3>
         <span className="font-bold uppercase tracking-[0.15em] text-[#84C87F]/70 text-[11px] leading-snug">
           {speaker.designation}
         </span>
