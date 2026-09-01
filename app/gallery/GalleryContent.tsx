@@ -6,7 +6,6 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { X, ArrowLeft, ArrowRight, Aperture } from '@phosphor-icons/react';
 import ContourBackdrop from '../components/ContourBackdrop';
-import CurtainIntro from '../components/CurtainIntro';
 import PhotoRow from '../components/PhotoRow';
 import { useLenis } from '../components/SmoothScrolling';
 import { playSound } from '../components/SoundManager';
@@ -143,8 +142,8 @@ function AmbientWall({ images }: { images: GalleryImage[] }) {
     <div ref={hostRef}>
       <div className="flex items-center gap-3 mb-5 sm:mb-6">
         <div className="h-px flex-1 bg-[#84C87F]/15" />
-        <span className="font-bold uppercase tracking-[0.3em] text-[#84C87F]/50 text-[10px] sm:text-xs whitespace-nowrap">
-          The rest of the roll — {images.length} frames
+        <span className="font-bold uppercase tracking-[0.15em] sm:tracking-[0.25em] text-[#84C87F] text-lg sm:text-3xl text-center">
+          Some frames from TechnoVIT&rsquo;25
         </span>
         <div className="h-px flex-1 bg-[#84C87F]/15" />
       </div>
@@ -313,7 +312,6 @@ export default function GalleryContent({
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const wallRef = useRef<HTMLDivElement>(null);
-  const bigTitleRef = useRef<HTMLHeadingElement>(null);
   const viewedRef = useRef<Set<number>>(new Set());
 
   const openItem = (item: CoreItem) => {
@@ -343,10 +341,6 @@ export default function GalleryContent({
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo(bigTitleRef.current,
-        { y: 60, opacity: 0, filter: 'blur(12px)' },
-        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.0, ease: 'power3.out' });
-
       if (gridRef.current) {
         const cards = gridRef.current.querySelectorAll('.gallery-item');
         gsap.fromTo(cards,
@@ -370,24 +364,9 @@ export default function GalleryContent({
 
   return (
     <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
-      <CurtainIntro title="GALLERY" />
       <ContourBackdrop />
       <div className="relative">
-
-      <section
-        className="flex items-center justify-center select-none
-          bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 pt-28 sm:pt-32 md:pt-36 pb-24 sm:pb-28 md:pb-32 overflow-hidden"
-      >
-        <h1
-          ref={bigTitleRef}
-          className="font-clash font-bold text-[#04331c] leading-none
-            text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tight uppercase"
-        >
-          GALLERY
-        </h1>
-      </section>
-
-      <section className="px-5 sm:px-10 md:px-16 lg:px-24 py-14 sm:py-16 md:py-20">
+      <section className="px-5 sm:px-10 md:px-16 lg:px-24 pt-32 sm:pt-40 md:pt-48 pb-14 sm:pb-16 md:pb-20">
         <div className="max-w-3xl mx-auto text-center flex flex-col items-center gap-4">
           <Aperture size={22} weight="bold" className="text-[#84C87F]/70" />
           <p className="font-clash font-bold text-[#c2e0a5] text-2xl sm:text-3xl md:text-4xl leading-tight">

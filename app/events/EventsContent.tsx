@@ -19,7 +19,6 @@ import {
   X,
 } from '@phosphor-icons/react';
 import ContourBackdrop from '../components/ContourBackdrop';
-import CurtainIntro from '../components/CurtainIntro';
 import HScrollRow from '../components/HScrollRow';
 import { playSound } from '../components/SoundManager';
 import { markEggFound, SEARCH_EGG_KEY, SLIDER_EGG_KEY } from '../hooks/useEggsFound';
@@ -311,7 +310,6 @@ export default function EventsContent({ events: initialEvents }: { events: Event
 
   const debouncedSearch = useDebouncedValue(search, 250);
 
-  const heroRef = useRef<HTMLHeadingElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
   const flagshipRef = useRef<HTMLDivElement>(null);
@@ -415,12 +413,6 @@ export default function EventsContent({ events: initialEvents }: { events: Event
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        heroRef.current,
-        { y: 60, opacity: 0, filter: 'blur(12px)' },
-        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.0, ease: 'power3.out' }
-      );
-
       if (introRef.current) {
         gsap.fromTo(
           introRef.current,
@@ -472,23 +464,9 @@ export default function EventsContent({ events: initialEvents }: { events: Event
 
   return (
     <main className="relative min-h-[100dvh] bg-[#064928] overflow-x-hidden">
-      <CurtainIntro title="EVENTS" />
       <ContourBackdrop />
       <div className="relative">
-      <section
-        className="flex items-center justify-center select-none
-          bg-[#c2e0a5] px-5 sm:px-10 md:px-16 lg:px-24 pt-28 sm:pt-32 md:pt-36 pb-24 sm:pb-28 md:pb-32 overflow-hidden"
-      >
-        <h1
-          ref={heroRef}
-          className="font-clash font-bold text-[#04331c] leading-none
-            text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tight uppercase"
-        >
-          EVENTS
-        </h1>
-      </section>
-
-      <section ref={introRef} className="px-5 sm:px-10 md:px-16 lg:px-24 py-14 sm:py-16 md:py-20">
+      <section ref={introRef} className="px-5 sm:px-10 md:px-16 lg:px-24 pt-32 sm:pt-40 md:pt-48 pb-14 sm:pb-16 md:pb-20">
         <div className="max-w-3xl mx-auto text-center flex flex-col items-center gap-4">
           <Sparkle size={22} weight="bold" className="text-[#84C87F]/70" />
           <p className="font-clash font-bold text-[#c2e0a5] text-2xl sm:text-3xl md:text-4xl leading-tight">

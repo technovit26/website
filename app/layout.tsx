@@ -49,6 +49,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <link rel="dns-prefetch" href="https://technovit.cdn.a2ys.dev" />
         <link rel="preload" as="image" href="/bg.svg" />
         <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f02c938088bc4e53841f29ebcd62b663"}'></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var p=window.location.pathname;if(p==='/'||p===''){document.documentElement.style.backgroundColor='#c2e0a5';}else{document.documentElement.style.backgroundColor='#064928';}}catch(e){}})()`,
+          }}
+        />
       </head>
       <body className={`flex flex-col min-h-screen ${SITE_MAINTENANCE_MODE ? 'native-cursor' : ''}`}>
         {SITE_MAINTENANCE_MODE ? (
