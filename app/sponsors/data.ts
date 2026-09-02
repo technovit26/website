@@ -15,7 +15,7 @@ export const PARTNERS: Sponsor[] = [
     name: "HelloFM",
     tagline: "Media Partner",
     logoUrl:
-      "https://cdn.puang.in/images/photos/12f6bf89-00b7-42d9-856a-0e6971736da2-13f95ab7-72be-46d1-b938-be91fd258d39.jpeg",
+      "https://cdn.puang.in/images/photos/e23a8af0-41c2-4f85-baa7-ff7e027e0a0c-12f6bf89-00b7-42d9-856a-0e6971736da2-13f95ab7-72be-46d1-b938-be91fd258d39.webp",
   },
   {
     name: "College Rivals",
