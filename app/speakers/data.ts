@@ -97,8 +97,78 @@ export const CEREMONIES: Ceremony[] = [
 
 export const EVENT_SPEAKER_DAYS: EventSpeakerDay[] = [
   {
+    day: 1,
+    label: "TechnoVIT Day 1",
+    date: "3rd September 2026",
+    sessions: [
+      {
+        id: "animatathon",
+        eventName: "ANIMATATHON",
+        time: "11:00 AM - 03:00 PM",
+        speakers: [
+          {
+            name: "K.S Sangeetha",
+            honorific: "Ms",
+            designation: "Center Head",
+            organization: "Arena Animation",
+            photoUrl: "https://cdn.puang.in/images/photos/9cbdc3cb-bf4c-4cbb-9a73-fae1e6222cf1-sangeetha.webp"
+          },
+          {
+            name: "Ragavender",
+            honorific: "Mr",
+            designation: "Academic Trainer",
+            organization: "Arena Animation",
+            photoUrl: "https://cdn.puang.in/images/photos/9a20e7c7-32d5-4bff-89e0-eb290c91cdd7-ragavendhar.webp"
+          },
+          {
+            name: "M. Vinay Dakshin",
+            honorific: "Mr",
+            designation: "Student Coordinator",
+            organization: "Arena Animation",
+            photoUrl: "https://cdn.puang.in/images/photos/1a871485-a25d-4537-8706-b792dc61b8de-vinay.webp"
+          },
+          {
+            name: "Yogesh U",
+            honorific: "Mr",
+            designation: "Regional Academic Head (Tamil Nadu & Kerala)",
+            organization: "Arena Animation",
+            photoUrl: "https://cdn.puang.in/images/photos/83358383-d481-48b8-b34f-17bf751d9644-yogesh.webp"
+          },
+        ],
+      },
+      {
+        id: "cineforge-cinematography",
+        eventName: "Cineforge Cinematography",
+        time: "02:00 PM - 04:00 PM",
+        speakers: [
+          {
+            name: "Arul Vincent",
+            honorific: "Mr",
+            designation: "Director of Photography",
+            organization: "Tamil Film Industry",
+            photoUrl: "https://cdn.puang.in/images/photos/b09e4608-1ea8-4250-b526-db5575f9cd65-arun-dop.webp"
+          },
+        ],
+      },
+      {
+        id: "bridging-tech-and-people",
+        eventName: "Bridging Tech and People",
+        time: "11:00 AM - 12:30 PM",
+        speakers: [
+          {
+            name: "Sravanthi T",
+            honorific: "Ms",
+            designation: "Technical Trainer",
+            organization: "Zoho",
+            photoUrl: "https://cdn.puang.in/images/photos/8758aea8-759c-46d2-9967-1a5b16e5e9d1-sravanthi.webp"
+          },
+        ],
+      },
+    ],
+  },
+  {
     day: 2,
-    label: "Day 2",
+    label: "Pre TechnoVIT Day 5",
     date: "2nd September 2026",
     sessions: [
       {
