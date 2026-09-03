@@ -370,11 +370,11 @@ export default function GalleryContent({
         <div className="max-w-3xl mx-auto text-center flex flex-col items-center gap-4">
           <Aperture size={22} weight="bold" className="text-[#84C87F]/70" />
           <p className="font-clash font-bold text-[#c2e0a5] text-2xl sm:text-3xl md:text-4xl leading-tight">
-            Moments from TechnoVIT&apos;25.
+            Moments from TechnoVIT&apos;26.
           </p>
           <p className="text-[#c2e0a5]/70 text-sm sm:text-base leading-relaxed max-w-xl">
-            Decoded, one frame at a time. Every photo here is muted until you look closer —
-            <span className="text-[#84C87F] font-semibold"> hover to bring back the color, click to look closer.</span>
+            A second, saved. A story, still spinning. Step closer and the noise
+            <span className="text-[#84C87F] font-semibold"> falls away — colour surfaces from the silence.</span>
           </p>
         </div>
       </section>
