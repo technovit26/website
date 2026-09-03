@@ -103,7 +103,7 @@ export default function SponsorsContent() {
               Powered by our sponsors.
             </p>
             <p className="text-[#c2e0a5]/70 text-sm sm:text-base leading-relaxed max-w-xl">
-              The organisations backing TechnoVIT&apos;26.
+              The organisations backing technoVIT&apos;26.
             </p>
           </div>
         </section>
@@ -122,7 +122,7 @@ export default function SponsorsContent() {
               Our partners.
             </p>
             <p className="text-[#c2e0a5]/70 text-sm sm:text-base leading-relaxed max-w-xl">
-              The teams amplifying TechnoVIT&apos;26.
+              The teams amplifying technoVIT&apos;26.
             </p>
           </div>
         </section>

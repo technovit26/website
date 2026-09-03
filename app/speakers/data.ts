@@ -98,7 +98,7 @@ export const CEREMONIES: Ceremony[] = [
 export const EVENT_SPEAKER_DAYS: EventSpeakerDay[] = [
   {
     day: 1,
-    label: "TechnoVIT Day 1",
+    label: "technoVIT Day 1",
     date: "3rd September 2026",
     sessions: [
       {
@@ -168,7 +168,7 @@ export const EVENT_SPEAKER_DAYS: EventSpeakerDay[] = [
   },
   {
     day: 2,
-    label: "Pre TechnoVIT Day 5",
+    label: "Pre technoVIT Day 5",
     date: "2nd September 2026",
     sessions: [
       {

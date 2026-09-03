@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 export default function ConsoleEgg() {
   useEffect(() => {
     console.log(
-      "%cTechnoVIT'26",
+      "%ctechnoVIT'26",
       'color:#84C87F;font-weight:bold;font-size:22px;font-family:sans-serif;'
     );
     console.log(

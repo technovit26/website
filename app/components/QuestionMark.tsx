@@ -166,7 +166,7 @@ export default function QuestionMark() {
             <span className="text-[#84C87F]">An experience.</span>
           </p>
           <p className="text-white/80 text-sm leading-relaxed">
-            TechnoVIT is a hundred experiences happening together, beautifully. This site is
+            technoVIT is a hundred experiences happening together, beautifully. This site is
             built the same way — not a page about the fest, but a piece of it.
           </p>
           <p className="text-white/80 text-sm leading-relaxed">

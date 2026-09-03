@@ -40,7 +40,7 @@ const HYPE_MESSAGES = [
   "Two days. Every discipline. See you there.",
   "Inclusive Innovation — that's the theme.",
   "25,000+ minds, one relentless drive to build.",
-  "High on tech. See you at TechnoVIT’26.",
+  "High on tech. See you at technoVIT’26.",
   "25,000+ registrations and counting.",
   "150+ events. Pick your battlefield.",
   "20+ countries. One fest.",

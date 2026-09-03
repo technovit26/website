@@ -213,7 +213,7 @@ export default function AskTechnova() {
                     <span className="text-[#84C87F]">the fest.</span>
                   </p>
                   <p className="text-white/60 text-sm leading-relaxed">
-                    Every event, every venue, every price. I only know TechnoVIT.
+                    Every event, every venue, every price. I only know technoVIT.
                   </p>
                   <div className="flex flex-wrap gap-2 pt-1">
                     {OPENERS.map((opener) => (

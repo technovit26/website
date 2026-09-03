@@ -63,7 +63,7 @@ export default function HomepageContent() {
           One fest.
         </p>
         <p className="mt-8 max-w-xl font-semibold text-[#84C87F]/70 leading-relaxed text-sm sm:text-base md:text-lg">
-          TechnoVIT&apos;26 is VIT Chennai&apos;s annual technical festival — 150+ events across
+          technoVIT&apos;26 is VIT Chennai&apos;s annual technical festival — 150+ events across
           engineering, design, robotics, coding, and more. No gatekeeping. Talent and curiosity
           are the only entry requirements.
         </p>

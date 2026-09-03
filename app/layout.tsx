@@ -36,9 +36,9 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TechnoVIT'26 | VIT Chennai",
+  title: "technoVIT'26 | VIT Chennai",
   description:
-    "TechnoVIT is the annual technical festival of VIT Chennai, where innovation meets creativity. Join us for a celebration of technology, knowledge, and collaboration.",
+    "technoVIT is the annual technical festival of VIT Chennai, where innovation meets creativity. Join us for a celebration of technology, knowledge, and collaboration.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

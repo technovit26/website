@@ -16,7 +16,7 @@ export interface GalleryFetchResult {
   debug: string;
 }
 
-// TechnoVIT'26 core memories (frames featured in the "Core Memories" grid).
+// technoVIT'26 core memories (frames featured in the "Core Memories" grid).
 // Added as static special images so the featured frames are always shown.
 const CORE_MEMORY_URLS: string[] = [
   'https://cdn.puang.in/images/photos/2263d05c-da6f-4e71-adf5-319f06f68741-SS8_1649.webp',

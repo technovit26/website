@@ -20,7 +20,7 @@ type Line =
 const PROMPT = 'guest@technovit:~$';
 
 const BOOT_LINES: Line[] = [
-  { type: 'output', text: 'TechnoVIT Terminal v1.0.0' },
+  { type: 'output', text: 'technoVIT Terminal v1.0.0' },
   { type: 'output', text: "Type 'help' to see available commands." },
 ];
 
@@ -65,7 +65,7 @@ const HYPE_LINES = [
   '25,000+ minds, zero merge conflicts.',
   '20+ countries, one build target.',
   'Booting confidence.exe ...',
-  "TechnoVIT'26 — no segfaults, just hype.",
+  "technoVIT'26 — no segfaults, just hype.",
 ];
 
 const HINT_MESSAGES = [

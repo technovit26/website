@@ -156,7 +156,7 @@ function AboutPageContent() {
               data-cursor="26"
               className="font-bold uppercase tracking-[0.3em] text-[#84C87F] text-[10px] sm:text-xs block mb-4 cursor-pointer"
             >
-              TechnoVIT&apos;26 Theme
+              technoVIT&apos;26 Theme
             </span>
 
             <div>
@@ -177,8 +177,8 @@ function AboutPageContent() {
             {[
               "Good tech doesn't come from one type of person. It comes from someone who's spent years on robotics, and from someone walking into their first hackathon. From the coder who lives in the terminal, and the designer who's never written a line of code. Inclusive Innovation is about making room for all of it, on the same stage.",
               "It's a shift away from gatekept, insider-only tech culture — where you need the right background or the right resume to belong — and toward something more open: talent and curiosity as the only real entry requirements.",
-              "At VIT, this runs through everything TechnoVIT puts on: the hackathons, the robotics battles, the workshops, the paper presentations, the late-night builds before a deadline. Every school, every team, every kind of participant, one fest.",
-              "TechnoVIT'26 — two days, every discipline, every skill level welcome. Come be part of it.",
+              "At VIT, this runs through everything technoVIT puts on: the hackathons, the robotics battles, the workshops, the paper presentations, the late-night builds before a deadline. Every school, every team, every kind of participant, one fest.",
+              "technoVIT'26 — two days, every discipline, every skill level welcome. Come be part of it.",
             ].map((text, i) => (
               <div key={i}
                 className="para border-t border-[#84C87F]/15 last:border-b py-6 sm:py-7">
@@ -224,7 +224,7 @@ function AboutPageContent() {
           <Countdown targetDate="2026-09-03T09:30:00" className="text-[#c2e0a5]" />
 
           <p className="text-white/55 text-xs sm:text-sm uppercase tracking-[0.3em] font-bold">
-            Until TechnoVIT&apos;26 · VIT Chennai
+            Until technoVIT&apos;26 · VIT Chennai
           </p>
 
           <div className="w-16 sm:w-20 h-px bg-[#84C87F]/25" />

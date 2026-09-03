@@ -18,7 +18,7 @@ export const SECTIONS: Record<string, TeamSection> = {
   chiefPatron: {
     id: "chiefPatron",
     title: "Chief Patron",
-    description: "The name TechnoVIT has run under since day one.",
+    description: "The name technoVIT has run under since day one.",
   },
   patrons: {
     id: "patrons",
@@ -28,7 +28,7 @@ export const SECTIONS: Record<string, TeamSection> = {
   coPatrons: {
     id: "coPatrons",
     title: "Co-Patrons",
-    description: "Campus leadership overseeing TechnoVIT.",
+    description: "Campus leadership overseeing technoVIT.",
   },
   advisory: {
     id: "advisory",
@@ -37,17 +37,17 @@ export const SECTIONS: Record<string, TeamSection> = {
   },
   convenors: {
     id: "convenors",
-    title: "TechnoVIT — Convenor & Co-Convenors",
+    title: "technoVIT — Convenor & Co-Convenors",
     description: "Steering the fest end to end, from planning to execution.",
   },
   facultyOrganisers: {
     id: "facultyOrganisers",
-    title: "TechnoVIT — Faculty Organisers",
+    title: "technoVIT — Faculty Organisers",
     description: "One department each, guiding the student team behind it.",
   },
   studentOrganisers: {
     id: "studentOrganisers",
-    title: "TechnoVIT — Student Organisers",
+    title: "technoVIT — Student Organisers",
     description: "Running each department on ground, department by department.",
   },
 };
@@ -111,20 +111,20 @@ export const ADVISORY_COMMITTEE: Person[] = [
 ];
 
 export const CONVENORS: Person[] = [
-  { name: "Dr. Jayasudha M", role: "Convenor, TechnoVIT", photoUrl: photo(11) },
+  { name: "Dr. Jayasudha M", role: "Convenor, technoVIT", photoUrl: photo(11) },
   {
     name: "Dr. Giridharan A",
-    role: "Co-Convenor, TechnoVIT",
+    role: "Co-Convenor, technoVIT",
     photoUrl: photo(12),
   },
   {
     name: "Dr. Bhuvaneswari M",
-    role: "Co-Convenor, TechnoVIT",
+    role: "Co-Convenor, technoVIT",
     photoUrl: photo(13),
   },
   {
     name: "Dr. Arjun Shaji",
-    role: "Co-Convenor, TechnoVIT",
+    role: "Co-Convenor, technoVIT",
     photoUrl: photo(14),
   },
 ];
