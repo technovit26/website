@@ -156,7 +156,7 @@ export default function TeamContent() {
         >
           <UsersThree size={22} weight="bold" className="text-[#84C87F]/70" />
           <p className="font-clash font-bold text-[#c2e0a5] text-2xl sm:text-3xl md:text-4xl leading-tight">
-            The people behind TechnoVIT&apos;26.
+            The people behind technoVIT&apos;26.
           </p>
           <p className="text-[#c2e0a5]/70 text-sm sm:text-base leading-relaxed max-w-xl">
             Two days, every discipline, one fest —

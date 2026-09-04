@@ -139,14 +139,14 @@ const Footer = () => {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-center sm:text-left">
           <p className="text-[11px] sm:text-xs text-white/40 uppercase tracking-[0.15em] leading-relaxed">
             Made with 💚 by{" "}
-            <span className="text-[#84C87F]/80">TechnoVIT Website Team</span>
+            <span className="text-[#84C87F]/80">technoVIT Website Team</span>
             {" · "}
             <span className="text-white/50">Students Welfare Committee</span>
             {" · "}
             <span className="text-white/50">VIT Chennai</span>
           </p>
           <p className="text-[11px] sm:text-xs text-white/30 uppercase tracking-[0.15em]">
-            © {new Date().getFullYear()} TechnoVIT. All rights reserved.
+            © {new Date().getFullYear()} technoVIT. All rights reserved.
           </p>
         </div>
       </div>

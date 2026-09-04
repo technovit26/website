@@ -350,7 +350,7 @@ export default function TrailerModal() {
                   className="absolute right-4 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 max-w-[45%] sm:max-w-none truncate
                     font-clash font-bold text-[#84C87F]/70 text-[9px] sm:text-[11px] uppercase tracking-[0.15em] sm:tracking-[0.22em] pointer-events-none"
                 >
-                  TechnoVIT - A Sneak Peek
+                  technoVIT - A Sneak Peek
                 </motion.span>
               </motion.div>
               <motion.div

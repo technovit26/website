@@ -42,7 +42,7 @@ export default function SiteMaintenance() {
 
       <div className="relative flex max-w-2xl flex-col items-center gap-6 sm:gap-8">
         <span className="sm-stagger font-bold uppercase tracking-[0.3em] text-[#84C87F] text-[10px] sm:text-xs">
-          TechnoVIT&apos;26 · VIT Chennai
+          technoVIT&apos;26 · VIT Chennai
         </span>
 
         <h1 className="sm-stagger font-clash font-bold uppercase leading-[0.95] text-[#c2e0a5]

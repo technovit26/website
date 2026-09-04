@@ -5,7 +5,7 @@ import gsap from 'gsap';
 
 export default function CurtainIntro({
   title,
-  label = "TechnoVIT'26",
+  label = "technoVIT'26",
 }: {
   title: string;
   label?: string;

@@ -291,7 +291,7 @@ export default function SpeakersContent() {
           >
             <Microphone size={22} weight="bold" className="text-[#84C87F]/70" />
             <p className="font-clash font-bold text-[#c2e0a5] text-2xl sm:text-3xl md:text-4xl leading-tight">
-              Our Guest Speakers for TechnoVIT&apos;26.
+              Our Guest Speakers for technoVIT&apos;26.
             </p>
             <p className="text-[#c2e0a5]/70 text-sm sm:text-base leading-relaxed max-w-xl">
               Distinguished guests joining us at the
@@ -319,7 +319,7 @@ export default function SpeakersContent() {
               Event Speakers
             </p>
             <p className="text-[#c2e0a5]/70 text-sm sm:text-base leading-relaxed max-w-xl">
-              Industry practitioners and makers presenting at select TechnoVIT&apos;26 events.
+              Industry practitioners and makers presenting at select technoVIT&apos;26 events.
             </p>
           </div>
 
